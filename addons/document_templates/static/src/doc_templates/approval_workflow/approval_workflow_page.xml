@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.ApprovalWorkflowPage">
+    <DocShell activeKey="'approval_workflow'" eyebrow="'Document Templates'" title="'Approval Workflow'"
+              subtitle="'Templates submitted for review -- approve or reject before publishing.'">
+        <TemplateGrid domainExtra="domainExtra" emptyLabel="'Nothing pending review.'" showApprovalActions="true"/>
+    </DocShell>
+</t>
+
+</templates>

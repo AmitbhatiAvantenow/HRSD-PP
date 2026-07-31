@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_onboarding.PipelineBoard">
+        <div class="hro-app hro-pipeline" t-ref="root">
+            <div class="hro-pipe-topbar">
+                <div>
+                    <h2>New Hire Pipeline</h2>
+                    <p>Drag a card to move it along the onboarding journey.</p>
+                </div>
+                <button class="btn hro-btn-primary" t-on-click="() => this.openNewOnboarding()">
+                    <i class="fa fa-plus me-1"/> Add Onboarding
+                </button>
+            </div>
+
+            <div class="hro-pipe-board">
+                <div t-foreach="state.columns" t-as="col" t-key="col.stage.id" class="hro-pipe-col">
+                    <div class="hro-pipe-col-header">
+                        <span t-attf-class="hro-pipe-dot hro-dot-#{col.stage.color % 8}"/>
+                        <span class="hro-pipe-col-title"><t t-esc="col.stage.name"/></span>
+                        <span class="hro-pipe-col-count"><t t-esc="col.records.length"/></span>
+                    </div>
+                    <div class="hro-pipe-col-body" t-attf-data-stage-id="#{col.stage.id}">
+                        <div t-if="!col.records.length" class="hro-pipe-empty">No candidates</div>
+                        <div t-foreach="col.records" t-as="rec" t-key="rec.id"
+                             class="hro-pipe-card" t-attf-data-id="#{rec.id}">
+                            <div class="hro-pipe-card-top">
+                                <div class="hro-avatar-sm"><t t-esc="this.initials(rec.display_name)"/></div>
+                                <div class="hro-pipe-card-name">
+                                    <div class="hro-pipe-name"><t t-esc="rec.display_name"/></div>
+                                    <div class="hro-pipe-dept">
+                                        <t t-esc="rec.department_id ? rec.department_id[1] : ''"/>
+                                    </div>
+                                </div>
+                                <div t-attf-class="hro-progress-ring" t-attf-style="--p: #{rec.progress}">
+                                    <span><t t-esc="rec.progress"/>%</span>
+                                </div>
+                            </div>
+                            <div class="hro-pipe-card-meta">
+                                <span t-attf-class="hro-badge hro-priority-#{rec.priority}">
+                                    <t t-esc="this.priorityLabel(rec.priority)"/>
+                                </span>
+                                <span t-attf-class="hro-chip #{rec.is_delayed ? 'hro-chip-danger' : ''}">
+                                    <t t-esc="rec.countdown"/>
+                                </span>
+                            </div>
+                            <div class="hro-pipe-card-footer">
+                                <span class="hro-pipe-hr">
+                                    <i class="fa fa-user-circle-o"/>
+                                    <t t-esc="rec.hr_user_id ? rec.hr_user_id[1] : 'Unassigned'"/>
+                                </span>
+                                <button class="hro-pipe-card-action" t-on-click.stop="() => this.sendDocumentRequest(rec.id)" title="Send Document Request">
+                                    <i class="fa fa-envelope-o"/>
+                                </button>
+                                <button class="hro-pipe-card-action" t-on-click="() => this.openJourney(rec.id)" title="Open Journey">
+                                    <i class="fa fa-arrow-right"/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

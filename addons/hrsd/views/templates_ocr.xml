@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <template id="ocr_page" name="HR OCR Document Scanner">
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1"/>
+          <meta name="csrf-token" t-att-content="csrf_token"/>
+          <title>OCR Document Scanner · <t t-esc="brand['name']"/> HR Portal</title>
+          <link rel="stylesheet" type="text/css" href="/hrsd/static/src/css/dashboard.css"/>
+          <link rel="stylesheet" type="text/css" href="/hrsd/static/src/css/ocr.css"/>
+        </head>
+        <body>
+          <div class="ocr-app" id="ocr-app">
+
+            <!-- ═══════════════════════════════ TOPBAR ═══════════════════════════════ -->
+            <header class="ocr-topbar">
+              <div class="ocr-topbar-left">
+                <a href="/hrsd/dashboard" class="ocr-back-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+                  </svg>
+                  Dashboard
+                </a>
+                <div class="ocr-topbar-divider"/>
+                <div class="ocr-topbar-title">
+                  <div class="ocr-topbar-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                      <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                      <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                      <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                      <line x1="3" y1="12" x2="21" y2="12"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="ocr-topbar-name">OCR Document Scanner</div>
+                    <div class="ocr-topbar-sub">Extract text from HR documents, contracts and forms</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ocr-topbar-right">
+                <div class="ocr-badge-group">
+                  <span class="ocr-badge ocr-badge-blue">PDF</span>
+                  <span class="ocr-badge ocr-badge-green">JPG / PNG</span>
+                  <span class="ocr-badge ocr-badge-purple">TIFF / BMP</span>
+                </div>
+                <button type="button" class="ocr-history-btn" id="ocr-history-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  History
+                  <span class="ocr-history-badge" id="ocr-history-badge"><t t-esc="len(scan_history)"/></span>
+                </button>
+                <div class="ocr-brand-chip">
+                  <t t-if="brand['logo_url']">
+                    <img t-attf-src="#{brand['logo_url']}" alt="logo" class="ocr-brand-mark" style="object-fit: cover;"/>
+                  </t>
+                  <t t-else="">
+                    <div class="ocr-brand-mark"><t t-esc="brand['initial']"/></div>
+                  </t>
+                  <span><t t-esc="brand['name']"/></span>
+                </div>
+              </div>
+            </header>
+
+            <!-- ═══════════════════════════════ MAIN WORKSPACE ═══════════════════════ -->
+            <main class="ocr-workspace">
+
+              <!-- ─────────────── LEFT PANEL: Upload + Settings ─────────────── -->
+              <section class="ocr-panel ocr-panel-left">
+
+                <!-- Upload zone -->
+                <div class="ocr-section-label">UPLOAD DOCUMENT</div>
+                <div class="ocr-dropzone" id="ocr-dropzone">
+                  <div class="ocr-dropzone-inner" id="ocr-dropzone-inner">
+                    <div class="ocr-dropzone-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                           stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                      </svg>
+                    </div>
+                    <div class="ocr-dropzone-title">Drop your document here</div>
+                    <div class="ocr-dropzone-sub">or click to browse files</div>
+                    <div class="ocr-dropzone-formats">PDF · JPG · PNG · TIFF · BMP · WebP — max 20 MB</div>
+                    <input type="file" id="ocr-file-input" accept=".pdf,.jpg,.jpeg,.png,.tiff,.tif,.bmp,.webp" hidden="hidden"/>
+                  </div>
+
+                  <!-- Preview state (shown after file chosen) -->
+                  <div class="ocr-preview-state" id="ocr-preview-state" style="display:none">
+                    <div class="ocr-preview-thumb" id="ocr-preview-thumb">
+                      <img id="ocr-preview-img" alt="preview" style="display:none"/>
+                      <div class="ocr-preview-pdf-icon" id="ocr-preview-pdf-icon" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                             stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z"/>
+                          <polyline points="14 2 14 8 20 8"/>
+                          <line x1="8" y1="13" x2="16" y2="13"/>
+                          <line x1="8" y1="17" x2="16" y2="17"/>
+                          <line x1="8" y1="9" x2="11" y2="9"/>
+                        </svg>
+                        <span class="ocr-pdf-label">PDF</span>
+                      </div>
+                    </div>
+                    <div class="ocr-preview-info">
+                      <div class="ocr-preview-filename" id="ocr-preview-filename"/>
+                      <div class="ocr-preview-size" id="ocr-preview-size"/>
+                      <button type="button" class="ocr-change-btn" id="ocr-change-btn">Change file</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scan settings -->
+                <div class="ocr-section-label" style="margin-top:24px">SCAN SETTINGS</div>
+                <div class="ocr-settings-card">
+                  <div class="ocr-field-group">
+                    <label class="ocr-label" for="ocr-doc-name">Document Name</label>
+                    <input type="text" id="ocr-doc-name" class="ocr-input"
+                           placeholder="e.g. John Doe — Employment Contract"/>
+                  </div>
+                  <div class="ocr-field-group">
+                    <label class="ocr-label" for="ocr-doc-type">Document Type</label>
+                    <select id="ocr-doc-type" class="ocr-select">
+                      <option value="other">— Select type —</option>
+                      <option value="contract">Employment Contract</option>
+                      <option value="passport">Passport / ID</option>
+                      <option value="emirates_id">Emirates ID</option>
+                      <option value="certificate">Certificate / Qualification</option>
+                      <option value="payslip">Payslip</option>
+                      <option value="visa">Visa Document</option>
+                      <option value="form">HR Form</option>
+                    </select>
+                  </div>
+                  <div class="ocr-field-group">
+                    <label class="ocr-label" for="ocr-employee">Link to Employee <span class="ocr-label-opt">(optional)</span></label>
+                    <select id="ocr-employee" class="ocr-select">
+                      <option value="">— No employee —</option>
+                      <t t-foreach="employees" t-as="emp">
+                        <option t-att-value="emp.id"><t t-esc="emp.name"/></option>
+                      </t>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="button" class="ocr-scan-btn" id="ocr-scan-btn" disabled="disabled">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                  </svg>
+                  Scan Document
+                </button>
+
+                <!-- Progress -->
+                <div class="ocr-progress-wrap" id="ocr-progress-wrap" style="display:none">
+                  <div class="ocr-progress-bar"><div class="ocr-progress-fill" id="ocr-progress-fill"/></div>
+                  <div class="ocr-progress-label" id="ocr-progress-label">Uploading…</div>
+                </div>
+              </section>
+
+              <!-- ─────────────── RIGHT PANEL: Results ─────────────── -->
+              <section class="ocr-panel ocr-panel-right">
+
+                <!-- Empty state -->
+                <div class="ocr-empty-state" id="ocr-empty-state">
+                  <div class="ocr-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                      <path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                      <line x1="3" y1="12" x2="21" y2="12"/>
+                    </svg>
+                  </div>
+                  <div class="ocr-empty-title">No document scanned yet</div>
+                  <div class="ocr-empty-sub">Upload a document on the left and click <strong>Scan Document</strong> to extract text.</div>
+                </div>
+
+                <!-- Results state (hidden until scan completes) -->
+                <div id="ocr-results" style="display:none">
+
+                  <!-- Stats bar -->
+                  <div class="ocr-stats-bar" id="ocr-stats-bar">
+                    <div class="ocr-stat-chip">
+                      <span class="ocr-stat-icon">📄</span>
+                      <span id="ocr-stat-pages">— pages</span>
+                    </div>
+                    <div class="ocr-stat-chip">
+                      <span class="ocr-stat-icon">📝</span>
+                      <span id="ocr-stat-words">— words</span>
+                    </div>
+                    <div class="ocr-stat-chip">
+                      <span class="ocr-stat-icon">🎯</span>
+                      <span id="ocr-stat-confidence">—% confidence</span>
+                    </div>
+                    <div class="ocr-stat-chip ocr-stat-success" id="ocr-stat-status">
+                      <span class="ocr-stat-icon">✅</span>
+                      <span>Scanned</span>
+                    </div>
+                    <!-- Employee attachment pill — shown when linked -->
+                    <a class="ocr-stat-chip ocr-stat-emp" id="ocr-stat-employee"
+                       href="#" target="_self" style="display:none; text-decoration:none;">
+                      <span class="ocr-stat-icon">👤</span>
+                      <span id="ocr-stat-emp-name">Employee</span>
+                      <span class="ocr-emp-attach-badge" id="ocr-attach-badge" style="display:none">📎</span>
+                    </a>
+                  </div>
+
+                  <!-- Action toolbar -->
+                  <div class="ocr-action-bar">
+                    <div class="ocr-section-label">EXTRACTED TEXT</div>
+                    <div class="ocr-action-btns">
+                      <button type="button" class="ocr-action-btn" id="ocr-btn-copy" title="Copy to clipboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                          <rect x="9" y="9" width="13" height="13" rx="2"/>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copy
+                      </button>
+                      <button type="button" class="ocr-action-btn" id="ocr-btn-download" title="Download as .txt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                          <polyline points="7 10 12 15 17 10"/>
+                          <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download
+                      </button>
+                      <button type="button" class="ocr-action-btn ocr-action-btn-clear" id="ocr-btn-clear" title="Clear results">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Extracted text -->
+                  <div class="ocr-text-box-wrap">
+                    <textarea class="ocr-text-box" id="ocr-text-box" readonly="readonly"
+                              placeholder="Extracted text will appear here…"/>
+                  </div>
+
+                  <!-- Smart Fields -->
+                  <div class="ocr-section-label" style="margin-top:20px">DETECTED FIELDS</div>
+                  <div class="ocr-smart-fields" id="ocr-smart-fields">
+                    <div class="ocr-smart-empty" id="ocr-smart-empty">No structured fields detected in this document.</div>
+                  </div>
+                </div>
+              </section>
+
+            </main>
+
+            <!-- ═══════════════════════════════ HISTORY TABLE ═════════════════════════ -->
+            <section class="ocr-history-section">
+              <div class="ocr-history-header">
+                <div class="ocr-section-label" style="margin:0">RECENT SCANS</div>
+                <div class="ocr-history-count" id="ocr-history-count">
+                  <t t-esc="len(scan_history)"/> record(s)
+                </div>
+              </div>
+
+              <t t-if="scan_history">
+                <div class="ocr-history-table-wrap">
+                  <table class="ocr-history-table">
+                    <thead>
+                      <tr>
+                        <th>Document</th>
+                        <th>Type</th>
+                        <th>Employee</th>
+                        <th>Attachment</th>
+                        <th>Pages</th>
+                        <th>Words</th>
+                        <th>Confidence</th>
+                        <th>Scanned</th>
+                        <th>By</th>
+                        <th>Status</th>
+                        <th/>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <t t-foreach="scan_history" t-as="s">
+                        <tr class="ocr-history-row" t-att-data-id="s['id']">
+                          <td class="ocr-td-name">
+                            <button type="button" class="ocr-load-btn" t-att-data-id="s['id']">
+                              <t t-esc="s['name']"/>
+                            </button>
+                          </td>
+                          <td><span class="ocr-type-tag"><t t-esc="s['doc_type']"/></span></td>
+                          <td>
+                            <t t-if="s['employee_url']">
+                              <a t-att-href="s['employee_url']" class="ocr-emp-link" target="_self">
+                                <t t-esc="s['employee']"/>
+                              </a>
+                            </t>
+                            <t t-else=""><t t-esc="s['employee'] or '—'"/></t>
+                          </td>
+                          <td>
+                            <t t-if="s['attachment_id']">
+                              <a t-attf-href="/web#model=hr.employee&amp;id=#{s['employee_id']}&amp;view_type=form"
+                                 class="ocr-attach-link" target="_self" title="View in employee record">
+                                📎 Saved
+                              </a>
+                            </t>
+                            <t t-else=""><span class="ocr-no-attach">—</span></t>
+                          </td>
+                          <td><t t-esc="s['page_count']"/></td>
+                          <td><t t-esc="s['word_count']"/></td>
+                          <td>
+                            <div class="ocr-conf-bar">
+                              <div class="ocr-conf-fill" t-attf-style="width: #{s['confidence']}%"/>
+                              <span><t t-esc="'%.0f' % s['confidence']"/>%</span>
+                            </div>
+                          </td>
+                          <td class="ocr-td-date"><t t-esc="s['date']"/></td>
+                          <td><t t-esc="s['scanned_by']"/></td>
+                          <td>
+                            <span t-attf-class="ocr-state-badge is-#{s['state']}">
+                              <t t-esc="'Scanned' if s['state'] == 'done' else 'Error'"/>
+                            </span>
+                          </td>
+                          <td>
+                            <button type="button" class="ocr-del-btn" t-att-data-id="s['id']"
+                                    title="Delete scan">✕</button>
+                          </td>
+                        </tr>
+                      </t>
+                    </tbody>
+                  </table>
+                </div>
+              </t>
+              <t t-else="">
+                <div class="ocr-history-empty">No scans yet — upload your first document above.</div>
+              </t>
+            </section>
+
+            <!-- ═══════════════════════════ HISTORY MODAL ═══════════════════════ -->
+            <div class="ocr-modal-overlay" id="ocr-modal-overlay">
+              <div class="ocr-modal">
+                <div class="ocr-modal-header">
+                  <div class="ocr-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Scan History
+                  </div>
+                  <div class="ocr-modal-meta">
+                    <span class="ocr-history-count" id="ocr-modal-count"><t t-esc="len(scan_history)"/> record(s)</span>
+                    <button type="button" class="ocr-modal-close" id="ocr-modal-close">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                           stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="ocr-modal-body">
+                  <t t-if="scan_history">
+                    <div class="ocr-history-table-wrap">
+                      <table class="ocr-history-table">
+                        <thead>
+                          <tr>
+                            <th>Document</th>
+                            <th>Type</th>
+                            <th>Employee</th>
+                            <th>Attachment</th>
+                            <th>Pages</th>
+                            <th>Words</th>
+                            <th>Confidence</th>
+                            <th>Scanned</th>
+                            <th>By</th>
+                            <th>Status</th>
+                            <th/>
+                          </tr>
+                        </thead>
+                        <tbody id="ocr-modal-tbody">
+                          <t t-foreach="scan_history" t-as="s">
+                            <tr class="ocr-history-row" t-att-data-id="s['id']">
+                              <td class="ocr-td-name">
+                                <button type="button" class="ocr-load-btn" t-att-data-id="s['id']">
+                                  <t t-esc="s['name']"/>
+                                </button>
+                              </td>
+                              <td><span class="ocr-type-tag"><t t-esc="s['doc_type']"/></span></td>
+                              <td>
+                                <t t-if="s['employee_url']">
+                                  <a t-att-href="s['employee_url']" class="ocr-emp-link" target="_self">
+                                    <t t-esc="s['employee']"/>
+                                  </a>
+                                </t>
+                                <t t-else=""><t t-esc="s['employee'] or '—'"/></t>
+                              </td>
+                              <td>
+                                <t t-if="s['attachment_id']">
+                                  <a t-attf-href="/web#model=hr.employee&amp;id=#{s['employee_id']}&amp;view_type=form"
+                                     class="ocr-attach-link" target="_self" title="View in employee record">
+                                    📎 Saved
+                                  </a>
+                                </t>
+                                <t t-else=""><span class="ocr-no-attach">—</span></t>
+                              </td>
+                              <td><t t-esc="s['page_count']"/></td>
+                              <td><t t-esc="s['word_count']"/></td>
+                              <td>
+                                <div class="ocr-conf-bar">
+                                  <div class="ocr-conf-fill" t-attf-style="width: #{s['confidence']}%"/>
+                                  <span><t t-esc="'%.0f' % s['confidence']"/>%</span>
+                                </div>
+                              </td>
+                              <td class="ocr-td-date"><t t-esc="s['date']"/></td>
+                              <td><t t-esc="s['scanned_by']"/></td>
+                              <td>
+                                <span t-attf-class="ocr-state-badge is-#{s['state']}">
+                                  <t t-esc="'Scanned' if s['state'] == 'done' else 'Error'"/>
+                                </span>
+                              </td>
+                              <td>
+                                <button type="button" class="ocr-del-btn" t-att-data-id="s['id']"
+                                        title="Delete scan">✕</button>
+                              </td>
+                            </tr>
+                          </t>
+                        </tbody>
+                      </table>
+                    </div>
+                  </t>
+                  <t t-else="">
+                    <div class="ocr-history-empty" id="ocr-modal-empty">No scans yet — upload your first document above.</div>
+                  </t>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /ocr-app -->
+
+          <script type="text/javascript" src="/hrsd/static/src/js/ocr.js"/>
+        </body>
+      </html>
+    </template>
+
+  </data>
+</odoo>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.GenerateDialog">
+    <Dialog title="'Generate: ' + (state.templateName or '')" size="'md'" contentClass="'doc-wizard-dialog'">
+        <div class="doc-shell doc-dialog-scope">
+            <div class="doc-wizard-error" t-if="state.error"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/></div>
+
+            <t t-if="!state.result">
+                <div class="doc-field" t-foreach="state.variables" t-as="v" t-key="v.key">
+                    <label><t t-esc="v.name"/><t t-if="v.is_required"> *</t></label>
+                    <textarea t-if="v.variable_type === 'long_text'" rows="3"
+                              t-att-value="state.values[v.key]" t-on-input="(ev) => this.onValueInput(v.key, ev)"/>
+                    <input t-elif="v.variable_type === 'date'" type="date"
+                           t-att-value="state.values[v.key]" t-on-input="(ev) => this.onValueInput(v.key, ev)"/>
+                    <input t-elif="v.variable_type === 'number' || v.variable_type === 'currency'" type="number"
+                           t-att-value="state.values[v.key]" t-on-input="(ev) => this.onValueInput(v.key, ev)"/>
+                    <div t-elif="v.variable_type === 'boolean'" class="doc-fake-select" t-on-click="() => this.onBooleanToggle(v.key)">
+                        <span><t t-esc="state.values[v.key] ? 'Yes' : 'No'"/></span>
+                        <i t-attf-class="fa {{ state.values[v.key] ? 'fa-check-square-o' : 'fa-square-o' }}"/>
+                    </div>
+                    <input t-else="" type="text"
+                           t-att-value="state.values[v.key]" t-on-input="(ev) => this.onValueInput(v.key, ev)"/>
+                </div>
+
+                <div class="doc-field">
+                    <label>Generated For (optional)</label>
+                    <ModernSelect options="partnerOptions" value="state.partnerId" onSelect="(v) => this.onPartnerSelect(v)"
+                                  placeholder="'Search a contact…'"/>
+                </div>
+
+                <div class="doc-field">
+                    <label>Formats *</label>
+                    <div style="display:flex;gap:14px;">
+                        <div class="doc-fake-select" style="width:auto;" t-on-click="() => this.toggleFormat('pdf')">
+                            <i t-attf-class="fa {{ state.formats.pdf ? 'fa-check-square-o' : 'fa-square-o' }}"/>
+                            <span style="margin-left:6px;">PDF</span>
+                        </div>
+                        <div class="doc-fake-select" style="width:auto;" t-on-click="() => this.toggleFormat('docx')">
+                            <i t-attf-class="fa {{ state.formats.docx ? 'fa-check-square-o' : 'fa-square-o' }}"/>
+                            <span style="margin-left:6px;">Word (DOCX)</span>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <t t-else="">
+                <div class="doc-empty" style="padding:10px 0;">
+                    <i class="fa fa-check-circle" style="color:var(--doc-success);font-size:20px;"/>
+                    <div style="margin-top:8px;">Document generated.</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <a t-if="state.result.download_pdf_url" class="doc-btn-outline" t-att-href="state.result.download_pdf_url" target="_blank">
+                        <i class="fa fa-file-pdf-o"/> Download PDF
+                    </a>
+                    <a t-if="state.result.download_docx_url" class="doc-btn-outline" t-att-href="state.result.download_docx_url" target="_blank">
+                        <i class="fa fa-file-word-o"/> Download Word
+                    </a>
+                </div>
+            </t>
+        </div>
+        <t t-set-slot="footer">
+            <t t-if="!state.result">
+                <button class="doc-btn-outline" t-on-click="() => this.close()">Cancel</button>
+                <button class="doc-btn-primary" t-on-click="() => this.generate()" t-att-disabled="!isValid || state.saving">
+                    <i class="fa fa-magic"/> <t t-if="state.saving">Generating...</t><t t-else="">Generate</t>
+                </button>
+            </t>
+            <button t-else="" class="doc-btn-primary" t-on-click="() => this.close()">Done</button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

@@ -1,0 +1,245 @@
+/* =========================================================================
+   AvanteNow HR Portal — Recruitment Careers landing page
+   ========================================================================= */
+
+:root {
+  --rcp-navy: #16215c;
+  --rcp-blue: #2f6fed;
+  --rcp-blue-bg: #e7f0ff;
+  --rcp-purple: #8b5cf6;
+  --rcp-purple-bg: #ede9fe;
+  --rcp-orange: #f97316;
+  --rcp-orange-bg: #ffedd5;
+  --rcp-green: #10b981;
+  --rcp-text-muted: #6b7280;
+  --rcp-border: #e2e6f0;
+  --rcp-bg-page: #f4f6fb;
+  --rcp-card-bg: #ffffff;
+  --rcp-radius-lg: 16px;
+  --rcp-radius-md: 12px;
+  --rcp-shadow-card: 0 1px 2px rgba(16, 24, 64, 0.04), 0 8px 24px -12px rgba(16, 24, 64, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--rcp-bg-page);
+  color: var(--rcp-navy);
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+
+.rcp-shell { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ---------------------------------------------------------------------
+   Topbar banner
+   --------------------------------------------------------------------- */
+.rcp-topbar {
+  background: #fdf1c7;
+  text-align: center;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--rcp-navy);
+  border-bottom: 1px solid #f0dfa0;
+}
+
+.rcp-app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--rcp-border);
+}
+
+.rcp-brand { display: flex; align-items: center; gap: 10px; }
+
+.rcp-brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--rcp-blue), var(--rcp-navy));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.rcp-brand-name { font-weight: 800; font-size: 18px; color: var(--rcp-navy); }
+.rcp-brand-accent { color: var(--rcp-blue); }
+
+/* ---------------------------------------------------------------------
+   Main
+   --------------------------------------------------------------------- */
+.rcp-main { flex: 1; padding: 40px 48px 64px; max-width: 1180px; margin: 0 auto; width: 100%; }
+
+/* Hero */
+.rcp-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 8px 0 44px;
+}
+
+.rcp-hero-left { flex: 1 1 520px; max-width: 560px; }
+
+.rcp-hero-badge {
+  display: inline-block;
+  background: var(--rcp-blue-bg);
+  color: var(--rcp-blue);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+
+.rcp-hero-title {
+  font-size: 34px;
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--rcp-navy);
+  margin: 0 0 16px;
+}
+
+.rcp-hero-title-accent { color: var(--rcp-blue); }
+
+.rcp-hero-sub {
+  font-size: 15px;
+  color: var(--rcp-text-muted);
+  line-height: 1.6;
+  margin: 0 0 26px;
+  max-width: 460px;
+}
+
+.rcp-hero-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+
+.rcp-hero-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rcp-navy);
+}
+
+.rcp-hero-feature-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--rcp-blue-bg);
+  color: var(--rcp-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rcp-hero-feature-icon svg { width: 15px; height: 15px; }
+
+.rcp-hero-right { flex: 0 0 260px; display: flex; justify-content: center; }
+.rcp-hero-illustration { width: 100%; max-width: 260px; height: auto; }
+
+/* Cards */
+.rcp-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.rcp-card {
+  background: var(--rcp-card-bg);
+  border: 1px solid var(--rcp-border);
+  border-bottom: 3px solid transparent;
+  border-radius: var(--rcp-radius-lg);
+  box-shadow: var(--rcp-shadow-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rcp-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(16, 24, 64, 0.06), 0 16px 32px -14px rgba(16, 24, 64, 0.18);
+}
+
+.rcp-card.is-blue { border-bottom-color: var(--rcp-blue); }
+.rcp-card.is-purple { border-bottom-color: var(--rcp-purple); }
+.rcp-card.is-orange { border-bottom-color: var(--rcp-orange); }
+
+.rcp-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.rcp-card-icon svg { width: 22px; height: 22px; }
+
+.rcp-card.is-blue .rcp-card-icon { background: var(--rcp-blue-bg); color: var(--rcp-blue); }
+.rcp-card.is-purple .rcp-card-icon { background: var(--rcp-purple-bg); color: var(--rcp-purple); }
+.rcp-card.is-orange .rcp-card-icon { background: var(--rcp-orange-bg); color: var(--rcp-orange); }
+
+.rcp-card-title {
+  font-size: 16.5px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0 0 10px;
+}
+
+.rcp-card.is-blue .rcp-card-title { color: var(--rcp-blue); }
+.rcp-card.is-purple .rcp-card-title { color: var(--rcp-purple); }
+.rcp-card.is-orange .rcp-card-title { color: var(--rcp-orange); }
+
+.rcp-card-desc {
+  font-size: 13px;
+  color: var(--rcp-text-muted);
+  line-height: 1.55;
+  margin: 0 0 18px;
+  flex: 1;
+}
+
+.rcp-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rcp-card-link svg { width: 15px; height: 15px; }
+
+.rcp-card.is-blue .rcp-card-link { color: var(--rcp-blue); }
+.rcp-card.is-purple .rcp-card-link { color: var(--rcp-purple); }
+.rcp-card.is-orange .rcp-card-link { color: var(--rcp-orange); }
+
+/* ---------------------------------------------------------------------
+   Responsive
+   --------------------------------------------------------------------- */
+@media (max-width: 992px) {
+  .rcp-hero { flex-direction: column; }
+  .rcp-hero-right { order: -1; }
+  .rcp-cards-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .rcp-main { padding: 28px 18px 48px; }
+  .rcp-hero-title { font-size: 27px; }
+}

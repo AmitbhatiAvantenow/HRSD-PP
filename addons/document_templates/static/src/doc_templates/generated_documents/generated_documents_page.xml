@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.GeneratedDocumentsPage">
+    <DocShell activeKey="'generated'" eyebrow="'Document Templates'" title="'Generated Documents'"
+              subtitle="'Every document generated from a template, with its status and downloads.'">
+        <div class="doc-card" t-if="state.rows.length">
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Code</th><th>Template</th><th>Generated For</th><th>By / Date</th><th>Status</th><th>Files</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="state.rows" t-as="row" t-key="row.id">
+                        <td class="doc-mono"><t t-esc="row.code"/></td>
+                        <td><t t-esc="row.template_id[1]"/></td>
+                        <td><t t-esc="row.partner_id ? row.partner_id[1] : '—'"/></td>
+                        <td style="color:var(--doc-ink-soft);">
+                            <t t-esc="row.generated_by[1]"/><br/>
+                            <span style="font-size:11px;"><t t-esc="row.generated_date"/></span>
+                        </td>
+                        <td>
+                            <span class="doc-chip" t-attf-class="{{ statusChipClass(row.status) }}" style="cursor:pointer;"
+                                  t-on-click="() => row.status === 'draft' ? this.markSent(row) : this.markSigned(row)"
+                                  t-if="row.status !== 'signed'">
+                                <t t-esc="row.status"/>
+                            </span>
+                            <span class="doc-chip doc-c-success" t-else=""><t t-esc="row.status"/></span>
+                        </td>
+                        <td>
+                            <a t-if="row.download_pdf_url" t-att-href="row.download_pdf_url" target="_blank" class="doc-btn-outline doc-btn-sm" style="margin-right:6px;">
+                                <i class="fa fa-file-pdf-o"/> PDF
+                            </a>
+                            <a t-if="row.download_docx_url" t-att-href="row.download_docx_url" target="_blank" class="doc-btn-outline doc-btn-sm">
+                                <i class="fa fa-file-word-o"/> Word
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="doc-empty" t-else="">No documents generated yet.</div>
+    </DocShell>
+</t>
+
+</templates>

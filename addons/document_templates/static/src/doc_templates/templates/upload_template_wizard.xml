@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.UploadTemplateWizard">
+    <Dialog title="'Upload Template'" size="'md'" contentClass="'doc-wizard-dialog'">
+        <div class="doc-shell doc-dialog-scope">
+            <div class="doc-wizard-error" t-if="state.error"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/></div>
+
+            <div class="doc-field">
+                <label>Word Document (.docx) *</label>
+                <div class="doc-doc-upload" t-attf-class="{{ state.file.name ? 'doc-has-file' : '' }}">
+                    <i t-attf-class="fa {{ state.file.name ? 'fa-file-word-o' : 'fa-upload' }}"/>
+                    <span t-if="state.file.name"><t t-esc="state.file.name"/></span>
+                    <span t-else="">Upload a .docx file — its text becomes editable blocks…</span>
+                    <input type="file" accept=".docx" t-on-change="onFile"/>
+                </div>
+                <i class="fa fa-times doc-wizard-remove" style="margin-top:6px;cursor:pointer;" t-if="state.file.name" t-on-click="() => this.clearFile()"> Remove</i>
+                <div class="doc-empty" style="padding:6px 0 0;text-align:left;">
+                    Paragraphs become text/heading blocks in reading order; any <span class="doc-mono">{{ variable }}</span> tokens already in the document are auto-registered as variables.
+                </div>
+            </div>
+
+            <div class="doc-field">
+                <label>Template Name *</label>
+                <input type="text" t-model="state.form.name" placeholder="e.g. Lease Agreement"/>
+            </div>
+
+            <div class="doc-field">
+                <label>Category *</label>
+                <ModernSelect options="categoryOptions" value="state.form.category_id" onSelect="(v) => this.onCategorySelect(v)"
+                              placeholder="'Select a category…'"/>
+            </div>
+
+            <div class="doc-field">
+                <label>Description</label>
+                <textarea t-model="state.form.description" rows="2" placeholder="Optional internal notes…"/>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="doc-field">
+                    <label>Language</label>
+                    <ModernSelect options="languageOptions" value="state.form.language" onSelect="(v) => this.onLanguageSelect(v)" searchable="false"/>
+                </div>
+                <div class="doc-field">
+                    <label>Access Level</label>
+                    <ModernSelect options="accessLevelOptions" value="state.form.access_level" onSelect="(v) => this.onAccessLevelSelect(v)" searchable="false"/>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="doc-field">
+                    <label>Paper Size</label>
+                    <ModernSelect options="paperSizeOptions" value="state.form.paper_size" onSelect="(v) => this.onPaperSizeSelect(v)" searchable="false"/>
+                </div>
+                <div class="doc-field">
+                    <label>Orientation</label>
+                    <ModernSelect options="orientationOptions" value="state.form.orientation" onSelect="(v) => this.onOrientationSelect(v)" searchable="false"/>
+                </div>
+            </div>
+        </div>
+
+        <t t-set-slot="footer">
+            <button class="doc-btn-outline" t-on-click="() => this.cancel()">Cancel</button>
+            <button class="doc-btn-primary" t-on-click="() => this.create()" t-att-disabled="!isValid || state.saving">
+                <i class="fa fa-check"/> <t t-if="state.saving">Importing...</t><t t-else="">Upload &amp; Edit</t>
+            </button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

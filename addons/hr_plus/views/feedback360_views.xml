@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_360" model="ir.actions.act_window"><field name="name">360 Feedback</field>
+<field name="res_model">mn.hr.feedback360</field><field name="view_mode">list,form</field><field name="path">feedback-360</field></record>
+<record id="action_360q" model="ir.actions.act_window"><field name="name">360 Questions</field>
+<field name="res_model">mn.hr.feedback360.question</field><field name="view_mode">list,form</field></record>
+<record id="view_360_list" model="ir.ui.view"><field name="name">360.list</field>
+<field name="model">mn.hr.feedback360</field><field name="arch" type="xml">
+<list><field name="name"/><field name="subject_id"/><field name="cycle_year"/><field name="cycle_quarter" widget="badge"/>
+<field name="target_count"/><field name="response_count"/><field name="completion_pct" widget="progressbar"/>
+<field name="average_rating"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_360q_list" model="ir.ui.view"><field name="name">360q.list</field>
+<field name="model">mn.hr.feedback360.question</field><field name="arch" type="xml">
+<list editable="bottom"><field name="sequence" widget="handle"/><field name="name"/>
+<field name="competency" widget="badge"/><field name="question_type"/><field name="active" widget="boolean_toggle"/></list>
+</field></record></data></odoo>

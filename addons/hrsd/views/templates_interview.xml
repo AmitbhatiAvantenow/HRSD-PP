@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <template id="interview_page" name="AI Interview Questions">
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1"/>
+          <meta name="csrf-token" t-att-content="csrf_token"/>
+          <title>AI Interview Questions · <t t-esc="brand['name']"/> HR Portal</title>
+          <link rel="stylesheet" href="/hrsd/static/src/css/dashboard.css"/>
+          <link rel="stylesheet" href="/hrsd/static/src/css/interview.css"/>
+        </head>
+        <body>
+        <div class="iq-app" id="iq-app">
+
+          <!-- ══════════════════════ TOPBAR ══════════════════════ -->
+          <header class="iq-topbar">
+            <div class="iq-topbar-left">
+              <a href="/hrsd/dashboard" class="iq-back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                Dashboard
+              </a>
+              <div class="iq-topbar-div"/>
+              <div class="iq-topbar-title">
+                <div class="iq-topbar-icon">💬</div>
+                <div>
+                  <div class="iq-topbar-name">AI Interview Questions</div>
+                  <div class="iq-topbar-sub">Generate role-specific, competency-based questions instantly</div>
+                </div>
+              </div>
+            </div>
+            <div class="iq-topbar-right">
+              <div class="iq-badge-row">
+                <span class="iq-badge indigo">Behavioral</span>
+                <span class="iq-badge green">Technical</span>
+                <span class="iq-badge purple">Situational</span>
+                <span class="iq-badge orange">Culture Fit</span>
+              </div>
+              <!-- AI status chip (shown/hidden by JS) -->
+              <div class="iq-ai-chip" id="iq-ai-chip" style="display:none" title="AI-powered question generation is active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                AI On
+              </div>
+              <button type="button" class="iq-history-btn" id="iq-history-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                History
+              </button>
+              <button type="button" class="iq-settings-btn" id="iq-settings-btn" title="AI Settings (Claude API Key)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                AI Setup
+              </button>
+              <div class="iq-brand-chip">
+                <t t-if="brand['logo_url']">
+                  <img t-attf-src="#{brand['logo_url']}" alt="logo" class="iq-brand-mark" style="object-fit: cover;"/>
+                </t>
+                <t t-else="">
+                  <div class="iq-brand-mark"><t t-esc="brand['initial']"/></div>
+                </t>
+                <t t-esc="brand['name']"/>
+              </div>
+            </div>
+          </header>
+
+          <!-- ══════════════════════ MAIN LAYOUT ══════════════════════ -->
+          <div class="iq-layout">
+
+            <!-- ──── LEFT SIDEBAR: CONFIG PANEL ──── -->
+            <aside class="iq-sidebar" id="iq-sidebar">
+              <div class="iq-sidebar-inner">
+
+                <div class="iq-panel-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                  Configure Interview
+                </div>
+
+                <!-- Job Title -->
+                <div class="iq-field">
+                  <label class="iq-label" for="iq-job-title">
+                    Job Title <span class="iq-required">*</span>
+                  </label>
+                  <input type="text" id="iq-job-title" class="iq-input" placeholder="e.g. Senior Software Engineer" autocomplete="off"/>
+                </div>
+
+                <!-- Industry -->
+                <div class="iq-field">
+                  <label class="iq-label" for="iq-industry">Industry <span class="iq-optional">(optional)</span></label>
+                  <select id="iq-industry" class="iq-select">
+                    <option value="">Any Industry</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Finance &amp; Banking">Finance &amp; Banking</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Retail &amp; E-commerce">Retail &amp; E-commerce</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Consulting">Consulting</option>
+                    <option value="Media &amp; Entertainment">Media &amp; Entertainment</option>
+                    <option value="Education">Education</option>
+                    <option value="Government &amp; Public Sector">Government &amp; Public Sector</option>
+                    <option value="Non-profit">Non-profit</option>
+                    <option value="Real Estate">Real Estate</option>
+                    <option value="Logistics &amp; Supply Chain">Logistics &amp; Supply Chain</option>
+                  </select>
+                </div>
+
+                <!-- Experience Level -->
+                <div class="iq-field">
+                  <label class="iq-label">Experience Level</label>
+                  <div class="iq-level-grid">
+                    <label class="iq-level-btn">
+                      <input type="radio" name="iq-level" value="junior"/>
+                      <span>Junior<br/><small>0–2 yrs</small></span>
+                    </label>
+                    <label class="iq-level-btn">
+                      <input type="radio" name="iq-level" value="mid" checked="checked"/>
+                      <span>Mid<br/><small>3–5 yrs</small></span>
+                    </label>
+                    <label class="iq-level-btn">
+                      <input type="radio" name="iq-level" value="senior"/>
+                      <span>Senior<br/><small>6–10 yrs</small></span>
+                    </label>
+                    <label class="iq-level-btn">
+                      <input type="radio" name="iq-level" value="executive"/>
+                      <span>Exec<br/><small>10+ yrs</small></span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Number of Questions -->
+                <div class="iq-field">
+                  <label class="iq-label">
+                    Number of Questions:
+                    <strong id="iq-count-val">12</strong>
+                  </label>
+                  <input type="range" id="iq-count" class="iq-slider" min="5" max="30" value="12" step="1"/>
+                  <div class="iq-slider-marks"><span>5</span><span>30</span></div>
+                </div>
+
+                <!-- Question Types -->
+                <div class="iq-field">
+                  <label class="iq-label">Question Types</label>
+                  <div class="iq-checks">
+                    <label class="iq-check"><input type="checkbox" value="behavioral" checked="checked"/><span>Behavioral (STAR)</span></label>
+                    <label class="iq-check"><input type="checkbox" value="technical" checked="checked"/><span>Technical / Role-Specific</span></label>
+                    <label class="iq-check"><input type="checkbox" value="situational" checked="checked"/><span>Situational</span></label>
+                    <label class="iq-check"><input type="checkbox" value="opening" checked="checked"/><span>Opening Questions</span></label>
+                    <label class="iq-check"><input type="checkbox" value="culture_fit" checked="checked"/><span>Culture Fit</span></label>
+                  </div>
+                </div>
+
+                <!-- Key Competencies -->
+                <div class="iq-field">
+                  <label class="iq-label">Key Competencies <span class="iq-optional">(leave blank for auto)</span></label>
+                  <div class="iq-competency-grid" id="iq-competency-grid">
+                    <label class="iq-comp-pill"><input type="checkbox" value="leadership"/><span>Leadership</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="communication"/><span>Communication</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="problem_solving"/><span>Problem Solving</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="teamwork"/><span>Teamwork</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="adaptability"/><span>Adaptability</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="initiative"/><span>Initiative</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="customer_focus"/><span>Customer Focus</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="analytical_thinking"/><span>Analytical</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="conflict_resolution"/><span>Conflict Resolution</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="innovation"/><span>Innovation</span></label>
+                    <label class="iq-comp-pill"><input type="checkbox" value="integrity"/><span>Integrity</span></label>
+                  </div>
+                </div>
+
+                <!-- Company Context -->
+                <div class="iq-field">
+                  <label class="iq-label" for="iq-context">Company / Role Context <span class="iq-optional">(optional)</span></label>
+                  <textarea id="iq-context" class="iq-textarea" rows="3" placeholder="e.g. Fast-growing SaaS startup, hiring for a leadership role managing a team of 8…"></textarea>
+                </div>
+
+                <!-- Generate Button -->
+                <button type="button" class="iq-generate-btn" id="iq-generate-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+                  Generate Questions
+                </button>
+
+              </div><!-- /iq-sidebar-inner -->
+            </aside><!-- /iq-sidebar -->
+
+            <!-- ──── MAIN CONTENT: QUESTIONS ──── -->
+            <main class="iq-main" id="iq-main">
+
+              <!-- Empty state -->
+              <div class="iq-empty" id="iq-empty">
+                <div class="iq-empty-icon">💬</div>
+                <h2 class="iq-empty-title">Generate Interview Questions</h2>
+                <p class="iq-empty-desc">Configure the role details on the left and click <strong>Generate Questions</strong> to create a tailored, competency-based interview guide instantly.</p>
+                <div class="iq-empty-features">
+                  <div class="iq-feature-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Role-Specific
+                  </div>
+                  <div class="iq-feature-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                    Competency-Based
+                  </div>
+                  <div class="iq-feature-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Follow-up Questions
+                  </div>
+                  <div class="iq-feature-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Interviewer Tips
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading state -->
+              <div class="iq-loading" id="iq-loading" style="display:none">
+                <div class="iq-spinner"></div>
+                <div class="iq-loading-text">Generating questions…</div>
+              </div>
+
+              <!-- Results area -->
+              <div class="iq-results" id="iq-results" style="display:none">
+
+                <!-- Results header -->
+                <div class="iq-results-header">
+                  <div class="iq-results-meta">
+                    <div class="iq-results-title" id="iq-results-title">Interview Questions</div>
+                    <div class="iq-results-sub" id="iq-results-sub">
+                      <span class="iq-ai-result-badge" id="iq-ai-result-badge" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="11" height="11"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        AI-generated
+                      </span>
+                    </div>
+                  </div>
+                  <div class="iq-results-actions">
+                    <button type="button" class="iq-btn iq-btn-ghost" id="iq-copy-all-btn" title="Copy all questions">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      Copy All
+                    </button>
+                    <button type="button" class="iq-btn iq-btn-ghost" id="iq-export-btn" title="Export as CSV">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Export
+                    </button>
+                    <button type="button" class="iq-btn iq-btn-primary" id="iq-save-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                      Save Session
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Type filter tabs -->
+                <div class="iq-tabs" id="iq-tabs">
+                  <button type="button" class="iq-tab is-active" data-filter="all">All</button>
+                  <button type="button" class="iq-tab" data-filter="opening">Opening</button>
+                  <button type="button" class="iq-tab" data-filter="behavioral">Behavioral</button>
+                  <button type="button" class="iq-tab" data-filter="technical">Technical</button>
+                  <button type="button" class="iq-tab" data-filter="situational">Situational</button>
+                  <button type="button" class="iq-tab" data-filter="culture_fit">Culture Fit</button>
+                </div>
+
+                <!-- Question cards -->
+                <div class="iq-question-list" id="iq-question-list"></div>
+
+              </div><!-- /iq-results -->
+
+            </main><!-- /iq-main -->
+          </div><!-- /iq-layout -->
+
+          <!-- ══════════════════════ HISTORY DRAWER ══════════════════════ -->
+          <div class="iq-drawer-overlay" id="iq-drawer-overlay" style="display:none"></div>
+          <aside class="iq-drawer" id="iq-drawer" style="display:none" aria-hidden="true">
+            <div class="iq-drawer-header">
+              <div class="iq-drawer-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                Session History
+              </div>
+              <button type="button" class="iq-drawer-close" id="iq-drawer-close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="iq-drawer-body" id="iq-drawer-body">
+              <div class="iq-drawer-loading">Loading sessions…</div>
+            </div>
+          </aside>
+
+          <!-- ══════════════════════ SAVE MODAL ══════════════════════ -->
+          <div class="iq-modal-overlay" id="iq-modal-overlay" style="display:none">
+            <div class="iq-modal" id="iq-modal">
+              <div class="iq-modal-header">
+                <div class="iq-modal-title">Save Session</div>
+                <button type="button" class="iq-modal-close" id="iq-modal-close">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div class="iq-modal-body">
+                <div class="iq-field">
+                  <label class="iq-label" for="iq-session-name">Session Name</label>
+                  <input type="text" id="iq-session-name" class="iq-input" placeholder="e.g. Senior Engineer — Q3 Hiring"/>
+                </div>
+              </div>
+              <div class="iq-modal-footer">
+                <button type="button" class="iq-btn iq-btn-ghost" id="iq-modal-cancel">Cancel</button>
+                <button type="button" class="iq-btn iq-btn-primary" id="iq-modal-save">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════════════════════ AI SETTINGS MODAL ══════════════════════ -->
+          <div class="iq-modal-overlay" id="iq-ai-modal-overlay" style="display:none">
+            <div class="iq-modal" id="iq-ai-modal" style="max-width:500px">
+              <div class="iq-modal-header">
+                <div class="iq-modal-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" style="margin-right:6px;vertical-align:-3px"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  AI Question Generation
+                </div>
+                <button type="button" class="iq-modal-close" id="iq-ai-modal-close">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div class="iq-modal-body">
+                <p style="font-size:13px;color:var(--iq-muted);margin:0 0 12px">
+                  Questions are generated using the best available method, in this order:
+                </p>
+                <ol style="font-size:12px;color:var(--iq-mid);margin:0 0 16px;padding-left:18px;line-height:1.8">
+                  <li><strong style="color:var(--iq-green)">Claude AI</strong> — best quality, role-specific (requires API key below)</li>
+                  <li><strong style="color:#60a5fa">Web Search</strong> — free, role-specific via DuckDuckGo (auto, no setup needed)</li>
+                  <li><strong style="color:var(--iq-muted)">Built-in Bank</strong> — generic fallback if internet is unavailable</li>
+                </ol>
+                <div class="iq-ai-status-box" id="iq-ai-status-box">
+                  <div class="iq-ai-status-dot" id="iq-ai-status-dot"></div>
+                  <span id="iq-ai-status-label">Checking…</span>
+                </div>
+                <div class="iq-field" style="margin-top:16px">
+                  <label class="iq-label" for="iq-api-key-input">
+                    Claude API Key
+                    <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="font-size:11px;margin-left:6px;color:var(--iq-indigo)">Get a key ↗</a>
+                  </label>
+                  <input type="password" id="iq-api-key-input" class="iq-input" placeholder="sk-ant-api03-…" autocomplete="off" style="font-family:monospace"/>
+                </div>
+                <p style="font-size:11px;color:var(--iq-muted);margin:8px 0 0">
+                  The key is stored securely in Odoo system parameters. Recommended model: <em>claude-haiku-4-5</em> (fast &amp; affordable).
+                </p>
+              </div>
+              <div class="iq-modal-footer">
+                <button type="button" class="iq-btn iq-btn-ghost" id="iq-ai-modal-cancel">Cancel</button>
+                <button type="button" class="iq-btn iq-btn-ghost" id="iq-ai-key-clear" style="color:#e53e3e">Remove Key</button>
+                <button type="button" class="iq-btn iq-btn-primary" id="iq-ai-key-save">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  Save Key
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Toast notification -->
+          <div class="iq-toast" id="iq-toast" style="display:none"></div>
+
+        </div><!-- /iq-app -->
+
+        <script>
+          window.IQ_SESSIONS = <t t-out="sessions_json"/>;
+        </script>
+        <script src="/hrsd/static/src/js/interview.js"></script>
+        </body>
+      </html>
+    </template>
+  </data>
+</odoo>

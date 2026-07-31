@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_onboarding_form" model="ir.ui.view">
+        <field name="name">hr.onboarding.form</field>
+        <field name="model">hr.onboarding</field>
+        <field name="arch" type="xml">
+            <form string="Onboarding">
+                <header>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                    <button name="action_open_journey" type="object" string="Open Journey" class="btn-primary"/>
+                    <button name="action_send_document_request" type="object" string="Send Document Request"/>
+                </header>
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="first_name" placeholder="First Name" class="oe_inline"/>
+                            <field name="last_name" placeholder="Last Name" class="oe_inline"/>
+                        </h1>
+                        <h3><field name="name" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Position">
+                            <field name="job_id"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                            <field name="buddy_id"/>
+                            <field name="hr_user_id"/>
+                        </group>
+                        <group string="Onboarding">
+                            <field name="joining_date"/>
+                            <field name="countdown" readonly="1"/>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="priority" widget="priority"/>
+                            <field name="kanban_state" widget="badge"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="email"/>
+                            <field name="phone"/>
+                            <field name="gender"/>
+                        </group>
+                        <group string="Document Portal">
+                            <field name="portal_document_url" widget="url" readonly="1"/>
+                            <field name="declaration_signed" readonly="1"/>
+                            <field name="declaration_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tasks &amp; Checklists">
+                            <field name="task_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="stage_id"/>
+                                    <field name="assigned_to"/>
+                                    <field name="due_date"/>
+                                    <field name="done" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents">
+                            <field name="document_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="status"/>
+                                    <field name="datas" filename="datas_fname"/>
+                                    <field name="datas_fname" invisible="1"/>
+                                    <field name="expiry_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Equipment">
+                            <field name="equipment_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="equipment_type"/>
+                                    <field name="status"/>
+                                    <field name="serial_number"/>
+                                    <field name="assigned_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_list" model="ir.ui.view">
+        <field name="name">hr.onboarding.list</field>
+        <field name="model">hr.onboarding</field>
+        <field name="arch" type="xml">
+            <list string="Onboarding">
+                <field name="name"/>
+                <field name="first_name"/>
+                <field name="last_name"/>
+                <field name="job_id"/>
+                <field name="department_id"/>
+                <field name="stage_id"/>
+                <field name="joining_date"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="priority" widget="priority"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_search" model="ir.ui.view">
+        <field name="name">hr.onboarding.search</field>
+        <field name="model">hr.onboarding</field>
+        <field name="arch" type="xml">
+            <search string="Onboarding">
+                <field name="name"/>
+                <field name="first_name"/>
+                <field name="last_name"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+                <field name="stage_id"/>
+                <filter string="Delayed" name="delayed" domain="[('is_delayed', '=', True)]"/>
+                <group>
+                    <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_onboarding" model="ir.actions.act_window">
+        <field name="name">Onboarding Records</field>
+        <field name="res_model">hr.onboarding</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_hr_onboarding_new" model="ir.actions.act_window">
+        <field name="name">New Onboarding</field>
+        <field name="res_model">hr.onboarding</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

@@ -1,0 +1,52 @@
+<svg width="180" height="200" viewBox="0 0 180 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .op-rk-float { animation: opRkFloat 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes opRkFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .op-rk-flame { animation: opRkFlame 0.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: top center; }
+    @keyframes opRkFlame { from { transform: scaleY(0.8); opacity: .8; } to { transform: scaleY(1.15); opacity: 1; } }
+    .op-rk-spark { animation: opRkSpark 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .op-rk-spark-1 { animation-delay: 0s; }
+    .op-rk-spark-2 { animation-delay: .7s; }
+    .op-rk-spark-3 { animation-delay: 1.3s; }
+    @keyframes opRkSpark { 0%, 100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.1); } }
+    .op-rk-cloud { animation: opRkCloud 6s ease-in-out infinite; }
+    @keyframes opRkCloud { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+  </style>
+  <defs>
+    <linearGradient id="rkBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#6d5ef8"/>
+    </linearGradient>
+    <linearGradient id="rkFlame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+
+  <g class="op-rk-cloud" opacity="0.5">
+    <ellipse cx="46" cy="168" rx="30" ry="12" fill="#ede9fe"/>
+    <ellipse cx="128" cy="176" rx="26" ry="10" fill="#ede9fe"/>
+  </g>
+
+  <g class="op-rk-float">
+    <!-- flame -->
+    <path class="op-rk-flame" d="M90 132 c-8 10 -8 22 0 30 c8 -8 8 -20 0 -30 z" fill="url(#rkFlame)"/>
+
+    <!-- fins -->
+    <path d="M66 100 l-16 26 c8 -2 14 -2 18 2 z" fill="#7c3aed"/>
+    <path d="M114 100 l16 26 c-8 -2 -14 -2 -18 2 z" fill="#7c3aed"/>
+
+    <!-- body -->
+    <path d="M90 20 c22 20 26 55 20 90 h-40 c-6 -35 -2 -70 20 -90 z" fill="url(#rkBody)"/>
+    <circle cx="90" cy="66" r="14" fill="#ede9fe"/>
+    <circle cx="90" cy="66" r="9" fill="#6d5ef8"/>
+    <circle cx="90" cy="66" r="4" fill="#ffffff" opacity="0.7"/>
+  </g>
+
+  <g fill="#a78bfa">
+    <circle class="op-rk-spark op-rk-spark-1" cx="34" cy="60" r="3"/>
+    <circle class="op-rk-spark op-rk-spark-2" cx="150" cy="90" r="2.5"/>
+    <circle class="op-rk-spark op-rk-spark-3" cx="140" cy="40" r="2"/>
+    <circle class="op-rk-spark op-rk-spark-1" cx="26" cy="110" r="2" style="animation-delay:1.6s"/>
+  </g>
+</svg>

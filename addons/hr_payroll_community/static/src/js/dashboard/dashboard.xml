@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_payroll_community.Dashboard">
+        <div class="o_payroll_dashboard">
+            <div class="o_payroll_hero">
+                <div>
+                    <h1>Welcome back, <span class="o_payroll_hero_name" t-esc="state.userName"/> <span class="o_payroll_wave">👋</span></h1>
+                    <p>Here's what your payroll needs for <t t-esc="state.period"/>.</p>
+                </div>
+                <button class="btn o_payroll_btn_gradient" t-on-click="() => this.openNewPayslip()">
+                    <i class="fa fa-plus me-1"/> New Payslip
+                </button>
+            </div>
+
+            <div class="o_payroll_kpi_grid">
+                <div class="o_payroll_stat_card" style="animation-delay: 0s">
+                    <div class="o_payroll_stat_icon o_payroll_stat_icon_purple"><i class="fa fa-users"/></div>
+                    <div class="o_payroll_stat_label">Employees on Payroll</div>
+                    <div class="o_payroll_stat_value"><t t-esc="state.kpis.employees"/></div>
+                    <div class="o_payroll_stat_hint">Total Active Employees</div>
+                </div>
+                <div class="o_payroll_stat_card" style="animation-delay: .06s">
+                    <div class="o_payroll_stat_icon o_payroll_stat_icon_mint"><i class="fa fa-inr"/></div>
+                    <div class="o_payroll_stat_label">Net Payroll · This Period</div>
+                    <div class="o_payroll_stat_value">₹<t t-esc="state.kpis.netPayroll"/></div>
+                    <div class="o_payroll_stat_hint o_payroll_hint_success">
+                        <t t-esc="state.kpis.validatedCount"/> validated • <t t-esc="state.kpis.paidCount"/> paid
+                    </div>
+                </div>
+                <div class="o_payroll_stat_card" style="animation-delay: .12s">
+                    <div class="o_payroll_stat_icon o_payroll_stat_icon_amber"><i class="fa fa-clipboard"/></div>
+                    <div class="o_payroll_stat_label">Pending Actions</div>
+                    <div class="o_payroll_stat_value"><t t-esc="state.kpis.pendingActions"/></div>
+                    <div class="o_payroll_stat_hint o_payroll_hint_amber" t-if="state.kpis.pendingActions">Needs your review</div>
+                </div>
+                <div class="o_payroll_stat_card" style="animation-delay: .18s">
+                    <div class="o_payroll_stat_icon o_payroll_stat_icon_sky"><i class="fa fa-calendar"/></div>
+                    <div class="o_payroll_stat_label">Next Pay Date</div>
+                    <div class="o_payroll_stat_value"><t t-esc="state.kpis.nextPayDate"/></div>
+                    <div class="o_payroll_stat_hint o_payroll_hint_success"><t t-esc="state.kpis.draftCount"/> draft payslip(s)</div>
+                </div>
+            </div>
+
+            <div class="o_payroll_columns">
+                <div class="o_payroll_panel o_payroll_panel_attention">
+                    <div class="o_payroll_panel_head">
+                        <h4><i class="fa fa-bullhorn me-2 o_payroll_head_icon_danger"/>Needs Attention</h4>
+                    </div>
+                    <div t-if="!state.needsAttention.length" class="o_payroll_empty_state">
+                        <p>Nothing needs attention right now. 🎉</p>
+                    </div>
+                    <div t-foreach="state.needsAttention" t-as="item" t-key="item.label"
+                         t-attf-class="o_payroll_attention_row o_payroll_attention_#{item.severity}"
+                         t-att-style="'animation-delay: ' + (item_index * 0.06) + 's'"
+                         t-on-click="() => this.openEmployees()">
+                        <div t-attf-class="o_payroll_attention_icon o_payroll_attention_icon_#{item.severity}">
+                            <i t-attf-class="fa #{item.icon}"/>
+                        </div>
+                        <div class="o_payroll_attention_body">
+                            <div class="o_payroll_attention_label"><t t-esc="item.label"/></div>
+                            <div class="o_payroll_attention_hint"><t t-esc="item.hint"/></div>
+                        </div>
+                        <i class="fa fa-chevron-right o_payroll_attention_chevron"/>
+                    </div>
+                    <div class="o_payroll_illustration o_payroll_illustration_attention">
+                        <img src="/hr_payroll_community/static/src/img/dashboard/needs-attention.svg" alt=""/>
+                    </div>
+                </div>
+
+                <div class="o_payroll_panel o_payroll_panel_slips">
+                    <div class="o_payroll_panel_head">
+                        <h4><i class="fa fa-file-text me-2 o_payroll_head_icon_purple"/>Recent Payslips</h4>
+                        <a href="#" class="o_payroll_view_all" t-on-click.prevent="() => this.openPayslips()">View all</a>
+                    </div>
+                    <div t-if="!state.recentPayslips.length" class="o_payroll_empty_state">
+                        <p>No payslips yet this period.</p>
+                    </div>
+                    <div t-foreach="state.recentPayslips" t-as="slip" t-key="slip.id"
+                         class="o_payroll_slip_row" t-att-style="'animation-delay: ' + (slip_index * 0.05) + 's'"
+                         t-on-click="() => this.openPayslip(slip.id)">
+                        <div class="o_payroll_avatar_sm"><t t-esc="slip.employee_id ? slip.employee_id[1][0] : '?'"/></div>
+                        <div class="o_payroll_slip_name"><t t-esc="slip.employee_id ? slip.employee_id[1] : ''"/></div>
+                        <span t-attf-class="o_payroll_chip o_payroll_chip_#{this.stateBadgeClass(slip.display_state)}">
+                            <t t-esc="slip.display_state"/>
+                        </span>
+                    </div>
+                    <div class="o_payroll_slip_footer">
+                        <div class="o_payroll_pulse_icon"><i class="fa fa-heartbeat"/></div>
+                    </div>
+                </div>
+
+                <div class="o_payroll_panel o_payroll_panel_quick">
+                    <h4><i class="fa fa-bolt me-2 o_payroll_head_icon_purple"/>Quick Actions</h4>
+                    <div class="o_payroll_quick_list">
+                        <div class="o_payroll_quick_row" t-on-click="() => this.openEmployees()">
+                            <div class="o_payroll_quick_icon o_payroll_quick_icon_purple"><i class="fa fa-users"/></div>
+                            <div class="o_payroll_quick_body">
+                                <div class="o_payroll_quick_title">Employees</div>
+                                <div class="o_payroll_quick_sub">Manage your employees</div>
+                            </div>
+                            <i class="fa fa-chevron-right o_payroll_quick_chevron"/>
+                        </div>
+                        <div class="o_payroll_quick_row" t-on-click="() => this.openTimeOff()">
+                            <div class="o_payroll_quick_icon o_payroll_quick_icon_green"><i class="fa fa-calendar"/></div>
+                            <div class="o_payroll_quick_body">
+                                <div class="o_payroll_quick_title">Time Offs</div>
+                                <div class="o_payroll_quick_sub">Manage time off requests</div>
+                            </div>
+                            <i class="fa fa-chevron-right o_payroll_quick_chevron"/>
+                        </div>
+                        <div class="o_payroll_quick_row" t-on-click="() => this.openPayslips()">
+                            <div class="o_payroll_quick_icon o_payroll_quick_icon_sky"><i class="fa fa-file-text-o"/></div>
+                            <div class="o_payroll_quick_body">
+                                <div class="o_payroll_quick_title">Payslips</div>
+                                <div class="o_payroll_quick_sub">Generate and manage payslips</div>
+                            </div>
+                            <i class="fa fa-chevron-right o_payroll_quick_chevron"/>
+                        </div>
+                    </div>
+                    <div class="o_payroll_illustration o_payroll_illustration_rocket">
+                        <img src="/hr_payroll_community/static/src/img/dashboard/rocket.svg" alt=""/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

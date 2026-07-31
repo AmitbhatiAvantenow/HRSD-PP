@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_case_form" model="ir.ui.view">
+        <field name="name">hr.case.form</field>
+        <field name="model">hr.case</field>
+        <field name="arch" type="xml">
+            <form string="HR Case">
+                <header>
+                    <button name="action_update" string="Update" type="object" class="oe_highlight"/>
+                    <button name="action_close_complete" string="Close Complete" type="object"
+                            invisible="state in ('closed_complete', 'closed_incomplete', 'cancelled')"/>
+                    <button name="action_close_incomplete" string="Close Incomplete" type="object"
+                            invisible="state in ('closed_complete', 'closed_incomplete', 'cancelled')"/>
+                    <button name="action_submit_for_approval" string="Submit for Approval" type="object"
+                            invisible="approval_state != 'no'"
+                            groups="hr_case_management.group_hr_case_officer"/>
+                    <button name="action_approve" string="Approve" type="object" class="oe_highlight"
+                            invisible="approval_state != 'to_approve'"
+                            groups="hr_case_management.group_hr_case_manager"/>
+                    <button name="action_refuse" string="Refuse" type="object"
+                            invisible="approval_state != 'to_approve'"
+                            groups="hr_case_management.group_hr_case_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="new,in_progress,pending,resolved,closed_complete"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="short_description" placeholder="Short description..."/>
+                        </h3>
+                    </div>
+
+                    <group>
+                        <group string="Case Details">
+                            <field name="employee_id"/>
+                            <field name="subject_person_id"/>
+                            <field name="service_id"/>
+                            <field name="division_id"/>
+                            <field name="category_id"/>
+                            <field name="subcategory_id"/>
+                        </group>
+                        <group string="Routing">
+                            <field name="priority"/>
+                            <field name="source"/>
+                            <field name="date_opened"/>
+                            <field name="due_date"/>
+                            <field name="opened_by_id"/>
+                            <field name="team_id"/>
+                            <field name="user_id" domain="[('id', 'in', team_member_ids)]"/>
+                            <field name="team_member_ids" invisible="1"/>
+                            <field name="collaborator_ids" widget="many2many_tags"/>
+                            <field name="watcher_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+
+                    <group string="SLA Status">
+                        <field name="sla_id"/>
+                        <field name="will_escalate_on"/>
+                        <field name="sla_breached" widget="boolean_toggle"/>
+                        <field name="escalation_counter"/>
+                    </group>
+
+                    <group string="Approval" invisible="approval_state == 'no'">
+                        <field name="approval_state" widget="badge"
+                               decoration-warning="approval_state == 'to_approve'"
+                               decoration-success="approval_state == 'approved'"
+                               decoration-danger="approval_state == 'refused'"/>
+                        <field name="approver_id"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Fulfillment Instructions" name="fulfillment">
+                            <field name="description" nolabel="1" placeholder="Describe the issue / request and any fulfillment instructions for the assignee..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_case_list" model="ir.ui.view">
+        <field name="name">hr.case.list</field>
+        <field name="model">hr.case</field>
+        <field name="arch" type="xml">
+            <list string="HR Cases" decoration-danger="sla_breached"
+                  decoration-bf="state == 'new'" decoration-muted="state in ('closed_complete','closed_incomplete','cancelled')">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="service_id"/>
+                <field name="category_id"/>
+                <field name="priority" widget="priority" optional="show"/>
+                <field name="state"/>
+                <field name="team_id"/>
+                <field name="user_id"/>
+                <field name="will_escalate_on" optional="show"/>
+                <field name="sla_breached" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_case_kanban" model="ir.ui.view">
+        <field name="name">hr.case.kanban</field>
+        <field name="model">hr.case</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="priority"/>
+                <field name="sla_breached"/>
+                <field name="short_description"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="d-flex justify-content-between">
+                                <strong><field name="name"/></strong>
+                                <field name="priority" widget="priority"/>
+                            </div>
+                            <div class="text-muted">
+                                <field name="short_description"/>
+                            </div>
+                            <div>
+                                <field name="employee_id"/>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <field name="user_id" widget="many2one_avatar_user"/>
+                                <span class="badge text-bg-danger" invisible="not sla_breached">SLA Breached</span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_case_search" model="ir.ui.view">
+        <field name="name">hr.case.search</field>
+        <field name="model">hr.case</field>
+        <field name="arch" type="xml">
+            <search string="Search HR Cases">
+                <field name="name"/>
+                <field name="short_description"/>
+                <field name="employee_id"/>
+                <field name="service_id"/>
+                <field name="category_id"/>
+                <field name="user_id"/>
+                <field name="team_id"/>
+                <filter string="My Cases" name="my_cases" domain="[('user_id', '=', uid)]"/>
+                <filter string="Opened by Me" name="opened_by_me" domain="[('opened_by_id', '=', uid)]"/>
+                <filter string="SLA Breached" name="sla_breached" domain="[('sla_breached', '=', True)]"/>
+                <separator/>
+                <filter string="New" name="state_new" domain="[('state', '=', 'new')]"/>
+                <filter string="In Progress" name="state_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Closed" name="state_closed"
+                        domain="[('state', 'in', ['closed_complete', 'closed_incomplete'])]"/>
+                <group>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Assignment Group" name="group_team" context="{'group_by': 'team_id'}"/>
+                    <filter string="Assigned To" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_case" model="ir.actions.act_window">
+        <field name="name">HR Cases</field>
+        <field name="res_model">hr.case</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_hr_case_search"/>
+        <field name="context">{'search_default_my_cases': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Raise a new HR case</p>
+            <p>Track complaints and service requests raised by or for employees, route them to
+               the right team, and keep them moving against their SLA.</p>
+        </field>
+    </record>
+
+    <record id="action_hr_case_my" model="ir.actions.act_window">
+        <field name="name">My HR Cases</field>
+        <field name="res_model">hr.case</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="search_view_id" ref="view_hr_case_search"/>
+        <field name="domain">[('opened_by_id', '=', uid)]</field>
+        <field name="context">{'default_employee_id': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Raise a new HR case</p>
+        </field>
+    </record>
+</odoo>

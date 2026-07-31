@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Inherit the native ControlPanel template and insert our Back button
+        at the very start of the breadcrumbs area.
+    -->
+    <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_control_panel_breadcrumbs')]" position="before">
+            <!--
+                Render the Back button only when backBtnState.visible is true
+                (i.e. when we are inside a form/record view).
+            -->
+            <t t-if="backBtnState and backBtnState.visible">
+                <button
+                    class="btn o_global_back_btn d-flex align-items-center gap-1"
+                    t-on-click="onGlobalBackClick"
+                    title="Go back to previous view"
+                    aria-label="Back"
+                >
+                    <!-- Left arrow icon (uses Bootstrap Icons bundled with Odoo) -->
+                    <i class="oi oi-arrow-left o_global_back_icon"/>
+                    <span class="o_global_back_label">Back</span>
+                </button>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

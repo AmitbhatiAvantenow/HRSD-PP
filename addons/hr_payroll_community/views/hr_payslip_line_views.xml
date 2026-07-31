@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--  Payslip Line list view  -->
+    <record id="hr_payslip_line_view_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.line.view.list</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <list string="Salary Structure" editable="bottom"
+                  decoration-info="total == 0">
+                <field name="category_id"/>
+                <field name="employee_id" invisible="1"/>
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="quantity"/>
+                <field name="rate"/>
+                <field name="amount"/>
+                <field name="total"/>
+                <field name="amount_select" invisible="1"/>
+                <field name="register_id" invisible="1"/>
+            </list>
+        </field>
+    </record>
+    <!--  Payslip Line form view  -->
+    <record id="hr_payslip_line_view_form" model="ir.ui.view">
+        <field name="name">hr.payslip.line.view.form</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <form string="Payslip Line">
+                <group>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="slip_id"/>
+                        <field name="employee_id"/>
+                    </group>
+                    <group string="Calculations">
+                        <field name="category_id"/>
+                        <field name="amount_select"/>
+                        <field name="amount_fix"
+                               readonly="amount_select,'!=','fix'"/>
+                        <field name="amount_percentage"
+                               readonly="amount_select,'!=','percentage'"/>
+                        <field name="sequence"/>
+                    </group>
+                    <field name="note"/>
+                </group>
+            </form>
+        </field>
+    </record>
+    <!--  Payslip Line search option  -->
+    <record id="hr_payslip_line_search" model="ir.ui.view">
+        <field name="name">hr.payslip.line.search</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Payslip Lines">
+                <field name="name" string="Payslip Lines"
+                       filter_domain="['|',('name','ilike',self),('code','ilike',self)]"/>
+                <field name="amount_select"/>
+                <field name="slip_id"/>
+                <field name="category_id"/>
+                <group>
+                    <filter string="Salary Rule Category" name="category_id" context="{'group_by':'category_id'}"/>
+                    <filter string="Contribution Register" name="register_id" context="{'group_by':'register_id'}"/>
+                    <filter string="Amount Type" name="amount_select" context="{'group_by':'amount_select'}"/>
+                    <filter string="Employees" name="employee_id" context="{'group_by':'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!--    removed src_model="hr.payslip" -->
+    <record id="action_hr_payslip_line" model="ir.actions.act_window">
+        <field name="name">Payslip Computation Details</field>
+        <field name="res_model">hr.payslip.line</field>
+        <field name="context">{'default_slip_id':
+            active_id,'search_default_slip_id': active_id}
+        </field>
+    </record>
+    <record id="hr_payslip_view_form" model="ir.ui.view">
+        <field name="name">hr.payslip.view.form</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <form string="Payslip">
+                <header>
+                    <button string="Compute" name="action_compute_sheet"
+                            type="object" invisible="state != 'draft'"/>
+                    <button string="Validate" name="action_payslip_done"
+                            type="object" invisible="state != 'draft'"
+                            class="btn-primary"/>
+                    <button string="Pay" name="%(action_hr_payslip_pay_wizard)d"
+                            type="action"
+                            invisible="state != 'done' or paid"
+                            class="btn-primary"/>
+                    <button string="Print" name="%(action_report_payslip)d"
+                            type="action" invisible="state == 'draft'"/>
+                    <button string="Refund" name="action_refund_sheet"
+                            invisible="state != 'done'" type='object'/>
+                    <button string="Set to Draft" name="action_payslip_draft"
+                            type="object" invisible="state != 'cancel'"/>
+                    <button string="Cancel" name="action_payslip_cancel"
+                            type="object"
+                            invisible="state in ('draft','confirm','verify','cancel')"/>
+                    <field name="state" invisible="1"/>
+                    <field name="paid" invisible="1"/>
+                    <field name="display_state" widget="statusbar"
+                           statusbar_visible="draft,validated,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_hr_payslip_line)d"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                type="action">
+                            <field name="payslip_count" widget="statinfo"
+                                   string="Payslip"
+                                   help="Payslip Computation Details"/>
+                        </button>
+                    </div>
+                    <div class="alert alert-danger" role="alert"
+                         invisible="contract_id">
+                        No running contract found for this employee over
+                        this period — pick a contract, or this payslip
+                        won't compute correctly.
+                    </div>
+                    <div class="oe_title">
+                        <label for="employee_id" class="oe_edit_only"/>
+                        <h1>
+                            <field name="employee_id" placeholder="Employee"
+                                   readonly="state != 'draft'"/>
+                        </h1>
+                    </div>
+                    <group col="4">
+                        <label for="date_from" string="Period"/>
+                        <div>
+                            <field name="date_from" class="oe_inline"
+                                   readonly="state != 'draft'"/>
+                            -
+                            <field name="date_to" class="oe_inline"
+                                   readonly="state != 'draft'"/>
+                        </div>
+                        <field name="contract_id"
+                               domain="[('employee_id','=',employee_id),('date_start','&lt;=',date_to),'|',('date_end','&gt;=',date_from),('date_end','=',False)]"
+                               context="{'default_employee_id': employee_id}"
+                               readonly="state != 'draft'"/>
+                        <field name="number" readonly="state != 'draft'"/>
+                        <field name="struct_id" readonly="state != 'draft'"/>
+                        <field name="name" readonly="state != 'draft'"/>
+                        <field name="credit_note" readonly="state != 'draft'"/>
+                    </group>
+                    <notebook>
+                        <page string="Worked Days">
+                            <div class="d-flex justify-content-between align-items-center mb-2"
+                                 invisible="state != 'draft'">
+                                <div class="text-muted">
+                                    Auto-filled from approved HR Timesheet Pro
+                                    sheets and Time Off for this employee and
+                                    period.
+                                </div>
+                                <button string="Refresh from Timesheets &amp; Time Off"
+                                        name="action_recompute_worked_days"
+                                        type="object" class="btn-secondary"/>
+                            </div>
+                            <field name="worked_days_line_ids"
+                                   readonly="state != 'draft'">
+                                <list string="Worked Days" editable="bottom">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="number_of_days"/>
+                                    <field name="number_of_hours"/>
+                                    <field name="contract_id" column_invisible="1"/>
+                                    <field name="sequence" column_invisible="1"/>
+                                </list>
+                                <form string="Worked Day">
+                                    <group col="4">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="sequence"/>
+                                        <field name="number_of_days"/>
+                                        <field name="number_of_hours"/>
+                                        <field name="contract_id"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Salary Inputs">
+                            <div class="text-muted mb-2" invisible="state != 'draft'">
+                                Bonus, TDS and any other one-off amount for
+                                this payslip only — everything else is
+                                pulled automatically from the employee's
+                                fixed compensation.
+                            </div>
+                            <field name="input_line_ids" colspan="4" nolabel="1"
+                                   readonly="state != 'draft'">
+                                <list string="Input Data" editable="bottom">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="amount"/>
+                                    <field name="contract_id" column_invisible="1"/>
+                                    <field name="sequence" column_invisible="1"/>
+                                </list>
+                                <form string="Payslip Line">
+                                    <group col="4">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="sequence"/>
+                                        <field name="amount"/>
+                                        <field name="contract_id"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Salary Computation">
+                            <field name="line_ids" colspan="4" nolabel="1"
+                                   readonly="state != 'draft'">
+                                <list string="Salary Structure"
+                                      editable="bottom"
+                                      decoration-info="total == 0">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="category_id"/>
+                                    <field name="sequence" column_invisible="1"/>
+                                    <field name="quantity"/>
+                                    <field name="rate"/>
+                                    <field name="salary_rule_id"/>
+                                    <field name="amount"/>
+                                    <field name="total"/>
+                                </list>
+                                <form string="Payslip Line">
+                                    <group col="4">
+                                        <field name="name"/>
+                                        <field name="code"/>
+                                        <field name="category_id"/>
+                                        <field name="sequence"/>
+                                        <field name="quantity"/>
+                                        <field name="rate"/>
+                                        <field name="amount"/>
+                                        <field name="total"/>
+                                        <field name="salary_rule_id"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Category Summary">
+                            <field name="details_by_salary_rule_category_ids"
+                                   context="{'search_default_category_id':1}"
+                                   domain="[('appears_on_payslip', '=', True)]">
+                                <list string="Payslip Lines"
+                                      decoration-info="total == 0">
+                                    <field name="category_id"/>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="total"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Other Info">
+                            <group>
+                                <group string="Miscellaneous">
+                                    <field name="company_id"
+                                           groups="base.group_multi_company"
+                                           readonly="state != 'draft'"/>
+                                    <field name="payslip_run_id"
+                                           domain="[('state','=','draft')]"
+                                           readonly="state != 'draft'"/>
+                                </group>
+                                <group name="accounting" string="Payment">
+                                    <field name="paid" readonly="1"/>
+                                    <field name="payment_mode" readonly="1"
+                                           invisible="not paid"/>
+                                    <field name="date_paid" readonly="1"
+                                           invisible="not paid"/>
+                                </group>
+                            </group>
+                            <div colspan="4">
+                                <field name="note"
+                                       placeholder="Add an internal note..."
+                                       readonly="state != 'draft'"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="o_attachment_preview" invisible="state == 'draft'"/>
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+    <!--  Shortcuts -->
+    <record id="hr_payslip_line_action"
+            model="ir.actions.act_window">
+        <field name="name">Payslip Lines</field>
+        <field name="res_model">hr.payslip.line</field>
+        <field name="domain">[('register_id', '=', active_id)]</field>
+        <field name="context">{'default_register_id': active_id,
+            'search_default_register_id': 1}
+        </field>
+    </record>
+</odoo>

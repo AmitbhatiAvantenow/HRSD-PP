@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_onboarding_equipment_list" model="ir.ui.view">
+        <field name="name">hr.onboarding.equipment.list</field>
+        <field name="model">hr.onboarding.equipment</field>
+        <field name="arch" type="xml">
+            <list string="Onboarding Equipment" editable="bottom">
+                <field name="onboarding_id"/>
+                <field name="name"/>
+                <field name="equipment_type"/>
+                <field name="serial_number"/>
+                <field name="status" widget="badge" decoration-success="status == 'delivered'"
+                       decoration-info="status == 'assigned'" decoration-muted="status == 'pending'"
+                       decoration-warning="status == 'returned'"/>
+                <field name="assigned_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_equipment_kanban" model="ir.ui.view">
+        <field name="name">hr.onboarding.equipment.kanban</field>
+        <field name="model">hr.onboarding.equipment</field>
+        <field name="arch" type="xml">
+            <kanban class="hro_eq_kanban">
+                <field name="name"/>
+                <field name="equipment_type"/>
+                <field name="status"/>
+                <field name="serial_number"/>
+                <field name="onboarding_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="hro-card hro-eq-card hro-eq-#{record.status.raw_value}">
+                            <div class="hro-eq-icon">
+                                <i class="fa fa-laptop" title="Equipment"/>
+                            </div>
+                            <div class="hro-eq-body">
+                                <div class="hro-eq-name"><field name="name"/></div>
+                                <div class="hro-eq-owner"><field name="onboarding_id"/></div>
+                                <span t-attf-class="hro-badge hro-badge-#{record.status.raw_value}">
+                                    <field name="status"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_hr_onboarding_equipment" model="ir.actions.act_window">
+        <field name="name">Equipment</field>
+        <field name="res_model">hr.onboarding.equipment</field>
+        <field name="view_mode">kanban,list</field>
+    </record>
+</odoo>

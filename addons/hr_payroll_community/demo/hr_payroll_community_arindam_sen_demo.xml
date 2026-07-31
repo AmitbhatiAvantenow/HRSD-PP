@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Validation demo data: recreates a real employee's compensation
+         structure, June timesheet and payslip so the auto-computed
+         payslip can be checked against the real, already-issued payslip
+         PDF (Gross 181194.49, EPF Employee 1800, Net 152744.5). -->
+    <data noupdate="1">
+        <record id="demo_employee_arindam_sen" model="hr.employee">
+            <field name="name">Arindam Sen</field>
+            <field name="job_title">Technical Product Owner</field>
+            <field name="work_email">arindam.sen@qaagility.com</field>
+            <field name="pan_number">ABCDE1234F</field>
+            <field name="uan_number">100123456789</field>
+            <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+            <field name="contract_date_start" eval="'2026-01-01'"/>
+            <field name="wage">181194.49</field>
+            <field name="ctc_basic_percentage">50.0</field>
+            <field name="hra_percentage_of_basic">40.0</field>
+            <field name="cca_percentage_of_basic">20.0</field>
+            <field name="medical_allowance">1250.0</field>
+            <field name="epf_wage_ceiling">15000.0</field>
+            <field name="epf_employee_rate">12.0</field>
+            <field name="epf_employer_rate">12.0</field>
+            <field name="epf_admin_rate">1.0</field>
+            <field name="struct_id" ref="hr_payroll_community.structure_in_regular"/>
+            <field name="schedule_pay">monthly</field>
+        </record>
+
+        <!-- June 2026 HR Timesheet Pro sheets: 22 weekdays x 8h = 176h,
+             matching "1-30 June Timesheet Arindam Sen.xlsx". -->
+        <record id="demo_timesheet_sheet_w1" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="date_start" eval="'2026-06-01'"/>
+            <field name="date_end" eval="'2026-06-07'"/>
+            <field name="state">approved</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'date': '2026-06-01', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-02', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-03', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-04', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-05', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+            ]"/>
+        </record>
+        <record id="demo_timesheet_sheet_w2" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="date_start" eval="'2026-06-08'"/>
+            <field name="date_end" eval="'2026-06-14'"/>
+            <field name="state">approved</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'date': '2026-06-08', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-09', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-10', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-11', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-12', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+            ]"/>
+        </record>
+        <record id="demo_timesheet_sheet_w3" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="date_start" eval="'2026-06-15'"/>
+            <field name="date_end" eval="'2026-06-21'"/>
+            <field name="state">approved</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'date': '2026-06-15', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-16', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-17', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-18', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-19', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+            ]"/>
+        </record>
+        <record id="demo_timesheet_sheet_w4" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="date_start" eval="'2026-06-22'"/>
+            <field name="date_end" eval="'2026-06-28'"/>
+            <field name="state">approved</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'date': '2026-06-22', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-23', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-24', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-25', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-26', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+            ]"/>
+        </record>
+        <record id="demo_timesheet_sheet_w5" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="date_start" eval="'2026-06-29'"/>
+            <field name="date_end" eval="'2026-07-05'"/>
+            <field name="state">approved</field>
+            <field name="line_ids" eval="[
+                (0, 0, {'date': '2026-06-29', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+                (0, 0, {'date': '2026-06-30', 'start_time': 9.0, 'end_time': 17.0, 'hours': 8.0}),
+            ]"/>
+        </record>
+
+        <record id="demo_payslip_arindam_sen" model="hr.payslip">
+            <field name="employee_id" ref="demo_employee_arindam_sen"/>
+            <field name="name">Salary Slip of Arindam Sen for June-2026</field>
+            <field name="date_from" eval="'2026-06-01'"/>
+            <field name="date_to" eval="'2026-06-30'"/>
+            <field name="struct_id" ref="hr_payroll_community.structure_in_regular"/>
+        </record>
+        <!-- Pull worked days from the timesheets above and compute the
+             salary lines, so the demo payslip opens already filled in. -->
+        <function model="hr.payslip" name="action_recompute_worked_days"
+                  eval="[[ref('demo_payslip_arindam_sen')]]"/>
+    </data>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_hr_recruitment" model="ir.sequence">
+            <field name="name">Recruitment Requirement</field>
+            <field name="code">hr.recruitment</field>
+            <field name="prefix">HRR</field>
+            <field name="padding">7</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_hr_recruitment_candidate" model="ir.sequence">
+            <field name="name">Recruitment Candidate</field>
+            <field name="code">hr.recruitment.candidate</field>
+            <field name="prefix">TASK</field>
+            <field name="padding">7</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+    </data>
+</odoo>

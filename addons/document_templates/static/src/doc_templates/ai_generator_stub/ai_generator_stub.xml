@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.AiGeneratorStub">
+    <DocShell activeKey="'ai_generator_stub'" eyebrow="'Document Templates'" title="'AI Template Generator'">
+        <div class="doc-card doc-coming-soon">
+            <i class="fa fa-magic"/>
+            <h2>Coming Soon</h2>
+            <p>Describe a document in plain language and have a starting template generated automatically.</p>
+            <span class="doc-chip doc-c-muted">No AI integration is wired up yet -- nothing here calls an external API.</span>
+        </div>
+    </DocShell>
+</t>
+
+</templates>

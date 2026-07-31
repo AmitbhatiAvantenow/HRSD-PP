@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="attrition_page" name="Predictive Attrition">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Predictive Attrition · <t t-esc="brand['name']"/> HR</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <link rel="stylesheet" href="/hrsd/static/src/css/attrition.css?v=4"/>
+  <!-- inline reset guarantees white bg regardless of cached external CSS -->
+  <style>
+    html,body{background:#f3f4f8!important;color:#111827!important;}
+    .pa-shell{background:#f3f4f8!important;}
+    .pa-sidebar{background:#ffffff!important;border-right:1px solid #e2e6ee!important;}
+    .pa-main{background:#f3f4f8!important;}
+    .pa-kpi-card,.pa-chart-card,.pa-table-section,.pa-modal{background:#ffffff!important;}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"/>
+</head>
+<body>
+
+<div class="pa-shell">
+
+  <!-- ═══════════════════════════════ SIDEBAR ══════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-brand">
+      <t t-if="brand['logo_url']">
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="pa-brand-mark" style="object-fit: cover;"/>
+      </t>
+      <t t-else="">
+        <div class="pa-brand-mark"><t t-esc="brand['initial']"/></div>
+      </t>
+      <div>
+        <div class="pa-brand-name"><t t-esc="brand['name']"/></div>
+        <div class="pa-brand-sub">HR PORTAL</div>
+      </div>
+    </div>
+
+    <nav class="pa-nav">
+      <a href="/hrsd/dashboard" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/odoo/employees" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Employees
+      </a>
+      <a href="/odoo/departments" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Departments
+      </a>
+      <a href="/odoo/action-591" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+        Payroll
+      </a>
+      <a href="/hrsd/attrition" class="pa-nav-item is-active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        Attrition AI
+      </a>
+      <a href="/hrsd/appraisal" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        Appraisals
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-footer">
+      <a href="/hrsd/dashboard" class="pa-back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Portal
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════ MAIN ═════════════════════════════════ -->
+  <main class="pa-main">
+
+    <!-- Header -->
+    <header class="pa-header">
+      <div class="pa-header-left">
+        <div class="pa-page-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        </div>
+        <div>
+          <h1 class="pa-page-title">Predictive Attrition</h1>
+          <p class="pa-page-sub">ML-powered employee retention intelligence · Last computed <strong id="pa-computed-date"><t t-esc="computed_at"/></strong></p>
+        </div>
+      </div>
+      <div class="pa-header-right">
+        <button class="pa-btn pa-btn-ghost" id="pa-export-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <a href="/hrsd/attrition" class="pa-btn pa-btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.51"/></svg>
+          Refresh Analysis
+        </a>
+      </div>
+    </header>
+
+    <!-- KPI Row -->
+    <section class="pa-kpi-row" id="pa-kpis">
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-total">—</div>
+          <div class="pa-kpi-label">Total Employees</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-at-risk">—</div>
+          <div class="pa-kpi-label">At Risk (Medium+)</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-high-critical">—</div>
+          <div class="pa-kpi-label">High / Critical Risk</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-avg-score">—</div>
+          <div class="pa-kpi-label">Avg. Risk Score</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-safe">—</div>
+          <div class="pa-kpi-label">Low Risk (Safe)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Row -->
+    <section class="pa-charts-row">
+
+      <!-- Distribution donut -->
+      <div class="pa-chart-card pa-chart-donut-wrap">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">Risk Distribution</span>
+          <span class="pa-chart-sub">by level</span>
+        </div>
+        <div class="pa-donut-container">
+          <canvas id="chart-donut"/>
+          <div class="pa-donut-center" id="donut-center-label">
+            <div class="pa-donut-big" id="donut-big">—</div>
+            <div class="pa-donut-small">Total</div>
+          </div>
+        </div>
+        <div class="pa-legend" id="donut-legend"></div>
+      </div>
+
+      <!-- Dept bar chart -->
+      <div class="pa-chart-card pa-chart-bar-wrap">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">Risk by Department</span>
+          <span class="pa-chart-sub">avg score · top 10</span>
+        </div>
+        <div class="pa-bar-container">
+          <canvas id="chart-bar"/>
+        </div>
+      </div>
+
+      <!-- Trend line chart -->
+      <div class="pa-chart-card pa-chart-trend-wrap">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">Risk Score Trend</span>
+          <span class="pa-chart-sub">monthly average · last 6 months</span>
+        </div>
+        <div class="pa-trend-container">
+          <canvas id="chart-trend"/>
+        </div>
+        <div class="pa-trend-empty" id="trend-empty" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m7 16 4-4 4 4 4-7"/></svg>
+          <p>Trend data will appear after multiple analysis runs</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Employee Table -->
+    <section class="pa-table-section">
+      <div class="pa-table-header">
+        <div class="pa-table-title-area">
+          <h2 class="pa-table-title">Employee Risk Register</h2>
+          <span class="pa-badge-count" id="table-count">0 employees</span>
+        </div>
+        <div class="pa-table-controls">
+          <div class="pa-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="pa-search" placeholder="Search employees, departments…"/>
+          </div>
+          <div class="pa-filter-group" id="pa-filter-group">
+            <button class="pa-filter-btn is-active" data-filter="all">All</button>
+            <button class="pa-filter-btn" data-filter="critical">Critical</button>
+            <button class="pa-filter-btn" data-filter="high">High</button>
+            <button class="pa-filter-btn" data-filter="medium">Medium</button>
+            <button class="pa-filter-btn" data-filter="low">Low</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pa-table-wrap">
+        <table class="pa-table">
+          <thead>
+            <tr>
+              <th class="pa-th-emp">Employee</th>
+              <th class="pa-th-dept">Department</th>
+              <th class="pa-th-tenure pa-sortable" data-col="tenure_months">Tenure</th>
+              <th class="pa-th-score pa-sortable pa-sort-active pa-sort-desc" data-col="risk_score">Risk Score</th>
+              <th class="pa-th-level">Level</th>
+              <th class="pa-th-driver">Top Driver</th>
+              <th class="pa-th-action"></th>
+            </tr>
+          </thead>
+          <tbody id="pa-table-body">
+            <tr class="pa-skeleton-row"><td colspan="7"><div class="pa-skeleton"/></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pa-table-footer">
+        <span id="pa-showing-label" class="pa-showing-label">Showing all results</span>
+        <div class="pa-pagination" id="pa-pagination"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════ HR ASSESSMENT MODAL ════════════════════════ -->
+<div class="pa-modal-overlay" id="pa-assess-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="pa-assess-dialog">
+    <button class="pa-modal-close" id="pa-assess-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="pa-assess-header">
+      <div class="pa-assess-emp-info">
+        <div class="pa-assess-avatar" id="assess-avatar"></div>
+        <div>
+          <div class="pa-assess-emp-name" id="assess-emp-name">—</div>
+          <div class="pa-assess-emp-job" id="assess-emp-job">—</div>
+        </div>
+      </div>
+      <div class="pa-assess-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        HR Assessment Form
+      </div>
+    </div>
+
+    <form id="pa-assess-form" class="pa-assess-body">
+      <input type="hidden" name="employee_id" id="assess-emp-id" value=""/>
+
+      <p class="pa-assess-intro">Answer each question based on your direct HR knowledge of this employee. Your assessment blends with automated data to give a more accurate risk score.</p>
+
+      <!-- Rating questions -->
+      <div class="pa-assess-section-title">Rate each area (1 = Poor · 5 = Excellent)</div>
+
+      <div class="pa-rate-group">
+        <div class="pa-rate-row">
+          <div class="pa-rate-label">
+            <span class="pa-rate-name">Employee Engagement</span>
+            <span class="pa-rate-hint">Day-to-day enthusiasm and involvement</span>
+          </div>
+          <div class="pa-stars" data-name="q_engagement">
+            <button type="button" class="pa-star" data-val="1">★</button>
+            <button type="button" class="pa-star" data-val="2">★</button>
+            <button type="button" class="pa-star" data-val="3" data-active="true">★</button>
+            <button type="button" class="pa-star" data-val="4">★</button>
+            <button type="button" class="pa-star" data-val="5">★</button>
+          </div>
+          <input type="hidden" name="q_engagement" class="pa-rate-val" value="3"/>
+        </div>
+
+        <div class="pa-rate-row">
+          <div class="pa-rate-label">
+            <span class="pa-rate-name">Salary Satisfaction</span>
+            <span class="pa-rate-hint">Contentment with current compensation</span>
+          </div>
+          <div class="pa-stars" data-name="q_salary_satisfaction">
+            <button type="button" class="pa-star" data-val="1">★</button>
+            <button type="button" class="pa-star" data-val="2">★</button>
+            <button type="button" class="pa-star" data-val="3" data-active="true">★</button>
+            <button type="button" class="pa-star" data-val="4">★</button>
+            <button type="button" class="pa-star" data-val="5">★</button>
+          </div>
+          <input type="hidden" name="q_salary_satisfaction" class="pa-rate-val" value="3"/>
+        </div>
+
+        <div class="pa-rate-row">
+          <div class="pa-rate-label">
+            <span class="pa-rate-name">Career Growth</span>
+            <span class="pa-rate-hint">Progression and development opportunities</span>
+          </div>
+          <div class="pa-stars" data-name="q_career_growth">
+            <button type="button" class="pa-star" data-val="1">★</button>
+            <button type="button" class="pa-star" data-val="2">★</button>
+            <button type="button" class="pa-star" data-val="3" data-active="true">★</button>
+            <button type="button" class="pa-star" data-val="4">★</button>
+            <button type="button" class="pa-star" data-val="5">★</button>
+          </div>
+          <input type="hidden" name="q_career_growth" class="pa-rate-val" value="3"/>
+        </div>
+
+        <div class="pa-rate-row">
+          <div class="pa-rate-label">
+            <span class="pa-rate-name">Manager Relationship</span>
+            <span class="pa-rate-hint">Quality of employee–manager dynamic</span>
+          </div>
+          <div class="pa-stars" data-name="q_manager_relation">
+            <button type="button" class="pa-star" data-val="1">★</button>
+            <button type="button" class="pa-star" data-val="2">★</button>
+            <button type="button" class="pa-star" data-val="3" data-active="true">★</button>
+            <button type="button" class="pa-star" data-val="4">★</button>
+            <button type="button" class="pa-star" data-val="5">★</button>
+          </div>
+          <input type="hidden" name="q_manager_relation" class="pa-rate-val" value="3"/>
+        </div>
+
+        <div class="pa-rate-row pa-rate-row-highlight">
+          <div class="pa-rate-label">
+            <span class="pa-rate-name">Your Retention Confidence</span>
+            <span class="pa-rate-hint">1 = Very likely to leave · 5 = Very likely to stay</span>
+          </div>
+          <div class="pa-stars" data-name="q_retention_confidence">
+            <button type="button" class="pa-star" data-val="1">★</button>
+            <button type="button" class="pa-star" data-val="2">★</button>
+            <button type="button" class="pa-star" data-val="3" data-active="true">★</button>
+            <button type="button" class="pa-star" data-val="4">★</button>
+            <button type="button" class="pa-star" data-val="5">★</button>
+          </div>
+          <input type="hidden" name="q_retention_confidence" class="pa-rate-val" value="3"/>
+        </div>
+      </div>
+
+      <!-- Yes / No questions -->
+      <div class="pa-assess-section-title" style="margin-top:20px">Quick checks</div>
+
+      <div class="pa-toggle-group">
+        <div class="pa-toggle-row">
+          <div class="pa-toggle-label">
+            <span class="pa-toggle-name">Signs of job hunting?</span>
+            <span class="pa-toggle-hint">LinkedIn updates, unusual absences, references requested</span>
+          </div>
+          <div class="pa-yn-wrap">
+            <button type="button" class="pa-yn-btn is-no is-active" data-field="q_job_hunting" data-val="false">No</button>
+            <button type="button" class="pa-yn-btn is-yes" data-field="q_job_hunting" data-val="true">Yes</button>
+          </div>
+          <input type="hidden" name="q_job_hunting" value="false"/>
+        </div>
+
+        <div class="pa-toggle-row">
+          <div class="pa-toggle-label">
+            <span class="pa-toggle-name">Promotion or raise in last 12 months?</span>
+            <span class="pa-toggle-hint">Any recent career advancement or pay increase</span>
+          </div>
+          <div class="pa-yn-wrap">
+            <button type="button" class="pa-yn-btn is-no is-active" data-field="q_recent_promotion" data-val="false">No</button>
+            <button type="button" class="pa-yn-btn is-yes" data-field="q_recent_promotion" data-val="true">Yes</button>
+          </div>
+          <input type="hidden" name="q_recent_promotion" value="false"/>
+        </div>
+
+        <div class="pa-toggle-row">
+          <div class="pa-toggle-label">
+            <span class="pa-toggle-name">Workload or burnout concerns?</span>
+            <span class="pa-toggle-hint">Employee has expressed stress, fatigue, or overload</span>
+          </div>
+          <div class="pa-yn-wrap">
+            <button type="button" class="pa-yn-btn is-no is-active" data-field="q_burnout_risk" data-val="false">No</button>
+            <button type="button" class="pa-yn-btn is-yes" data-field="q_burnout_risk" data-val="true">Yes</button>
+          </div>
+          <input type="hidden" name="q_burnout_risk" value="false"/>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="pa-assess-notes-wrap">
+        <label class="pa-assess-notes-label">Additional HR Notes (optional)</label>
+        <textarea name="notes" id="assess-notes" class="pa-assess-notes" rows="3"
+                  placeholder="Any context, observations, or planned actions for this employee…"/>
+      </div>
+
+      <!-- Live preview score -->
+      <div class="pa-assess-preview">
+        <div class="pa-preview-bar">
+          <span class="pa-preview-label">Estimated blended risk after this assessment:</span>
+          <span class="pa-preview-score" id="assess-preview-score">—</span>
+          <span class="pa-preview-level" id="assess-preview-level"></span>
+        </div>
+      </div>
+
+      <div class="pa-assess-actions">
+        <button type="button" class="pa-btn pa-btn-ghost" id="pa-assess-cancel">Cancel</button>
+        <button type="submit" class="pa-btn pa-btn-primary" id="pa-assess-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+          Save Assessment &amp; View Results
+        </button>
+      </div>
+    </form>
+
+    <div class="pa-assess-saving" id="pa-assess-saving" style="display:none">
+      <div class="pa-assess-spinner"></div>
+      <span>Saving assessment…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ EMPLOYEE DETAIL MODAL ═══════════════════════ -->
+<div class="pa-modal-overlay" id="pa-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="pa-modal">
+    <button class="pa-modal-close" id="pa-modal-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="pa-modal-body">
+      <!-- Left: Profile + score -->
+      <div class="pa-modal-left">
+        <div class="pa-modal-avatar" id="modal-avatar-wrap"></div>
+        <div class="pa-modal-name" id="modal-name">—</div>
+        <div class="pa-modal-job" id="modal-job">—</div>
+        <div class="pa-modal-dept" id="modal-dept">—</div>
+        <div class="pa-modal-score-ring">
+          <svg viewBox="0 0 120 120" class="pa-ring-svg" id="modal-ring-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e6ee" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke-width="10" stroke-linecap="round"
+                    stroke-dasharray="314" stroke-dashoffset="314"
+                    transform="rotate(-90 60 60)"
+                    id="modal-ring-arc" class="pa-ring-arc"/>
+          </svg>
+          <div class="pa-ring-center">
+            <div class="pa-ring-score" id="modal-score-val">0</div>
+            <div class="pa-ring-label">Risk Score</div>
+          </div>
+        </div>
+        <div class="pa-modal-level-badge" id="modal-level-badge">—</div>
+
+        <div class="pa-modal-meta">
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">Tenure</span>
+            <span class="pa-meta-val" id="modal-tenure">—</span>
+          </div>
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">Age</span>
+            <span class="pa-meta-val" id="modal-age">—</span>
+          </div>
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">Top Driver</span>
+            <span class="pa-meta-val" id="modal-driver">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Factor radar + recommendations -->
+      <div class="pa-modal-right">
+        <div class="pa-modal-section-title">Risk Factor Breakdown</div>
+        <div class="pa-factor-bars" id="modal-factor-bars"></div>
+
+        <div class="pa-modal-divider"></div>
+
+        <div class="pa-modal-section-title">Retention Recommendations</div>
+        <div class="pa-recs-list" id="modal-recs-list"></div>
+
+        <div class="pa-modal-actions">
+          <a id="modal-emp-link" href="#" class="pa-btn pa-btn-primary" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Employee Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Embedded data — raw JSON in element, parsed immediately into global var -->
+<script id="pa-data" type="application/json"><t t-out="page_data_json"/></script>
+<script>
+(function(){
+  try {
+    var el = document.getElementById('pa-data');
+    window.PA_DATA = el ? JSON.parse(el.textContent || el.innerHTML || '{}') : {};
+  } catch(e) { window.PA_DATA = {}; }
+})();
+</script>
+<script src="/hrsd/static/src/js/attrition.js?v=4"/>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

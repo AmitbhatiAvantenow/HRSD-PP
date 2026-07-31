@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Modern payslip report: mirrors a typical Indian company payslip
+         (employee info block, Earnings/Deductions salary sheet, worked
+         days block, Net Salary in words, Total CTC, disclaimer).
+
+         Note: every value below is rendered with plain t-esc (plain
+         text), never t-field or a t-options widget. On this setup, the
+         field/monetary widget rendering silently produces a BLANK cell
+         once converted to PDF via wkhtmltopdf, even though the exact
+         same template renders the value fine as HTML - so the report
+         deliberately avoids that widget system entirely, using
+         hr.payslip.format_currency() and strftime() for formatting. -->
+    <template id="report_payslip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page payslip-report">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h2 class="mb-0">Salary Slip <t t-esc="o.date_from.strftime('%B %Y')"/></h2>
+                            <span t-if="o.state == 'done'" class="badge rounded-pill text-bg-success">Paid</span>
+                            <span t-elif="o.state == 'cancel'" class="badge rounded-pill text-bg-secondary">Cancelled</span>
+                            <span t-else="" class="badge rounded-pill text-bg-warning">Draft</span>
+                        </div>
+
+                        <table class="table table-sm table-borderless mb-2">
+                            <tr>
+                                <td style="width:25%;"><strong>Name</strong></td>
+                                <td style="width:25%;"><t t-esc="o.employee_id.name"/></td>
+                                <td style="width:25%;"><strong>Pay Period</strong></td>
+                                <td style="width:25%;">
+                                    <t t-esc="o.date_from.strftime('%d/%m/%Y')"/> - <t t-esc="o.date_to.strftime('%d/%m/%Y')"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Designation</strong></td>
+                                <td><t t-esc="o.employee_id.job_title or ''"/></td>
+                                <td><strong>Pay Date</strong></td>
+                                <td><t t-esc="o.date_to.strftime('%d/%m/%Y')"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>PAN</strong></td>
+                                <td><t t-esc="o.employee_id.pan_number or ''"/></td>
+                                <td><strong>UAN</strong></td>
+                                <td><t t-esc="o.employee_id.uan_number or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bank Account</strong></td>
+                                <td><t t-esc="o.employee_id.primary_bank_account_id.acc_number or ''"/></td>
+                                <td><strong>Reference</strong></td>
+                                <td><t t-esc="o.number or ''"/></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-sm table-bordered mb-1">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:50%;">Earnings</th>
+                                    <th class="text-end">Amount</th>
+                                    <th style="width:50%;">Deductions</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="earning_lines"
+                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.category_id.code not in ('DED', 'COMP') and l.code not in ('GROSS', 'NET', 'CTC'))"/>
+                                <t t-set="deduction_lines"
+                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.category_id.code == 'DED')"/>
+                                <t t-set="max_lines" t-value="max(len(earning_lines), len(deduction_lines))"/>
+                                <tr t-foreach="range(max_lines)" t-as="i">
+                                    <td t-if="i &lt; len(earning_lines)" t-esc="earning_lines[i].name"/>
+                                    <td t-else=""/>
+                                    <td t-if="i &lt; len(earning_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(earning_lines[i].total)"/>
+                                    <td t-else=""/>
+                                    <td t-if="i &lt; len(deduction_lines)" t-esc="deduction_lines[i].name"/>
+                                    <td t-else=""/>
+                                    <td t-if="i &lt; len(deduction_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(-deduction_lines[i].total)"/>
+                                    <td t-else=""/>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-light">
+                                    <th>Total Earnings</th>
+                                    <th class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('GROSS'))"/>
+                                    <th>Total Deductions</th>
+                                    <th class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(-sum(deduction_lines.mapped('total')))"/>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <table class="table table-sm table-bordered mb-3">
+                            <tr class="table-light">
+                                <th colspan="4">Working days for this period</th>
+                            </tr>
+                            <tr>
+                                <td>Working days in period</td>
+                                <td class="text-end" t-esc="o.get_worked_days_total('WORKING_DAYS')"/>
+                                <td>Number of days worked</td>
+                                <td class="text-end" t-esc="o.get_worked_days_total('WORK100')"/>
+                            </tr>
+                            <tr>
+                                <td>Leaves adjusted (days)</td>
+                                <td class="text-end" t-esc="o.get_leaves_days_total()"/>
+                                <td><strong>Total paid days</strong></td>
+                                <td class="text-end"><strong t-esc="o.get_worked_days_total('PAID_DAYS')"/></td>
+                            </tr>
+                        </table>
+
+                        <table class="table table-sm mb-1">
+                            <tr class="border-top border-bottom">
+                                <td><h4 class="mb-0">Net Salary</h4></td>
+                                <td class="text-end" style="white-space:nowrap;">
+                                    <h4 class="mb-0" t-esc="o.format_currency(o.get_salary_line_total('NET'))"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <p>Net Salary in Words: <strong t-esc="'%s %s Only' % (o.get_amount_in_words(), o.company_id.currency_id.name)"/></p>
+
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td>*Total CTC this period, including Bonus, EPF Company Share and EPF Admin charges if any</td>
+                                <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('CTC'))"/>
+                            </tr>
+                        </table>
+
+                        <p class="text-muted mt-4" style="font-size: 11px;">
+                            This is a computer-generated Salary Slip and does not require a signature.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

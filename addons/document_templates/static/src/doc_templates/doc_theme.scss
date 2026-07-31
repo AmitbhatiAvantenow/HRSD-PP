@@ -1,0 +1,489 @@
+// Document Templates ships its own sidebar/topbar (DocShell), so Odoo's native app bar is
+// hidden while one of its pages is mounted (toggled by DocShell in doc_shell.js).
+body.o_doctpl_fullscreen .o_main_navbar {
+    display: none !important;
+}
+
+// Defined on :root (not just .doc-shell) because Odoo's Dialog component renders its
+// .modal-header/.modal-footer as siblings of our .doc-shell content div, not descendants of
+// it - buttons placed in a dialog's footer slot would otherwise resolve every --doc-* color
+// var to nothing and render invisible.
+:root {
+    --doc-paper: #f6f7fb;
+    --doc-card: #ffffff;
+    --doc-card-alt: #fafbfd;
+    --doc-ink: #1f2437;
+    --doc-ink-soft: #5b6178;
+    --doc-ink-faint: #949aad;
+    --doc-line: #e4e6ef;
+    --doc-line-soft: #edeef5;
+    --doc-line-strong: #ccd0e0;
+    --doc-primary: #4453c9;
+    --doc-primary-dark: #333f9e;
+    --doc-primary-soft: #ecedfb;
+    --doc-success: #2f8f5b;
+    --doc-success-soft: #e6f6ec;
+    --doc-warning: #b9860f;
+    --doc-warning-soft: #fbf1dc;
+    --doc-danger: #c0392b;
+    --doc-danger-soft: #fbe9e7;
+    --doc-info: #3f8fd6;
+    --doc-info-soft: #e8f2fb;
+    --doc-purple: #8b5fd6;
+    --doc-purple-soft: #efe8fb;
+    --doc-muted: #949aad;
+    --doc-muted-soft: #edeef5;
+    --doc-shadow-sm: 0 1px 2px rgba(31, 36, 55, 0.06);
+    --doc-shadow-md: 0 4px 16px rgba(31, 36, 55, 0.07);
+    --doc-shadow-lg: 0 12px 32px rgba(31, 36, 55, 0.14);
+    --doc-radius: 14px;
+}
+
+.doc-shell {
+    --doc-paper: #f6f7fb;
+    --doc-card: #ffffff;
+    --doc-card-alt: #fafbfd;
+    --doc-ink: #1f2437;
+    --doc-ink-soft: #5b6178;
+    --doc-ink-faint: #949aad;
+    --doc-line: #e4e6ef;
+    --doc-line-soft: #edeef5;
+    --doc-line-strong: #ccd0e0;
+    --doc-primary: #4453c9;
+    --doc-primary-dark: #333f9e;
+    --doc-primary-soft: #ecedfb;
+    --doc-success: #2f8f5b;
+    --doc-success-soft: #e6f6ec;
+    --doc-warning: #b9860f;
+    --doc-warning-soft: #fbf1dc;
+    --doc-danger: #c0392b;
+    --doc-danger-soft: #fbe9e7;
+    --doc-info: #3f8fd6;
+    --doc-info-soft: #e8f2fb;
+    --doc-purple: #8b5fd6;
+    --doc-purple-soft: #efe8fb;
+    --doc-muted: #949aad;
+    --doc-muted-soft: #edeef5;
+    --doc-shadow-sm: 0 1px 2px rgba(31, 36, 55, 0.06);
+    --doc-shadow-md: 0 4px 16px rgba(31, 36, 55, 0.07);
+    --doc-shadow-lg: 0 12px 32px rgba(31, 36, 55, 0.14);
+    --doc-radius: 14px;
+
+    display: flex;
+    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--doc-paper);
+    color: var(--doc-ink);
+    font-family: "IBM Plex Sans", -apple-system, sans-serif;
+
+    &.doc-dialog-scope {
+        display: block;
+        height: auto;
+        overflow: visible;
+        background: transparent;
+    }
+
+    * { box-sizing: border-box; }
+
+    .doc-mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+
+    // ---- Sidebar ----
+    .doc-sidebar {
+        width: 232px;
+        flex-shrink: 0;
+        background: var(--doc-card);
+        border-right: 1px solid var(--doc-line);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        transition: width 0.22s ease;
+    }
+    .doc-sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 18px 16px 15px;
+        border-bottom: 1px solid var(--doc-line-soft);
+        flex-shrink: 0;
+    }
+    .doc-sidebar-logo {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: linear-gradient(155deg, var(--doc-primary), var(--doc-primary-dark));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Big Shoulders Display", sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    .doc-sidebar-brand-text { line-height: 1.25; min-width: 0; }
+    .doc-sidebar-co { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .doc-sidebar-sub {
+        font-size: 10.5px; color: var(--doc-ink-faint); font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .doc-sidebar-nav { padding: 12px 9px; display: flex; flex-direction: column; gap: 1px; flex: 1; }
+    .doc-nav-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--doc-ink-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 12px 10px 5px;
+
+        &:first-child { padding-top: 6px; }
+    }
+    .doc-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 11px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--doc-ink-soft);
+        cursor: pointer;
+        transition: background 0.13s ease, color 0.13s ease;
+        white-space: nowrap;
+        overflow: hidden;
+
+        &:hover { background: var(--doc-card-alt); color: var(--doc-ink); }
+        &.active { background: var(--doc-primary-soft); color: var(--doc-primary-dark); }
+    }
+    .doc-nav-item-icon { width: 15px; text-align: center; flex-shrink: 0; opacity: 0.85; }
+    .doc-nav-item.active .doc-nav-item-icon { opacity: 1; }
+    .doc-nav-item-label { overflow: hidden; text-overflow: ellipsis; }
+    .doc-nav-item-badge {
+        margin-left: auto;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--doc-muted);
+        background: var(--doc-muted-soft);
+        padding: 1px 6px;
+        border-radius: 999px;
+    }
+    .doc-sidebar-collapse {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 6px 9px 10px;
+        padding: 9px 11px;
+        border-radius: 8px;
+        border-top: 1px solid var(--doc-line-soft);
+        padding-top: 14px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--doc-ink-faint);
+        cursor: pointer;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+
+        &:hover { color: var(--doc-ink-soft); }
+    }
+    &.doc-sidebar-collapsed {
+        .doc-sidebar { width: 68px; }
+        .doc-sidebar-brand-text, .doc-nav-item-label, .doc-nav-item-badge { display: none; }
+        .doc-sidebar-brand { justify-content: center; padding: 18px 0 15px; }
+        .doc-nav-item { justify-content: center; }
+        .doc-sidebar-collapse { justify-content: center; }
+    }
+
+    // ---- Main / topbar ----
+    .doc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+    .doc-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 28px;
+        background: var(--doc-card);
+        border-bottom: 1px solid var(--doc-line);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+    .doc-eyebrow {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--doc-ink-faint);
+        margin-bottom: 3px;
+    }
+    .doc-title {
+        font-family: "Big Shoulders Display", "IBM Plex Sans", sans-serif;
+        font-weight: 600;
+        font-size: 24px;
+        margin: 0;
+        letter-spacing: 0.01em;
+    }
+    .doc-subtitle { margin: 4px 0 0; font-size: 13px; color: var(--doc-ink-soft); }
+    .doc-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .doc-page { flex: 1; overflow-y: auto; padding: 24px 28px 32px; animation: docPageIn 0.28s ease; }
+    @keyframes docPageIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .doc-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 28px;
+        background: var(--doc-card);
+        border-top: 1px solid var(--doc-line);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10.5px;
+        color: var(--doc-ink-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        gap: 16px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+    .doc-footer-label { display: block; opacity: 0.7; font-size: 9.5px; margin-bottom: 1px; }
+    .doc-footer-brand { display: flex; align-items: center; gap: 6px; }
+    .doc-status-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--doc-success);
+        animation: docStatusPulse 2s infinite;
+    }
+    @keyframes docStatusPulse {
+        0% { box-shadow: 0 0 0 0 rgba(47, 143, 91, 0.45); }
+        70% { box-shadow: 0 0 0 5px rgba(47, 143, 91, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(47, 143, 91, 0); }
+    }
+
+    // ---- Shared building blocks ----
+    .doc-card {
+        background: var(--doc-card);
+        border: 1px solid var(--doc-line);
+        border-radius: var(--doc-radius);
+        box-shadow: var(--doc-shadow-sm);
+        padding: 17px 18px 19px;
+        animation: docCardIn 0.32s ease both;
+    }
+    @keyframes docCardIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .doc-card-title {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--doc-ink-faint);
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 13px;
+    }
+
+    .doc-grid { display: grid; gap: 16px; }
+
+    .doc-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+    .doc-kpi {
+        background: var(--doc-card);
+        border: 1px solid var(--doc-line);
+        border-radius: var(--doc-radius);
+        box-shadow: var(--doc-shadow-sm);
+        padding: 15px 17px 13px;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+        animation: docCardIn 0.32s ease both;
+
+        &:hover { box-shadow: var(--doc-shadow-md); transform: translateY(-1px); }
+    }
+    .doc-kpi-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--doc-ink-soft);
+        margin-bottom: 6px;
+    }
+    .doc-kpi-value {
+        font-family: "Big Shoulders Display", "IBM Plex Mono", monospace;
+        font-size: 25px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+    .doc-kpi-delta { margin-top: 4px; font-size: 11px; color: var(--doc-success); }
+    @each $name in success, warning, danger, info, purple {
+        .doc-kpi.doc-c-#{$name} .doc-kpi-value { color: var(--doc-#{$name}); }
+    }
+
+    .doc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+
+        th {
+            text-align: left;
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--doc-ink-faint);
+            font-weight: 500;
+            padding: 0 10px 10px;
+            border-bottom: 1px solid var(--doc-line);
+        }
+        td { padding: 11px 10px; border-bottom: 1px solid var(--doc-line-soft); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--doc-card-alt); }
+    }
+
+    .doc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+    @each $name in success, warning, danger, info, purple, muted {
+        .doc-chip.doc-c-#{$name} {
+            background: var(--doc-#{$name}-soft);
+            color: var(--doc-#{$name});
+        }
+    }
+    .doc-chip::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+    }
+
+    .doc-bar-row {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        margin-bottom: 10px;
+        font-size: 12.5px;
+    }
+    .doc-bar-track { height: 8px; border-radius: 5px; background: var(--doc-muted-soft); overflow: hidden; }
+    .doc-bar-fill { height: 100%; border-radius: 5px; background: var(--doc-primary); transition: width 0.5s ease; }
+
+    .doc-vbar-row { display: flex; align-items: flex-end; gap: 12px; height: 150px; padding-top: 8px; }
+    .doc-vbar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+    .doc-vbar { width: 100%; max-width: 34px; border-radius: 6px 6px 3px 3px; background: var(--doc-primary); transition: height 0.4s ease; }
+    .doc-vbar-label { font-size: 11px; color: var(--doc-ink-faint); font-weight: 600; text-align: center; }
+    .doc-vbar-value { font-size: 11px; color: var(--doc-ink-soft); font-weight: 700; }
+
+    .doc-ring-wrap { flex-shrink: 0; }
+    .doc-ring {
+        --pct: 0;
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        background: conic-gradient(var(--doc-primary) calc(var(--pct) * 3.6deg), var(--doc-line-soft) 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: docRingIn 1s ease-out both;
+
+        span {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--doc-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--doc-ink);
+        }
+    }
+    @keyframes docRingIn {
+        from { --pct: 0; }
+    }
+
+    .doc-empty { color: var(--doc-ink-faint); font-size: 13px; padding: 20px 0; text-align: center; }
+
+    .doc-field { margin-bottom: 14px; }
+    .doc-field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--doc-ink-soft);
+        margin-bottom: 5px;
+    }
+    .doc-field input, .doc-field select, .doc-field textarea {
+        width: 100%;
+        border: 1px solid var(--doc-line);
+        border-radius: 6px;
+        padding: 8px 11px;
+        font-size: 13px;
+        font-family: "IBM Plex Sans", sans-serif;
+        background: var(--doc-card);
+        color: var(--doc-ink);
+
+        &:focus { outline: none; border-color: var(--doc-primary); }
+    }
+    .doc-field-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+
+    .doc-btn-outline, .doc-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 7px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
+
+        &:active { transform: scale(0.98); }
+        &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+    .doc-btn-outline {
+        background: var(--doc-card);
+        border: 1px solid var(--doc-line);
+        color: var(--doc-ink);
+        &:hover:not(:disabled) { background: var(--doc-primary-soft); }
+    }
+    .doc-btn-primary {
+        background: var(--doc-primary);
+        border: 1px solid var(--doc-primary);
+        color: #fff;
+        &:hover:not(:disabled) { filter: brightness(1.08); }
+    }
+    .doc-btn-sm { padding: 5px 11px; font-size: 12px; }
+
+    .doc-wizard-error {
+        background: var(--doc-danger-soft);
+        color: var(--doc-danger);
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-size: 12.5px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}

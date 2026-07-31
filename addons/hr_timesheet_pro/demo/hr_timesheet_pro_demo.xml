@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <data>
+
+        <record id="demo_htp_dep_eng" model="hr.department">
+            <field name="name">Engineering</field>
+        </record>
+
+        <record id="demo_htp_emp_john" model="hr.employee">
+            <field name="name">John Carter</field>
+            <field name="job_title">UI/UX Designer</field>
+            <field name="department_id" ref="demo_htp_dep_eng"/>
+        </record>
+        <record id="demo_htp_emp_olivia" model="hr.employee">
+            <field name="name">Olivia Brown</field>
+            <field name="job_title">Frontend Developer</field>
+            <field name="department_id" ref="demo_htp_dep_eng"/>
+        </record>
+        <record id="demo_htp_emp_liam" model="hr.employee">
+            <field name="name">Liam Wilson</field>
+            <field name="job_title">Backend Developer</field>
+            <field name="department_id" ref="demo_htp_dep_eng"/>
+        </record>
+        <record id="demo_htp_emp_emma" model="hr.employee">
+            <field name="name">Emma Davis</field>
+            <field name="job_title">QA Engineer</field>
+            <field name="department_id" ref="demo_htp_dep_eng"/>
+        </record>
+
+        <record id="demo_htp_project" model="project.project">
+            <field name="name">Website Redesign</field>
+        </record>
+
+        <!-- John: current week, draft -->
+        <record id="demo_htp_sheet_john_current" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_john"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday())).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()) + timedelta(days=6)).strftime('%Y-%m-%d')"/>
+            <field name="state">draft</field>
+        </record>
+        <record id="demo_htp_line_john_mon" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_john_current"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday())).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">8.0</field>
+            <field name="comments">UI design for dashboard</field>
+        </record>
+        <record id="demo_htp_line_john_tue" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_john_current"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()) + timedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">8.0</field>
+            <field name="comments">Component development</field>
+        </record>
+
+        <!-- Olivia, Liam, Emma: last week, submitted (pending approval) -->
+        <record id="demo_htp_sheet_olivia" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_olivia"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+1)).strftime('%Y-%m-%d')"/>
+            <field name="state">submitted</field>
+            <field name="submitted_date" eval="DateTime.today()"/>
+        </record>
+        <record id="demo_htp_line_olivia" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_olivia"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">32.75</field>
+            <field name="comments">Website redesign - week total</field>
+        </record>
+
+        <record id="demo_htp_sheet_liam" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_liam"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+1)).strftime('%Y-%m-%d')"/>
+            <field name="state">submitted</field>
+            <field name="submitted_date" eval="DateTime.today()"/>
+        </record>
+        <record id="demo_htp_line_liam" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_liam"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">28.5</field>
+            <field name="comments">API integration - week total</field>
+        </record>
+
+        <record id="demo_htp_sheet_emma" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_emma"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+1)).strftime('%Y-%m-%d')"/>
+            <field name="state">submitted</field>
+            <field name="submitted_date" eval="DateTime.today()"/>
+        </record>
+        <record id="demo_htp_line_emma" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_emma"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+7)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">34.25</field>
+            <field name="comments">QA testing - week total</field>
+        </record>
+
+        <!-- A couple of historical sheets: one approved, one rejected -->
+        <record id="demo_htp_sheet_john_prev" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_john"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+14)).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+8)).strftime('%Y-%m-%d')"/>
+            <field name="state">approved</field>
+            <field name="submitted_date" eval="DateTime.today()"/>
+            <field name="approved_date" eval="DateTime.today()"/>
+        </record>
+        <record id="demo_htp_line_john_prev" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_john_prev"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+14)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">40.0</field>
+            <field name="comments">Sprint delivery - week total</field>
+        </record>
+
+        <record id="demo_htp_sheet_olivia_prev" model="hr.timesheet.sheet">
+            <field name="employee_id" ref="demo_htp_emp_olivia"/>
+            <field name="project_id" ref="demo_htp_project"/>
+            <field name="date_start" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+14)).strftime('%Y-%m-%d')"/>
+            <field name="date_end" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+8)).strftime('%Y-%m-%d')"/>
+            <field name="state">rejected</field>
+            <field name="submitted_date" eval="DateTime.today()"/>
+            <field name="manager_comment">Please break down the hours per task, this is too vague.</field>
+        </record>
+        <record id="demo_htp_line_olivia_prev" model="hr.timesheet.line">
+            <field name="sheet_id" ref="demo_htp_sheet_olivia_prev"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=DateTime.today().weekday()+14)).strftime('%Y-%m-%d')"/>
+            <field name="start_time">9.0</field>
+            <field name="end_time">18.0</field>
+            <field name="hours">36.0</field>
+            <field name="comments">Misc work</field>
+        </record>
+
+    </data>
+</odoo>

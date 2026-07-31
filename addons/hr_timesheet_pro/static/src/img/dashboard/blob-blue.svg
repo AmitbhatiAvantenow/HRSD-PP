@@ -1,0 +1,9 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="blobBlueGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.50"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#blobBlueGrad)" d="M228,332Q168,364,104,336Q40,308,38,238Q36,168,88,120Q140,72,208,86Q276,100,320,152Q364,204,326,268Q288,332,228,332Z"/>
+</svg>

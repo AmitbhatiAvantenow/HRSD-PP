@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="hrsd_recruitment_page" name="Recruitment Portal">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Recruitment Portal · <t t-esc="brand['name']"/> HR</title>
+  <link rel="stylesheet" href="/hrsd/static/src/css/recruitment.css"/>
+</head>
+<body>
+
+<div class="rcp-shell">
+
+  <!-- ═══════════════════════════════ TOPBAR ═══════════════════════════════ -->
+
+
+  <div class="rcp-app-header">
+    <a href="/hrsd/dashboard" class="rcp-brand">
+      <t t-if="brand['logo_url']">
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="rcp-brand-mark" style="object-fit: cover;"/>
+      </t>
+      <t t-else="">
+        <span class="rcp-brand-mark"><t t-esc="brand['initial']"/></span>
+      </t>
+      <span class="rcp-brand-name"><t t-esc="brand['name']"/></span>
+    </a>
+  </div>
+
+  <!-- ═══════════════════════════════ MAIN ═════════════════════════════════ -->
+  <main class="rcp-main">
+
+    <!-- Hero -->
+    <section class="rcp-hero">
+      <div class="rcp-hero-left">
+        <div class="rcp-hero-badge">Welcome to Careers Portal</div>
+        <h1 class="rcp-hero-title">
+          Connecting Talent Today.<br/>
+          <span class="rcp-hero-title-accent">Building Tomorrow Together.</span>
+        </h1>
+        <p class="rcp-hero-sub">Streamline recruitment, empower careers, and drive growth with our intelligent portal.</p>
+        <div class="rcp-hero-features">
+          <div class="rcp-hero-feature">
+            <span class="rcp-hero-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            Find the Right Talent
+          </div>
+          <div class="rcp-hero-feature">
+            <span class="rcp-hero-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </span>
+            Drive Better Outcomes
+          </div>
+          <div class="rcp-hero-feature">
+            <span class="rcp-hero-feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            </span>
+            Build a Future-Ready Team
+          </div>
+        </div>
+      </div>
+      <div class="rcp-hero-right">
+        <svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" class="rcp-hero-illustration">
+          <circle cx="130" cy="130" r="120" fill="var(--rcp-blue-bg)"/>
+          <rect x="88" y="34" width="84" height="122" rx="12" fill="#ffffff" stroke="var(--rcp-blue)" stroke-width="3"/>
+          <rect x="112" y="24" width="36" height="16" rx="4" fill="var(--rcp-blue)"/>
+          <circle cx="130" cy="66" r="12" fill="var(--rcp-blue-bg)" stroke="var(--rcp-blue)" stroke-width="2.5"/>
+          <line x1="104" y1="88" x2="156" y2="88" stroke="var(--rcp-border)" stroke-width="3" stroke-linecap="round"/>
+          <line x1="104" y1="98" x2="156" y2="98" stroke="var(--rcp-border)" stroke-width="3" stroke-linecap="round"/>
+          <polyline points="106,112 112,118 122,106" fill="none" stroke="var(--rcp-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="106,128 112,134 122,122" fill="none" stroke="var(--rcp-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="106,144 112,150 122,138" fill="none" stroke="var(--rcp-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="176" cy="150" r="26" fill="none" stroke="var(--rcp-navy)" stroke-width="6"/>
+          <line x1="195" y1="169" x2="212" y2="186" stroke="var(--rcp-navy)" stroke-width="7" stroke-linecap="round"/>
+          <g transform="translate(30,150)">
+            <circle cx="20" cy="14" r="12" fill="var(--rcp-blue)"/>
+            <path d="M0 62c0-16 9-30 20-30s20 14 20 30" fill="var(--rcp-blue)"/>
+          </g>
+          <g transform="translate(150,170)">
+            <circle cx="20" cy="14" r="12" fill="var(--rcp-navy)"/>
+            <path d="M0 62c0-16 9-30 20-30s20 14 20 30" fill="var(--rcp-navy)"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- Navigation cards -->
+    <section class="rcp-cards-grid">
+      <a href="#" class="rcp-card is-blue" data-action="open-recruitment">
+        <div class="rcp-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+        </div>
+        <h3 class="rcp-card-title"><br/>Recruitment</h3>
+        <p class="rcp-card-desc">Manage job postings, candidates, interviews, and offer management seamlessly.</p>
+        <span class="rcp-card-link">
+          Go to Recruitment
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+      <a href="#" class="rcp-card is-purple" data-action="open-dashboard">
+        <div class="rcp-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        </div>
+        <h3 class="rcp-card-title"><br/>Dashboard</h3>
+        <p class="rcp-card-desc">Get powerful insights and reports to make data-driven recruitment decisions.</p>
+        <span class="rcp-card-link">
+          Go to Dashboard
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+      <a href="#" class="rcp-card is-orange" data-action="open-kanban">
+        <div class="rcp-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3 class="rcp-card-title"><br/>Kanban Workspace Board</h3>
+        <p class="rcp-card-desc">Visualize your hiring pipeline, collaborate with your team, and move faster together.</p>
+        <span class="rcp-card-link">
+          Go to Kanban Workspace
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+    </section>
+
+  </main>
+</div>
+
+<script type="text/javascript" src="/hrsd/static/src/js/recruitment.js"></script>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

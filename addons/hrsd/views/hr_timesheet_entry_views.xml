@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ── List view ──────────────────────────────────────────────────────── -->
+    <record id="hr_timesheet_entry_list_view" model="ir.ui.view">
+      <field name="name">hr.timesheet.entry.list</field>
+      <field name="model">hr.timesheet.entry</field>
+      <field name="arch" type="xml">
+        <list string="Timesheet Management" default_order="date desc">
+          <field name="code"/>
+          <field name="short_description"/>
+          <field name="employee_id" string="Employee Name"/>
+          <field name="email"/>
+          <field name="date"/>
+          <field name="hours" string="Efforts in Hour"/>
+          <field name="start_time" widget="float_time"/>
+          <field name="end_time" widget="float_time"/>
+          <field name="comments"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- ── Form view ──────────────────────────────────────────────────────── -->
+    <record id="hr_timesheet_entry_form_view" model="ir.ui.view">
+      <field name="name">hr.timesheet.entry.form</field>
+      <field name="model">hr.timesheet.entry</field>
+      <field name="arch" type="xml">
+        <form string="Timesheet Entry">
+          <sheet>
+            <div class="oe_title">
+              <h1><field name="code" readonly="1"/></h1>
+            </div>
+            <group>
+              <group>
+                <field name="employee_id"/>
+                <field name="email"/>
+                <field name="date"/>
+                <field name="day_name"/>
+              </group>
+              <group>
+                <field name="start_time" widget="float_time"/>
+                <field name="end_time" widget="float_time"/>
+                <field name="hours" widget="float_time"/>
+              </group>
+            </group>
+            <group>
+              <field name="comments"/>
+            </group>
+            <notebook>
+              <page string="Tasks">
+                <field name="task_ids">
+                  <list editable="bottom">
+                    <field name="name"/>
+                    <field name="stage" widget="badge"/>
+                    <field name="priority" widget="badge"/>
+                    <field name="tag"/>
+                    <field name="hours"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <!-- ── Search view ────────────────────────────────────────────────────── -->
+    <record id="hr_timesheet_entry_search_view" model="ir.ui.view">
+      <field name="name">hr.timesheet.entry.search</field>
+      <field name="model">hr.timesheet.entry</field>
+      <field name="arch" type="xml">
+        <search string="Search Timesheet Entries">
+          <field name="code"/>
+          <field name="employee_id"/>
+          <field name="short_description"/>
+          <filter name="my_entries" string="My Entries" domain="[('employee_id.user_id', '=', uid)]"/>
+          <group>
+            <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+            <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <!-- ── Window action ───────────────────────────────────────────────────── -->
+    <record id="action_hr_timesheet_entry" model="ir.actions.act_window">
+      <field name="name">Timesheet Management</field>
+      <field name="res_model">hr.timesheet.entry</field>
+      <field name="view_mode">list,form</field>
+      <field name="search_view_id" ref="hr_timesheet_entry_search_view"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">No timesheet entries yet</p>
+        <p>Entries are created automatically as tasks are logged on the
+           <a href="/hrsd/tasks">Kanban Workspace Board</a> — one row per employee per day.</p>
+      </field>
+    </record>
+
+    <!-- ── Menu item ──────────────────────────────────────────────────────── -->
+    <menuitem id="menu_hrsd_timesheet_entry"
+              name="Timesheet Management"
+              parent="menu_hrsd_root"
+              action="action_hr_timesheet_entry"
+              sequence="30"/>
+
+  </data>
+</odoo>

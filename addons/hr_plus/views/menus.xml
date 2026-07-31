@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<menuitem id="menu_root" name="HR Plus" sequence="88" web_icon="hr_plus,static/description/icon.png"/>
+<menuitem id="menu_dashboard" name="HR Ops Dashboard" parent="menu_root" action="action_dashboard" sequence="5"/>
+<menuitem id="menu_people_dashboard" name="People Analytics" parent="menu_root" action="action_people_dashboard" sequence="6"/>
+<menuitem id="menu_training_dashboard" name="Training &amp; Compliance" parent="menu_root" action="action_training_dashboard" sequence="7"/>
+<menuitem id="menu_engagement_dashboard" name="Engagement &amp; Culture" parent="menu_root" action="action_engagement_dashboard" sequence="8"/>
+<menuitem id="menu_documents" name="Document Tracker" parent="menu_root" action="action_document_tracker" sequence="10"/>
+<menuitem id="menu_assets" name="Asset Assignments" parent="menu_root" action="action_asset" sequence="15"/>
+<menuitem id="menu_onboarding" name="Onboarding" parent="menu_root" action="action_onboarding" sequence="20"/>
+<menuitem id="menu_offboarding" name="Offboarding" parent="menu_root" action="action_offboarding" sequence="22"/>
+<menuitem id="menu_career" name="Career history" parent="menu_root" action="action_career" sequence="25"/>
+<menuitem id="menu_disciplinary" name="Disciplinary" parent="menu_root" action="action_disciplinary" sequence="30"/>
+<menuitem id="menu_loans" name="Employee loans" parent="menu_root" action="action_loan" sequence="35"/>
+<menuitem id="menu_dependents" name="Dependents" parent="menu_root" action="action_dependent" sequence="40"/>
+<menuitem id="menu_eosb" name="EOSB" parent="menu_root" action="action_eosb" sequence="45"/>
+<menuitem id="menu_eosb_calc" name="EOSB calculator" parent="menu_root" action="action_eosb_calc" sequence="46"/>
+<menuitem id="menu_probation" name="Probation" parent="menu_root" action="action_probation" sequence="50"/>
+<menuitem id="menu_trips" name="Business trips" parent="menu_root" action="action_trip" sequence="55"/>
+<menuitem id="menu_policies" name="Policies" parent="menu_root" action="action_policy" sequence="60"/>
+<menuitem id="menu_acks" name="Policy acknowledgements" parent="menu_root" action="action_policy_ack" sequence="62"/>
+<menuitem id="menu_training" name="Training &amp; Certifications" parent="menu_root" action="action_training" sequence="64"/>
+<menuitem id="menu_okr" name="OKRs / Goals" parent="menu_root" action="action_okr" sequence="65"/>
+<menuitem id="menu_360" name="360 Feedback" parent="menu_root" action="action_360" sequence="66"/>
+<menuitem id="menu_recognition" name="Recognition &amp; Awards" parent="menu_root" action="action_recognition" sequence="67"/>
+<menuitem id="menu_referral" name="Referral Program" parent="menu_root" action="action_referral" sequence="68"/>
+<menuitem id="menu_letter" name="HR Letters" parent="menu_root" action="action_letter" sequence="69"/>
+<menuitem id="menu_visa" name="Visa Renewals" parent="menu_root" action="action_visa" sequence="70"/>
+<menuitem id="menu_exit" name="Exit Interviews" parent="menu_root" action="action_exit" sequence="71"/>
+<menuitem id="menu_suggestion" name="Suggestion Box" parent="menu_root" action="action_suggestion" sequence="72"/>
+<menuitem id="menu_config" name="Configuration" parent="menu_root" sequence="90" groups="group_hr_plus_manager"/>
+<menuitem id="menu_doctypes" name="Document types" parent="menu_config" action="action_document_type" sequence="10"/>
+<menuitem id="menu_asset_cats" name="Asset categories" parent="menu_config" action="action_asset_cat" sequence="20"/>
+<menuitem id="menu_onb_tpl" name="Onboarding task templates" parent="menu_config" action="action_onb_template" sequence="30"/>
+<menuitem id="menu_loan_inst" name="All loan installments" parent="menu_config" action="action_loan_inst" sequence="40"/>
+<menuitem id="menu_360q" name="360 question bank" parent="menu_config" action="action_360q" sequence="50"/>
+</data></odoo>

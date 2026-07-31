@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_offboarding.Dashboard">
+        <div class="hro-app hro-dashboard">
+            <div class="hro-hero">
+                <div class="hro-hero-text">
+                    <h1>Employee Offboarding</h1>
+                    <p>Track every exit from resignation to final settlement, in one workspace.</p>
+                </div>
+                <div class="hro-hero-actions">
+                    <button class="btn hro-btn-primary" t-on-click="() => this.openNewRequest()">
+                        <i class="fa fa-plus me-1"/> Create Exit Request
+                    </button>
+                    <button class="btn hro-btn-ghost" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_pipeline')">
+                        <i class="fa fa-columns me-1"/> Open Pipeline
+                    </button>
+                </div>
+            </div>
+
+            <div class="hro-kpi-grid">
+                <div t-foreach="kpiCards" t-as="card" t-key="card.key"
+                     t-attf-class="hro-kpi-card hro-kpi-#{card.color}">
+                    <div class="hro-kpi-icon"><i t-attf-class="fa #{card.icon}"/></div>
+                    <div class="hro-kpi-value"><t t-esc="card.value"/></div>
+                    <div class="hro-kpi-label"><t t-esc="card.label"/></div>
+                </div>
+            </div>
+
+            <div class="hro-quick-actions">
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_clearance')">
+                    <i class="fa fa-check-square-o"/> Clearance Center
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_asset')">
+                    <i class="fa fa-laptop"/> Asset Returns
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_payroll')">
+                    <i class="fa fa-money"/> Payroll Settlement
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_document')">
+                    <i class="fa fa-file-text-o"/> Documents
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_offboarding.action_hr_offboarding_request')">
+                    <i class="fa fa-list"/> All Records
+                </button>
+            </div>
+
+            <div class="hro-dashboard-columns">
+                <div class="hro-card hro-panel">
+                    <h4>Today's Exits</h4>
+                    <div t-if="!state.todaysExits.length" class="hro-empty">No one's last working day is today.</div>
+                    <div t-foreach="state.todaysExits" t-as="exit" t-key="exit.id" class="hro-joiner-row">
+                        <div class="hro-avatar-sm"><t t-esc="(exit.employee_id ? exit.employee_id[1] : '?')[0]"/></div>
+                        <div class="hro-joiner-info">
+                            <div class="hro-joiner-name"><t t-esc="exit.employee_id ? exit.employee_id[1] : ''"/></div>
+                            <div class="hro-joiner-meta">
+                                <t t-esc="exit.job_id ? exit.job_id[1] : ''"/>
+                                <t t-if="exit.department_id"> · <t t-esc="exit.department_id[1]"/></t>
+                            </div>
+                        </div>
+                        <span class="hro-chip"><t t-esc="exit.stage_id ? exit.stage_id[1] : ''"/></span>
+                    </div>
+                </div>
+
+                <div class="hro-card hro-panel">
+                    <h4>Pending Tasks</h4>
+                    <div t-if="!state.pendingTasks.length" class="hro-empty">No pending tasks. Nice!</div>
+                    <div t-foreach="state.pendingTasks" t-as="task" t-key="task.id" class="hro-task-row">
+                        <i class="fa fa-square-o"/>
+                        <div class="hro-task-row-info">
+                            <div class="hro-task-row-name"><t t-esc="task.name"/></div>
+                            <div class="hro-task-row-meta">
+                                <t t-esc="task.request_id ? task.request_id[1] : ''"/>
+                                <t t-if="task.due_date"> · due <t t-esc="task.due_date"/></t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hro-card hro-panel">
+                    <h4>Recent Activity</h4>
+                    <div t-if="!state.recentActivity.length" class="hro-empty">No recent activity yet.</div>
+                    <div t-foreach="state.recentActivity" t-as="msg" t-key="msg.id" class="hro-activity-row">
+                        <div class="hro-activity-dot"/>
+                        <div class="hro-activity-info">
+                            <div class="hro-activity-text">
+                                <b t-esc="msg.requestName"/> — <t t-esc="msg.preview"/>
+                            </div>
+                            <div class="hro-activity-date"><t t-esc="msg.date"/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

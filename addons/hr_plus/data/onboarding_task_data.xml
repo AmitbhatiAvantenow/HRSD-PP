@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ot_contract" model="mn.hr.onboarding.template"><field name="name">Contract signed &amp; uploaded</field><field name="department">hr</field><field name="days_after_start">-7</field><field name="sequence">10</field></record>
+        <record id="ot_visa" model="mn.hr.onboarding.template"><field name="name">Visa / work permit initiated</field><field name="department">hr</field><field name="days_after_start">-30</field><field name="sequence">5</field></record>
+        <record id="ot_bank" model="mn.hr.onboarding.template"><field name="name">Bank account opened</field><field name="department">finance</field><field name="days_after_start">3</field><field name="sequence">30</field></record>
+        <record id="ot_id" model="mn.hr.onboarding.template"><field name="name">Company ID / badge issued</field><field name="department">hr</field><field name="days_after_start">0</field><field name="sequence">15</field></record>
+        <record id="ot_laptop" model="mn.hr.onboarding.template"><field name="name">Laptop + accessories handed over</field><field name="department">it</field><field name="days_after_start">0</field><field name="sequence">20</field></record>
+        <record id="ot_email" model="mn.hr.onboarding.template"><field name="name">Email account + SSO provisioned</field><field name="department">it</field><field name="days_after_start">0</field><field name="sequence">25</field></record>
+        <record id="ot_systems" model="mn.hr.onboarding.template"><field name="name">ERP / system access provisioned</field><field name="department">it</field><field name="days_after_start">1</field><field name="sequence">35</field></record>
+        <record id="ot_training" model="mn.hr.onboarding.template"><field name="name">Orientation / induction training</field><field name="department">hr</field><field name="days_after_start">1</field><field name="sequence">40</field></record>
+        <record id="ot_buddy" model="mn.hr.onboarding.template"><field name="name">Buddy assigned</field><field name="department">manager</field><field name="days_after_start">0</field><field name="sequence">45</field></record>
+        <record id="ot_seat" model="mn.hr.onboarding.template"><field name="name">Workstation / seat assigned</field><field name="department">admin</field><field name="days_after_start">0</field><field name="sequence">50</field></record>
+        <record id="ot_handbook" model="mn.hr.onboarding.template"><field name="name">Employee handbook acknowledged</field><field name="department">hr</field><field name="days_after_start">7</field><field name="sequence">55</field></record>
+        <record id="ot_30day" model="mn.hr.onboarding.template"><field name="name">30-day check-in with manager</field><field name="department">manager</field><field name="days_after_start">30</field><field name="sequence">60</field></record>
+    </data>
+</odoo>

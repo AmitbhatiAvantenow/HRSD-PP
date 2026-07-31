@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_eosb" model="ir.actions.act_window"><field name="name">EOSB Records</field>
+<field name="res_model">mn.hr.eosb</field><field name="view_mode">list,form</field></record>
+<record id="view_eosb_list" model="ir.ui.view"><field name="name">eosb.list</field>
+<field name="model">mn.hr.eosb</field><field name="arch" type="xml">
+<list><field name="name"/><field name="employee_id"/><field name="country_law" widget="badge"/>
+<field name="reason" widget="badge"/><field name="employment_start"/><field name="employment_end"/>
+<field name="years_of_service"/><field name="last_basic_salary" widget="monetary"/>
+<field name="eosb_amount" widget="monetary"/><field name="currency_id" invisible="1"/>
+<field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_eosb_form" model="ir.ui.view"><field name="name">eosb.form</field>
+<field name="model">mn.hr.eosb</field><field name="arch" type="xml">
+<form><header><button name="action_approve" type="object" string="Approve" class="oe_highlight" invisible="state!='computed'"/>
+<button name="action_pay" type="object" string="Mark paid" invisible="state!='approved'"/>
+<field name="state" widget="statusbar"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="country_law"/><field name="reason"/></group>
+<group><field name="employment_start"/><field name="employment_end"/><field name="last_basic_salary"/><field name="allowances"/></group></group>
+<group><group string="Calculated"><field name="years_of_service" readonly="1"/>
+<field name="eosb_amount" widget="monetary" readonly="1" style="font-size:22px;font-weight:700;color:#0F766E;"/>
+<field name="currency_id"/></group></group>
+<field name="breakdown" readonly="1"/>
+</sheet><chatter/></form>
+</field></record></data></odoo>

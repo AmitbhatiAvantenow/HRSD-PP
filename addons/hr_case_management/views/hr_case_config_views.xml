@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Division -->
+    <record id="view_hr_case_division_list" model="ir.ui.view">
+        <field name="name">hr.case.division.list</field>
+        <field name="model">hr.case.division</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_hr_case_division" model="ir.actions.act_window">
+        <field name="name">Divisions</field>
+        <field name="res_model">hr.case.division</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Category -->
+    <record id="view_hr_case_category_list" model="ir.ui.view">
+        <field name="name">hr.case.category.list</field>
+        <field name="model">hr.case.category</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="division_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_hr_case_category" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">hr.case.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Subcategory -->
+    <record id="view_hr_case_subcategory_list" model="ir.ui.view">
+        <field name="name">hr.case.subcategory.list</field>
+        <field name="model">hr.case.subcategory</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="category_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_hr_case_subcategory" model="ir.actions.act_window">
+        <field name="name">Subcategories</field>
+        <field name="res_model">hr.case.subcategory</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Service -->
+    <record id="view_hr_case_service_list" model="ir.ui.view">
+        <field name="name">hr.case.service.list</field>
+        <field name="model">hr.case.service</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="division_id"/>
+                <field name="category_id"/>
+                <field name="subcategory_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_hr_case_service_form" model="ir.ui.view">
+        <field name="name">hr.case.service.form</field>
+        <field name="model">hr.case.service</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="division_id"/>
+                        <field name="category_id"/>
+                        <field name="subcategory_id"/>
+                    </group>
+                    <field name="description" placeholder="Internal notes for HR staff..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_hr_case_service" model="ir.actions.act_window">
+        <field name="name">HR Services</field>
+        <field name="res_model">hr.case.service</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Assignment Group / Team -->
+    <record id="view_hr_case_team_list" model="ir.ui.view">
+        <field name="name">hr.case.team.list</field>
+        <field name="model">hr.case.team</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="manager_id"/>
+                <field name="notification_email"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_hr_case_team_form" model="ir.ui.view">
+        <field name="name">hr.case.team.form</field>
+        <field name="model">hr.case.team</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Finance - PAC Group"/></h1>
+                    </div>
+                    <group>
+                        <field name="manager_id"/>
+                        <field name="notification_email"/>
+                        <field name="member_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_hr_case_team" model="ir.actions.act_window">
+        <field name="name">Assignment Groups</field>
+        <field name="res_model">hr.case.team</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- SLA Policy -->
+    <record id="view_hr_case_sla_list" model="ir.ui.view">
+        <field name="name">hr.case.sla.list</field>
+        <field name="model">hr.case.sla</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="priority"/>
+                <field name="response_hours"/>
+                <field name="resolution_hours"/>
+                <field name="escalation_hours"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_hr_case_sla_form" model="ir.ui.view">
+        <field name="name">hr.case.sla.form</field>
+        <field name="model">hr.case.sla</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="category_id"/>
+                        <field name="priority"/>
+                        <field name="response_hours"/>
+                        <field name="resolution_hours"/>
+                        <field name="escalation_hours"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_hr_case_sla" model="ir.actions.act_window">
+        <field name="name">SLA Policies</field>
+        <field name="res_model">hr.case.sla</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

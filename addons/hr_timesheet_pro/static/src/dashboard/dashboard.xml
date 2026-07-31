@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_timesheet_pro.Dashboard">
+        <div class="htp-app htp-dashboard">
+            <div class="htp-hero">
+                <div class="htp-hero-pattern"/>
+                <img class="htp-hero-bg-img" src="/hr_timesheet_pro/static/src/img/dashboard/hero-bg-light.svg" alt=""/>
+                <div class="htp-hero-shapes">
+                    <div class="htp-hero-shape htp-shape-1"/>
+                    <div class="htp-hero-shape htp-shape-2"/>
+                    <div class="htp-hero-shape htp-shape-3"/>
+                </div>
+
+                <div class="htp-hero-top">
+                    <div class="htp-hero-text">
+                        <h1>Welcome back, <t t-esc="state.userName"/> <span class="htp-wave">👋</span></h1>
+                        <p t-if="!state.isHr">Here's what's happening with your time this week.</p>
+                        <p t-if="state.isHr">Here's your team's timesheet overview.</p>
+                    </div>
+                    <div class="htp-hero-actions">
+                        <button class="btn htp-btn-primary" t-on-click="() => this.openLogTime()">
+                            <i class="fa fa-plus me-1"/> Log Time
+                        </button>
+                        <button class="btn htp-btn-ghost" t-on-click="() => this.openWeekly()">
+                            <i class="fa fa-paper-plane me-1"/> Submit Weekly Timesheet
+                        </button>
+                        <button class="btn htp-btn-ghost" t-on-click="() => this.openAction('hr_timesheet_pro.action_hr_timesheet_pro_my')">
+                            <i class="fa fa-list me-1"/> My Timesheets
+                        </button>
+                        <button t-if="state.isHr" class="btn htp-btn-ghost" t-on-click="() => this.openAction('hr_timesheet_pro.action_hr_timesheet_pro_approvals')">
+                            <i class="fa fa-check-square-o me-1"/> Approvals
+                        </button>
+                    </div>
+                </div>
+
+                <div class="htp-hero-stats">
+                    <div class="htp-hero-stat">
+                        <div class="htp-hero-stat-label" t-esc="state.isHr ? 'Team Hours This Week' : 'Total Hours This Week'"/>
+                        <div class="htp-hero-stat-value" t-esc="this.formatHM(state.weekHours)"/>
+                    </div>
+
+                    <div class="htp-hero-divider"/>
+
+                    <div class="htp-hero-ring-block">
+                        <svg class="htp-hero-ring" viewBox="0 0 96 96">
+                            <circle class="htp-hero-ring-track" cx="48" cy="48" r="40"/>
+                            <circle class="htp-hero-ring-fill" cx="48" cy="48" r="40"
+                                    t-attf-style="stroke-dashoffset: {{this.monthRingOffset}}"/>
+                        </svg>
+                        <div class="htp-hero-ring-text">
+                            <span class="htp-hero-ring-pct"><t t-esc="this.monthProgressPct"/>%</span>
+                        </div>
+                        <div class="htp-hero-ring-caption">
+                            <div class="htp-hero-stat-label">Monthly Progress</div>
+                            <div class="htp-hero-stat-sub"><t t-esc="Math.round(state.monthHours)"/> / <t t-esc="Math.round(state.monthTarget)"/> hrs</div>
+                        </div>
+                    </div>
+
+                    <div class="htp-hero-divider"/>
+
+                    <div class="htp-hero-status-block">
+                        <div class="htp-hero-stat-label">Week Status</div>
+                        <span t-attf-class="htp-status-chip htp-status-#{this.weekStatus.key}">
+                            <i t-attf-class="fa #{this.weekStatus.icon} me-1"/><t t-esc="this.weekStatus.label"/>
+                        </span>
+                        <div class="htp-hero-stat-sub" t-if="this.weekStatus.key === 'ahead'">Crushing it! Keep it up.</div>
+                        <div class="htp-hero-stat-sub" t-if="this.weekStatus.key === 'on_track'">Great job! Keep it up.</div>
+                        <div class="htp-hero-stat-sub" t-if="this.weekStatus.key === 'behind'">Log some time to catch up.</div>
+                    </div>
+
+                    <div class="htp-hero-illustration">
+                        <img class="htp-illustration-svg" src="/hr_timesheet_pro/static/src/img/dashboard/hero-illustration-light.svg" alt=""/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="htp-kpi-section">
+                <img class="htp-kpi-blob htp-kpi-blob-purple" src="/hr_timesheet_pro/static/src/img/dashboard/blob-purple.svg" alt=""/>
+                <img class="htp-kpi-blob htp-kpi-blob-blue" src="/hr_timesheet_pro/static/src/img/dashboard/blob-blue.svg" alt=""/>
+                <div class="htp-kpi-grid">
+                    <div t-foreach="kpiCardsDisplay" t-as="card" t-key="card.key"
+                         t-attf-class="htp-kpi-card htp-kpi-#{card.color}"
+                         t-attf-style="animation-delay: {{card_index * 0.06}}s">
+                        <div class="htp-kpi-icon"><i t-attf-class="fa #{card.icon}"/></div>
+                        <div class="htp-kpi-value"><t t-esc="card.displayValue"/><t t-if="card.suffix" t-esc="card.suffix"/></div>
+                        <div class="htp-kpi-label"><t t-esc="card.label"/></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="htp-dashboard-columns">
+                <div class="htp-card htp-panel htp-panel-wide">
+                    <h4 t-if="!state.isHr">This Week</h4>
+                    <h4 t-if="state.isHr">Team Hours Breakdown</h4>
+
+                    <div t-if="!state.isHr" class="htp-week-chart">
+                        <div t-foreach="state.weekDays" t-as="day" t-key="day.date"
+                             t-attf-class="htp-week-bar-col #{day.isToday ? 'htp-today' : ''}">
+                            <div class="htp-week-bar-track">
+                                <div class="htp-week-bar-fill"
+                                     t-attf-style="height: #{state.chartsReady ? Math.min(100, (day.hours / this.weekMaxHours) * 100) : 0}%"/>
+                            </div>
+                            <div class="htp-week-bar-value"><t t-esc="day.hours"/>h</div>
+                            <div class="htp-week-bar-label"><t t-esc="day.label"/></div>
+                        </div>
+                    </div>
+
+                    <div t-if="state.isHr" class="htp-donut-layout">
+                        <div t-if="!state.teamSnapshot.length" class="htp-empty">No team data yet.</div>
+                        <t t-else="">
+                            <div class="htp-donut-wrap">
+                                <svg viewBox="0 0 120 120" class="htp-donut-svg">
+                                    <circle class="htp-donut-track" cx="60" cy="60" r="54"/>
+                                    <circle t-foreach="this.donutSegments" t-as="seg" t-key="seg.name"
+                                            class="htp-donut-segment"
+                                            cx="60" cy="60" r="54"
+                                            t-attf-style="stroke: {{seg.color}}; stroke-dasharray: {{seg.dasharray}}; stroke-dashoffset: {{seg.dashoffset}};"/>
+                                </svg>
+                                <div class="htp-donut-center">
+                                    <span class="htp-donut-total"><t t-esc="Math.round(this.donutTotalHours)"/>h</span>
+                                    <span class="htp-donut-total-label">Total</span>
+                                </div>
+                            </div>
+                            <div class="htp-donut-legend">
+                                <div t-foreach="this.donutSegments" t-as="seg" t-key="seg.name" class="htp-legend-row">
+                                    <span class="htp-legend-dot" t-attf-style="background: {{seg.color}}"/>
+                                    <span class="htp-legend-name" t-esc="seg.name"/>
+                                    <span class="htp-legend-value"><t t-esc="seg.hours"/>h (<t t-esc="seg.pct"/>%)</span>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="htp-card htp-panel">
+                    <div class="htp-panel-head">
+                        <h4 t-if="!state.isHr">Recent Timesheets</h4>
+                        <h4 t-if="state.isHr">Pending Approvals</h4>
+                    </div>
+
+                    <div t-if="!state.isHr">
+                        <div t-if="!state.recentSheets.length" class="htp-empty-state">
+                            <img src="/hr_timesheet_pro/static/src/img/dashboard/empty-sheets.svg" alt=""/>
+                            <p>No timesheets yet. Submit your first one!</p>
+                        </div>
+                        <div t-foreach="state.recentSheets.slice(0, 6)" t-as="sheet" t-key="sheet.id"
+                             class="htp-sheet-row" t-att-style="'animation-delay: ' + (sheet_index * 0.05) + 's'"
+                             t-on-click="() => this.openSheet(sheet.id)">
+                            <div class="htp-sheet-row-info">
+                                <div class="htp-sheet-row-name"><t t-esc="sheet.week_number"/></div>
+                                <div class="htp-sheet-row-meta"><t t-esc="this.formatHM(sheet.total_hours)"/> logged</div>
+                            </div>
+                            <span t-attf-class="htp-chip htp-chip-#{this.stateBadgeClass(sheet.state)}"><t t-esc="sheet.state"/></span>
+                        </div>
+                    </div>
+
+                    <div t-if="state.isHr">
+                        <div t-if="!state.pendingApprovals.length" class="htp-empty-state htp-empty-state-corner">
+                            <p>Nothing pending approval. 🎉</p>
+                            <img src="/hr_timesheet_pro/static/src/img/dashboard/empty-approval.svg" alt=""/>
+                        </div>
+                        <div t-foreach="state.pendingApprovals" t-as="sheet" t-key="sheet.id"
+                             class="htp-approval-row" t-att-style="'animation-delay: ' + (sheet_index * 0.05) + 's'"
+                             t-on-click="() => this.openSheet(sheet.id)">
+                            <div class="htp-avatar-sm"><t t-esc="sheet.employee_id ? sheet.employee_id[1][0] : '?'"/></div>
+                            <div class="htp-sheet-row-info">
+                                <div class="htp-sheet-row-name"><t t-esc="sheet.employee_id ? sheet.employee_id[1] : ''"/></div>
+                                <div class="htp-sheet-row-meta"><t t-esc="sheet.week_number"/> · <t t-esc="this.formatHM(sheet.total_hours)"/></div>
+                            </div>
+                            <div class="htp-approval-actions">
+                                <button class="btn btn-sm btn-success me-1" title="Approve" t-on-click="(ev) => this.quickApprove(sheet.id, ev)">
+                                    <i class="fa fa-check"/>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" title="Reject" t-on-click="(ev) => this.quickReject(sheet.id, ev)">
+                                    <i class="fa fa-times"/>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="htp-card htp-panel">
+                    <h4>Recent Activity</h4>
+                    <div t-if="!state.recentActivity.length" class="htp-empty">No recent activity yet.</div>
+                    <div t-foreach="state.recentActivity" t-as="msg" t-key="msg.id" class="htp-activity-row"
+                         t-att-style="'animation-delay: ' + (msg_index * 0.05) + 's'">
+                        <div class="htp-activity-dot"/>
+                        <div class="htp-activity-info">
+                            <div class="htp-activity-text">
+                                <b t-esc="msg.sheetName"/> — <t t-esc="msg.preview"/>
+                            </div>
+                            <div class="htp-activity-date"><t t-esc="msg.date"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="htp-card htp-panel htp-quick-actions-panel">
+                    <div class="htp-panel-head htp-quick-actions-head">
+                        <h4><i class="fa fa-bolt me-2"/>Quick Actions</h4>
+                        <div class="htp-quick-actions">
+                            <button class="htp-chip-btn htp-chip-btn-primary" t-on-click="() => this.openLogTime()">
+                                <i class="fa fa-plus me-1"/> Log Time
+                            </button>
+                            <button class="htp-chip-btn" t-on-click="() => this.openWeekly()">
+                                <i class="fa fa-paper-plane me-1"/> Submit Weekly Timesheet
+                            </button>
+                            <button class="htp-chip-btn" t-on-click="() => this.openAction('hr_timesheet_pro.action_hr_timesheet_pro_my')">
+                                <i class="fa fa-list me-1"/> My Timesheets
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="htp-card htp-panel htp-my-timesheets-panel">
+                    <div class="htp-panel-head">
+                        <h4>My Timesheets</h4>
+                    </div>
+                    <div t-if="!state.recentSheets.length" class="htp-empty-state">
+                        <img src="/hr_timesheet_pro/static/src/img/dashboard/empty-sheets.svg" alt=""/>
+                        <p>No timesheets yet.</p>
+                    </div>
+                    <div t-else="" class="htp-table-scroll">
+                        <table class="htp-table">
+                            <thead>
+                                <tr>
+                                    <th>Timesheet #</th>
+                                    <th>Week</th>
+                                    <th>Total Hours</th>
+                                    <th>Status</th>
+                                    <th>Submitted On</th>
+                                    <th class="htp-table-actions-head">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="state.recentSheets" t-as="sheet" t-key="sheet.id"
+                                    t-att-style="'animation-delay: ' + (sheet_index * 0.04) + 's'"
+                                    t-on-click="() => this.openSheet(sheet.id)">
+                                    <td class="htp-table-strong"><t t-esc="sheet.name"/></td>
+                                    <td><t t-esc="sheet.week_number"/></td>
+                                    <td><t t-esc="this.formatHM(sheet.total_hours)"/></td>
+                                    <td><span t-attf-class="htp-chip htp-chip-#{this.stateBadgeClass(sheet.state)}"><t t-esc="sheet.state"/></span></td>
+                                    <td><t t-esc="sheet.submitted_date ? sheet.submitted_date.slice(0, 10) : '—'"/></td>
+                                    <td class="htp-table-actions">
+                                        <button class="htp-icon-btn" title="View" t-on-click.stop="() => this.openSheet(sheet.id)">
+                                            <i class="fa fa-eye"/>
+                                        </button>
+                                        <button t-if="sheet.state === 'draft'" class="htp-icon-btn" title="Edit" t-on-click.stop="() => this.openSheet(sheet.id)">
+                                            <i class="fa fa-pencil"/>
+                                        </button>
+                                        <button t-if="sheet.state === 'draft'" class="htp-icon-btn htp-icon-btn-danger" title="Delete"
+                                                t-on-click.stop="(ev) => this.deleteSheet(sheet.id, sheet.name, ev)">
+                                            <i class="fa fa-trash"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

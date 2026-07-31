@@ -1,0 +1,21 @@
+# Document Templates -- future roadmap
+#
+# These packages are NOT installed and nothing in this addon imports them yet.
+# The AI Template Generator and Template Marketplace pages are deliberate "Coming
+# Soon" placeholders in this pass -- no API wiring, no heavy ML packages. Install
+# only what a specific future feature actually needs, not the whole file at once.
+
+# ---- AI Template Generator (deferred) ----
+openai
+langchain
+langchain-community
+langchain-openai
+tiktoken
+
+# ---- Embeddings / semantic template search (deferred) ----
+faiss-cpu
+sentence-transformers
+
+# ---- OCR / scanned-document import (deferred) ----
+pytesseract
+easyocr

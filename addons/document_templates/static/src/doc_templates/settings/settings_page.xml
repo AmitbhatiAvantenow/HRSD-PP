@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.SettingsPage">
+    <DocShell activeKey="'settings'" eyebrow="'Document Templates'" title="'Settings'"
+              subtitle="'Defaults applied when creating new templates.'">
+        <div class="doc-card" style="max-width:480px;">
+            <div class="doc-field">
+                <label>Default Access Level for New Templates</label>
+                <ModernSelect options="accessLevelOptions" value="state.default_access_level"
+                              onSelect="(v) => this.onAccessLevelSelect(v)" searchable="false"/>
+            </div>
+            <div class="doc-field">
+                <div class="doc-fake-select" t-on-click="() => this.toggleRequireApproval()">
+                    <span>Require approval before a document can be Sent/Signed</span>
+                    <i t-attf-class="fa {{ state.require_approval ? 'fa-check-square-o' : 'fa-square-o' }}"/>
+                </div>
+            </div>
+            <button class="doc-btn-primary" t-on-click="() => this.save()" t-att-disabled="state.saving">
+                <i class="fa fa-check"/> <t t-if="state.saved">Saved!</t><t t-elif="state.saving">Saving...</t><t t-else="">Save Settings</t>
+            </button>
+        </div>
+    </DocShell>
+</t>
+
+</templates>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_visa" model="ir.actions.act_window"><field name="name">Visa Renewals</field>
+<field name="res_model">mn.hr.visa.renewal</field><field name="view_mode">list,form</field><field name="path">visa-renewals</field></record>
+<record id="view_visa_list" model="ir.ui.view"><field name="name">visa.list</field>
+<field name="model">mn.hr.visa.renewal</field><field name="arch" type="xml">
+<list decoration-danger="days_remaining &lt; 7" decoration-warning="days_remaining &lt; 30" decoration-success="state in ('approved','completed')">
+<field name="name"/><field name="employee_id"/><field name="renewal_type" widget="badge"/>
+<field name="current_expiry"/><field name="target_renewal_date"/><field name="days_remaining"/>
+<field name="new_expiry"/><field name="assigned_to_id"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_visa_form" model="ir.ui.view"><field name="name">visa.form</field>
+<field name="model">mn.hr.visa.renewal</field><field name="arch" type="xml">
+<form><header><field name="state" widget="statusbar" statusbar_visible="draft,docs_collection,submitted,processing,completed"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="renewal_type"/><field name="current_expiry"/><field name="new_expiry"/><field name="days_remaining" readonly="1"/></group>
+<group><field name="target_renewal_date"/><field name="assigned_to_id"/><field name="fee_amount"/><field name="paid_by"/><field name="currency_id" invisible="1"/></group></group>
+<field name="notes"/></sheet><chatter/></form>
+</field></record></data></odoo>

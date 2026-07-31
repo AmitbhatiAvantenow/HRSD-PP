@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.TemplateBuilder">
+    <DocShell activeKey="'templates'" eyebrow="'Template Builder'" title="'Design Template'">
+        <div class="doc-empty" t-if="state.loading">Loading builder…</div>
+        <div class="doc-builder-root" t-else="" t-att-class="{ 'doc-builder-fullscreen': state.fullscreen }">
+            <div class="doc-builder-toolbar">
+                <input type="text" class="doc-builder-name-input" t-att-value="state.templateName" t-on-blur="onNameBlur" placeholder="Template name…"/>
+                <div style="width:110px;"><ModernSelect options="paperSizeOptions()" value="state.paperSize" onSelect="(v) => this.onPaperSizeSelect(v)" searchable="false"/></div>
+                <div style="width:120px;"><ModernSelect options="orientationOptions()" value="state.orientation" onSelect="(v) => this.onOrientationSelect(v)" searchable="false"/></div>
+
+                <div class="doc-builder-zoom-controls">
+                    <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.zoomOut()" title="Zoom out"><i class="fa fa-search-minus"/></button>
+                    <span class="doc-builder-zoom-value" t-on-click="() => this.zoomReset()" title="Reset zoom"><t t-esc="Math.round(state.zoom * 100)"/>%</span>
+                    <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.zoomIn()" title="Zoom in"><i class="fa fa-search-plus"/></button>
+                </div>
+
+                <div style="flex:1;"/>
+
+                <button class="doc-btn-outline" t-on-click="() => this.toggleFullscreen()" t-att-title="state.fullscreen ? 'Exit fullscreen' : 'Fullscreen'">
+                    <i t-attf-class="fa {{ state.fullscreen ? 'fa-compress' : 'fa-expand' }}"/>
+                </button>
+                <button class="doc-btn-outline" t-on-click="() => this.preview()"><i class="fa fa-eye"/> Preview</button>
+                <button class="doc-btn-primary" t-on-click="() => this.save()" t-att-disabled="state.saving">
+                    <i class="fa fa-check"/> <t t-if="state.savedFlash">Saved!</t><t t-elif="state.saving">Saving...</t><t t-else="">Save</t>
+                </button>
+            </div>
+
+            <div class="doc-builder-layout">
+            <div class="doc-builder-palette">
+                <div class="doc-builder-palette-title">Components</div>
+                <div class="doc-builder-palette-item" t-foreach="palette" t-as="item" t-key="item.type"
+                     draggable="true"
+                     t-on-dragstart="(ev) => this.onPaletteDragStart(ev, item.type)"
+                     t-on-click="() => this.onPaletteClick(item)">
+                    <i t-attf-class="fa {{ item.icon }}"/>
+                    <span><t t-esc="item.label"/></span>
+                </div>
+
+                <div class="doc-builder-varpop" t-if="state.varPopoverOpen">
+                    <div class="doc-builder-varpop-title">Insert Variable</div>
+                    <div class="doc-builder-varpop-item" t-foreach="state.variables" t-as="v" t-key="v.key" t-on-click="() => this.insertVariable(v)">
+                        <span class="doc-mono">{{ <t t-esc="v.key"/> }}</span>
+                        <span style="color:var(--doc-ink-faint);"><t t-esc="v.name"/></span>
+                    </div>
+                    <div class="doc-empty" t-if="!state.variables.length" style="padding:8px 0;">No variables yet.</div>
+                    <div class="doc-builder-varpop-add">
+                        <input type="text" placeholder="New variable name…" t-model="state.newVarName"/>
+                        <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.createVariable()"><i class="fa fa-plus"/></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-builder-canvas-wrap">
+              <div class="doc-builder-zoom-wrap" t-attf-style="zoom: {{ state.zoom }};">
+                <div class="doc-builder-canvas" t-ref="canvas" t-att-style="canvasStyle"
+                     t-on-drop="onCanvasDrop" t-on-dragover.prevent="" t-on-click="() => this.selectBlock(null)">
+
+                    <t t-foreach="state.blocks" t-as="b" t-key="b.id">
+                        <div t-if="b.type === 'page_break'" class="doc-builder-pagebreak"
+                             t-attf-style="top: {{ b.y * 1.3333 }}px;"
+                             t-att-class="{selected: b.id === state.selectedId}"
+                             t-on-pointerdown="(ev) => this.startDrag(ev, b)"
+                             t-on-click.stop="() => this.selectBlock(b.id)">
+                            <span>Page Break</span>
+                        </div>
+                        <div t-else="" class="doc-builder-block" t-att-class="{selected: b.id === state.selectedId}"
+                             t-att-style="blockStyle(b)"
+                             t-on-pointerdown="(ev) => this.startDrag(ev, b)"
+                             t-on-click.stop="() => this.selectBlock(b.id)">
+
+                            <div t-if="b.type === 'text' || b.type === 'heading'" class="doc-builder-text"
+                                 t-attf-style="font-size:{{ b.props.font_size || 11 }}px; font-weight:{{ b.props.bold ? 700 : 400 }}; font-style:{{ b.props.italic ? 'italic' : 'normal' }}; color:{{ b.props.color || '#111' }}; text-align:{{ b.props.align || 'left' }};">
+                                <t t-esc="b.props.text"/>
+                            </div>
+
+                            <t t-elif="b.type === 'image' || b.type === 'logo' || b.type === 'stamp'">
+                                <img t-if="b.props.image_data" t-attf-src="data:image/png;base64,{{ b.props.image_data }}" class="doc-builder-img"/>
+                                <div t-else="" class="doc-builder-placeholder"><i class="fa fa-picture-o"/></div>
+                            </t>
+
+                            <div t-elif="b.type === 'table'" class="doc-builder-table-preview">
+                                <div class="doc-builder-table-row doc-builder-table-head">
+                                    <span t-foreach="b.props.headers || []" t-as="h" t-key="h_index"><t t-esc="h"/></span>
+                                </div>
+                                <div class="doc-builder-table-row" t-foreach="b.props.rows || []" t-as="row" t-key="row_index">
+                                    <span t-foreach="row" t-as="cell" t-key="cell_index"><t t-esc="cell"/></span>
+                                </div>
+                            </div>
+
+                            <div t-elif="b.type === 'qr'" class="doc-builder-placeholder"><i class="fa fa-qrcode"/></div>
+                            <div t-elif="b.type === 'barcode'" class="doc-builder-placeholder"><i class="fa fa-barcode"/></div>
+
+                            <div t-elif="b.type === 'divider'" t-attf-style="width:100%; height:100%; border-top: {{ b.props.thickness || 1 }}px {{ b.props.style || 'solid' }} {{ b.props.color || '#ccc' }};"/>
+
+                            <div t-elif="b.type === 'signature'" class="doc-builder-signature">
+                                <i class="fa fa-pencil-square-o"/> <span><t t-esc="b.props.label || 'Signature'"/></span>
+                            </div>
+
+                            <div t-elif="b.type === 'shape'" class="doc-builder-shape"
+                                 t-attf-style="background:{{ b.props.fill_color || 'transparent' }}; border-color:{{ b.props.border_color || '#333' }}; border-radius: {{ b.props.shape === 'circle' ? '50%' : '2px' }};"/>
+
+                            <div t-elif="b.type === 'icon'" class="doc-builder-icon-dot" t-attf-style="background:{{ b.props.color || '#4453c9' }};"/>
+
+                            <div t-elif="b.type === 'chart'" class="doc-builder-placeholder"><i class="fa fa-bar-chart"/></div>
+
+                            <div t-else="" class="doc-builder-placeholder"><i class="fa fa-square-o"/></div>
+
+                            <div class="doc-builder-resize-handle" t-if="b.id === state.selectedId" t-on-pointerdown.stop="(ev) => this.startResize(ev, b)"/>
+                            <i class="fa fa-times doc-builder-delete" t-if="b.id === state.selectedId" t-on-click.stop="() => this.deleteBlock(b.id)"/>
+                        </div>
+                    </t>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-builder-inspector">
+                <div class="doc-builder-palette-title">Inspector</div>
+
+                <t t-if="!selectedBlock">
+                    <div class="doc-field">
+                        <label>Header Text</label>
+                        <input type="text" t-model="state.page.header_text"/>
+                    </div>
+                    <div class="doc-field">
+                        <label>Footer Text</label>
+                        <input type="text" t-model="state.page.footer_text"/>
+                    </div>
+                    <div class="doc-field">
+                        <label>Background Color</label>
+                        <input type="color" t-model="state.page.background_color"/>
+                    </div>
+                    <div class="doc-empty">Select a block to edit its properties.</div>
+                </t>
+
+                <t t-if="selectedBlock">
+                    <t t-set="b" t-value="selectedBlock"/>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div class="doc-field"><label>X</label><input type="number" t-att-value="b.x" t-on-change="(ev) => this.updateGeom('x', ev)"/></div>
+                        <div class="doc-field"><label>Y</label><input type="number" t-att-value="b.y" t-on-change="(ev) => this.updateGeom('y', ev)"/></div>
+                        <div class="doc-field"><label>W</label><input type="number" t-att-value="b.w" t-on-change="(ev) => this.updateGeom('w', ev)"/></div>
+                        <div class="doc-field"><label>H</label><input type="number" t-att-value="b.h" t-on-change="(ev) => this.updateGeom('h', ev)"/></div>
+                    </div>
+
+                    <t t-if="b.type === 'text' || b.type === 'heading'">
+                        <div class="doc-field">
+                            <label>Text</label>
+                            <textarea rows="3" t-att-value="b.props.text" t-on-input="(ev) => this.updatePropFromInput('text', ev)"/>
+                        </div>
+                        <div class="doc-field"><label>Font Size</label><input type="number" t-att-value="b.props.font_size" t-on-input="(ev) => this.updatePropNumber('font_size', ev)"/></div>
+                        <div class="doc-field"><label>Color</label><input type="color" t-att-value="b.props.color" t-on-input="(ev) => this.updatePropFromInput('color', ev)"/></div>
+                        <div style="display:flex;gap:14px;margin-bottom:14px;">
+                            <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;"><input type="checkbox" t-att-checked="b.props.bold" t-on-change="(ev) => this.updatePropChecked('bold', ev)"/> Bold</label>
+                            <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;"><input type="checkbox" t-att-checked="b.props.italic" t-on-change="(ev) => this.updatePropChecked('italic', ev)"/> Italic</label>
+                        </div>
+                        <div class="doc-field">
+                            <label>Align</label>
+                            <ModernSelect options="[{value:'left',label:'Left'},{value:'center',label:'Center'},{value:'right',label:'Right'}]"
+                                          value="b.props.align" onSelect="(v) => this.updateProp('align', v)" searchable="false"/>
+                        </div>
+                    </t>
+
+                    <t t-elif="b.type === 'image' || b.type === 'logo' || b.type === 'stamp'">
+                        <div class="doc-field">
+                            <label>Upload Image</label>
+                            <input type="file" accept="image/*" t-on-change="(ev) => this.onImageFile(ev)"/>
+                        </div>
+                    </t>
+
+                    <t t-elif="b.type === 'table'">
+                        <div class="doc-field">
+                            <label>Headers (comma-separated)</label>
+                            <input type="text" t-att-value="tableHeadersText(b)" t-on-change="onTableHeadersInput"/>
+                        </div>
+                        <div class="doc-field">
+                            <label>Rows (one per line, comma-separated)</label>
+                            <textarea rows="4" t-att-value="tableRowsText(b)" t-on-change="onTableRowsInput"/>
+                        </div>
+                    </t>
+
+                    <t t-elif="b.type === 'qr' || b.type === 'barcode'">
+                        <div class="doc-field"><label>Data</label><input type="text" t-att-value="b.props.data" t-on-input="(ev) => this.updatePropFromInput('data', ev)"/></div>
+                        <div class="doc-field" t-if="b.type === 'barcode'">
+                            <label>Format</label>
+                            <ModernSelect options="[{value:'code128',label:'Code 128'},{value:'ean13',label:'EAN-13'},{value:'code39',label:'Code 39'}]"
+                                          value="b.props.format" onSelect="(v) => this.updateProp('format', v)" searchable="false"/>
+                        </div>
+                    </t>
+
+                    <t t-elif="b.type === 'divider'">
+                        <div class="doc-field"><label>Color</label><input type="color" t-att-value="b.props.color" t-on-input="(ev) => this.updatePropFromInput('color', ev)"/></div>
+                        <div class="doc-field"><label>Thickness</label><input type="number" t-att-value="b.props.thickness" t-on-input="(ev) => this.updatePropNumber('thickness', ev)"/></div>
+                        <div class="doc-field">
+                            <label>Style</label>
+                            <ModernSelect options="[{value:'solid',label:'Solid'},{value:'dashed',label:'Dashed'}]"
+                                          value="b.props.style" onSelect="(v) => this.updateProp('style', v)" searchable="false"/>
+                        </div>
+                    </t>
+
+                    <t t-elif="b.type === 'signature'">
+                        <div class="doc-field"><label>Label</label><input type="text" t-att-value="b.props.label" t-on-input="(ev) => this.updatePropFromInput('label', ev)"/></div>
+                    </t>
+
+                    <t t-elif="b.type === 'shape'">
+                        <div class="doc-field">
+                            <label>Shape</label>
+                            <ModernSelect options="[{value:'rectangle',label:'Rectangle'},{value:'circle',label:'Circle'},{value:'line',label:'Line'}]"
+                                          value="b.props.shape" onSelect="(v) => this.updateProp('shape', v)" searchable="false"/>
+                        </div>
+                        <div class="doc-field"><label>Border Color</label><input type="color" t-att-value="b.props.border_color" t-on-input="(ev) => this.updatePropFromInput('border_color', ev)"/></div>
+                        <div class="doc-field"><label>Fill Color</label><input type="color" t-att-value="b.props.fill_color || '#ffffff'" t-on-input="(ev) => this.updatePropFromInput('fill_color', ev)"/></div>
+                    </t>
+
+                    <t t-elif="b.type === 'icon'">
+                        <div class="doc-field"><label>Color</label><input type="color" t-att-value="b.props.color" t-on-input="(ev) => this.updatePropFromInput('color', ev)"/></div>
+                    </t>
+                </t>
+            </div>
+            </div>
+        </div>
+    </DocShell>
+</t>
+
+</templates>

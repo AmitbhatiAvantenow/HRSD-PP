@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_letter" model="ir.actions.act_window"><field name="name">HR Letters</field>
+<field name="res_model">mn.hr.letter</field><field name="view_mode">list,form</field><field name="path">hr-letters</field></record>
+<record id="view_let_list" model="ir.ui.view"><field name="name">let.list</field>
+<field name="model">mn.hr.letter</field><field name="arch" type="xml">
+<list><field name="name"/><field name="employee_id"/><field name="letter_type" widget="badge"/>
+<field name="addressed_to"/><field name="purpose"/><field name="issue_date"/>
+<field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_let_form" model="ir.ui.view"><field name="name">let.form</field>
+<field name="model">mn.hr.letter</field><field name="arch" type="xml">
+<form><header><button name="action_issue" type="object" string="Issue" class="oe_highlight" invisible="state!='draft'"/>
+<button name="action_print" type="object" string="Print PDF" invisible="state=='draft'"/>
+<field name="state" widget="statusbar"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="letter_type"/><field name="addressed_to"/><field name="purpose"/></group>
+<group><field name="issue_date"/><field name="issued_by_id"/><field name="include_salary" widget="boolean_toggle"/>
+<field name="salary_amount" invisible="not include_salary"/><field name="currency_id"/></group></group>
+<separator string="Custom body (leave blank to use default template)"/>
+<field name="custom_body" widget="html"/></sheet><chatter/></form>
+</field></record></data></odoo>

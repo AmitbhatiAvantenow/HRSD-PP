@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_hr_payroll_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">hr_payroll_community_dashboard</field>
+        <field name="target">main</field>
+    </record>
+
+    <menuitem id="menu_hr_payroll_community_dashboard"
+              name="Dashboard"
+              parent="menu_hr_payroll_community_root"
+              action="action_hr_payroll_dashboard"
+              sequence="1"
+              groups="hr_payroll_community.group_hr_payroll_community_user"/>
+
+    <menuitem id="menu_hr_payroll_community_employees"
+              name="Employees"
+              parent="menu_hr_payroll_community_root"
+              action="hr.open_view_employee_list"
+              sequence="2"
+              groups="hr_payroll_community.group_hr_payroll_community_user"/>
+
+    <menuitem id="menu_hr_payroll_community_time_off"
+              name="Time Offs"
+              parent="menu_hr_payroll_community_root"
+              action="hr_holidays.hr_leave_action_action_approve_department"
+              sequence="5"
+              groups="hr_payroll_community.group_hr_payroll_community_user"/>
+</odoo>

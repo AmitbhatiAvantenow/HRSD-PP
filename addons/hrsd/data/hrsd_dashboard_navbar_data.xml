@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- Seed data mirroring what used to be hardcoded in templates.xml's
+         top navigation bar. "HR Dashboard" itself stays pinned/hardcoded in
+         the template (it must always point back to the portal home); these
+         records are the configurable links shown after it. -->
+
+    <record id="dashboard_navbar_employees" model="hrsd.dashboard.navbar.item">
+      <field name="name">Employees</field>
+      <field name="url">/odoo/employees</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_navbar_attendance" model="hrsd.dashboard.navbar.item">
+      <field name="name">Attendance</field>
+      <field name="url">/odoo/attendances</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_navbar_leave" model="hrsd.dashboard.navbar.item">
+      <field name="name">Leave Management</field>
+      <field name="url">/odoo/time-off</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_navbar_payroll" model="hrsd.dashboard.navbar.item">
+      <field name="name">Payroll</field>
+      <field name="url">/odoo/payroll</field>
+      <field name="sequence">40</field>
+    </record>
+    <record id="dashboard_navbar_performance" model="hrsd.dashboard.navbar.item">
+      <field name="name">Performance</field>
+      <field name="url">/hrsd/appraisal</field>
+      <field name="sequence">50</field>
+    </record>
+    <record id="dashboard_navbar_recruitment" model="hrsd.dashboard.navbar.item">
+      <field name="name">Recruitment</field>
+      <field name="url">/odoo/recruitment</field>
+      <field name="sequence">60</field>
+    </record>
+
+  </data>
+</odoo>

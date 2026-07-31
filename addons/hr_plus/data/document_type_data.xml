@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dt_passport" model="mn.hr.document.type"><field name="name">Passport</field><field name="name_ar">جواز سفر</field><field name="code">PASSPORT</field><field name="icon">fa-passport</field></record>
+        <record id="dt_iqama" model="mn.hr.document.type"><field name="name">Iqama / Residence ID</field><field name="name_ar">إقامة</field><field name="code">IQAMA</field><field name="icon">fa-id-card</field></record>
+        <record id="dt_visa" model="mn.hr.document.type"><field name="name">Work visa</field><field name="name_ar">تأشيرة عمل</field><field name="code">WORK_VISA</field><field name="icon">fa-stamp</field></record>
+        <record id="dt_workpermit" model="mn.hr.document.type"><field name="name">Work permit</field><field name="name_ar">رخصة عمل</field><field name="code">WORK_PERMIT</field><field name="icon">fa-briefcase</field></record>
+        <record id="dt_license" model="mn.hr.document.type"><field name="name">Driver's licence</field><field name="name_ar">رخصة قيادة</field><field name="code">DRIVING</field><field name="icon">fa-id-card-alt</field></record>
+        <record id="dt_insurance" model="mn.hr.document.type"><field name="name">Health insurance card</field><field name="name_ar">بطاقة تأمين صحي</field><field name="code">INSURANCE</field><field name="icon">fa-heartbeat</field></record>
+        <record id="dt_medical" model="mn.hr.document.type"><field name="name">Medical fitness certificate</field><field name="name_ar">شهادة لياقة طبية</field><field name="code">MEDICAL</field><field name="icon">fa-stethoscope</field></record>
+        <record id="dt_education" model="mn.hr.document.type"><field name="name">Education certificate</field><field name="name_ar">شهادة تعليمية</field><field name="code">EDU</field><field name="icon">fa-graduation-cap</field></record>
+        <record id="dt_id" model="mn.hr.document.type"><field name="name">National ID</field><field name="name_ar">هوية وطنية</field><field name="code">NATID</field><field name="icon">fa-address-card</field></record>
+    </data>
+</odoo>

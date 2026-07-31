@@ -1,0 +1,148 @@
+.hro-pipeline {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px 28px;
+}
+
+.hro-pipe-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    h2 { font-size: 20px; font-weight: 700; margin: 0; }
+    p { margin: 2px 0 0; font-size: 12.5px; color: $hro-text-muted; }
+}
+
+.hro-pipe-board {
+    flex: 1;
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+}
+
+.hro-pipe-col {
+    flex: 0 0 270px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, .015);
+    border-radius: $hro-radius;
+    max-height: 100%;
+}
+
+.hro-pipe-col-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: $hro-text;
+    position: sticky;
+    top: 0;
+}
+.hro-pipe-col-title { flex: 1; }
+.hro-pipe-col-count {
+    background: #fff;
+    border: 1px solid $hro-border;
+    border-radius: 999px;
+    font-size: 11px;
+    padding: 1px 8px;
+    color: $hro-text-muted;
+}
+
+.hro-pipe-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    &.hro-dot-0 { background: #dc2626; } &.hro-dot-1 { background: #0891b2; }
+    &.hro-dot-2 { background: #d97706; } &.hro-dot-3 { background: #7c2d12; }
+    &.hro-dot-4 { background: #16a34a; } &.hro-dot-5 { background: #a855f7; }
+    &.hro-dot-6 { background: #ec4899; } &.hro-dot-7 { background: #64748b; }
+}
+
+.hro-pipe-col-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 8px;
+    min-height: 60px;
+}
+
+.hro-pipe-empty {
+    font-size: 12px;
+    color: $hro-text-muted;
+    text-align: center;
+    padding: 18px 0;
+    border: 1px dashed $hro-border;
+    border-radius: $hro-radius;
+}
+
+.hro-pipe-card {
+    background: $hro-card-bg;
+    border: 1px solid $hro-border;
+    border-radius: $hro-radius;
+    box-shadow: $hro-shadow;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: grab;
+    transition: box-shadow .15s ease, transform .15s ease;
+
+    &:hover { box-shadow: $hro-shadow-hover; transform: translateY(-1px); }
+}
+
+.hro-pipe-placeholder {
+    border: 2px dashed $hro-primary;
+    border-radius: $hro-radius;
+    background: $hro-primary-light;
+}
+
+.hro-pipe-card-top { display: flex; align-items: center; gap: 8px; }
+.hro-pipe-card-name { flex: 1; min-width: 0; }
+.hro-pipe-name { font-weight: 700; font-size: 13px; }
+.hro-pipe-dept { font-size: 11px; color: $hro-text-muted; }
+
+.hro-progress-ring {
+    --ring-color: #{$hro-primary};
+    width: 36px; height: 36px; border-radius: 50%;
+    background: conic-gradient(var(--ring-color) calc(var(--p) * 1%), #e5e7eb 0);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+
+    span {
+        width: 27px; height: 27px; border-radius: 50%;
+        background: $hro-card-bg;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 9px; font-weight: 700; color: $hro-text;
+    }
+}
+
+.hro-pipe-card-meta { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.hro-chip-danger { background: #fee2e2 !important; color: $hro-danger !important; }
+
+.hro-priority-0 { background: #f3f4f6; color: $hro-muted; }
+.hro-priority-1 { background: $hro-primary-light; color: $hro-primary-dark; }
+.hro-priority-2 { background: #fef3c7; color: $hro-warning; }
+.hro-priority-3 { background: #fee2e2; color: $hro-danger; }
+
+.hro-pipe-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: $hro-text-muted;
+    padding-top: 8px;
+    border-top: 1px solid $hro-border;
+}
+.hro-pipe-hr { display: flex; align-items: center; gap: 5px; }
+.hro-pipe-card-action {
+    border: none;
+    background: $hro-primary-light;
+    color: $hro-primary;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+
+    &:hover { background: $hro-primary; color: #fff; }
+}

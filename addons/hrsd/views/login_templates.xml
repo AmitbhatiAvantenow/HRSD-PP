@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Hide "Manage Databases" and "Powered by Odoo" from the login page footer.
+        The footer lives in the server-rendered "web.login_layout" template
+        (addons/web/views/webclient_templates.xml).
+    -->
+    <template id="hide_login_footer" inherit_id="web.login_layout">
+        <xpath expr="//div[hasclass('border-top')]" position="replace"/>
+    </template>
+
+</odoo>

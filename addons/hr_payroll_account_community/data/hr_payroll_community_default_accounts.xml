@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Best-effort accounting default so a fresh install of
+             hr_payroll_community's "India: Regular Pay" structure can
+             be validated without a manual accounting setup pass first.
+             See _hr_payroll_community_set_default_accounts for details. -->
+        <function model="hr.salary.rule"
+                  name="_hr_payroll_community_set_default_accounts"
+                  eval="[]"/>
+    </data>
+</odoo>

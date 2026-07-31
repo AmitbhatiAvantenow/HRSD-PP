@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="mail_template_exit_acknowledgement" model="mail.template">
+            <field name="name">Offboarding: Exit Acknowledgement</field>
+            <field name="model_id" ref="model_hr_offboarding_request"/>
+            <field name="subject">We've received your resignation</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="description">Sent automatically when an exit request enters the "Resignation Submitted" stage</field>
+            <field name="body_html" type="html">
+<div style="font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #1f2430;">
+    <p>Hi <t t-out="object.employee_id.name or ''">there</t>,</p>
+    <p>We've received and are processing your resignation.
+        <t t-if="object.last_working_day">Your last working day is on
+        <b><t t-out="object.last_working_day"></t></b>.</t>
+    </p>
+    <p>Your manager and HR will guide you through knowledge transfer, asset return and
+        final settlement over the coming days.</p>
+    <p>Regards,<br/>
+        <t t-out="object.hr_user_id.name or 'The HR Team'">HR Team</t>
+    </p>
+</div>
+            </field>
+        </record>
+
+        <record id="mail_template_clearance_reminder" model="mail.template">
+            <field name="name">Offboarding: Clearance Reminder</field>
+            <field name="model_id" ref="model_hr_offboarding_request"/>
+            <field name="subject">Action required: complete your exit clearance</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="description">Sent automatically when an exit request enters the "Exit Approved" stage</field>
+            <field name="body_html" type="html">
+<div style="font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #1f2430;">
+    <p>Hi <t t-out="object.employee_id.name or ''">there</t>,</p>
+    <p>Your exit has been approved. Please coordinate with HR, Finance, IT, Administration and
+        your Manager to complete department clearance ahead of your last working day.</p>
+    <p>Regards,<br/>
+        <t t-out="object.hr_user_id.name or 'The HR Team'">HR Team</t>
+    </p>
+</div>
+            </field>
+        </record>
+
+        <record id="mail_template_settlement_ready" model="mail.template">
+            <field name="name">Offboarding: Settlement Ready</field>
+            <field name="model_id" ref="model_hr_offboarding_request"/>
+            <field name="subject">Your full &amp; final settlement is ready</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="description">Sent automatically when an exit request enters the "Payroll Settlement" stage</field>
+            <field name="body_html" type="html">
+<div style="font-family: -apple-system, Helvetica, Arial, sans-serif; font-size: 14px; color: #1f2430;">
+    <p>Hi <t t-out="object.employee_id.name or ''">there</t>,</p>
+    <p>Your full &amp; final settlement has been generated and is pending approval.
+        You'll be notified once it's approved for payment.</p>
+    <p>Regards,<br/>
+        <t t-out="object.hr_user_id.name or 'The HR Team'">HR Team</t>
+    </p>
+</div>
+            </field>
+        </record>
+
+        <record id="stage_resignation_submitted" model="hr.offboarding.stage">
+            <field name="mail_template_id" ref="mail_template_exit_acknowledgement"/>
+        </record>
+        <record id="stage_exit_approved" model="hr.offboarding.stage">
+            <field name="mail_template_id" ref="mail_template_clearance_reminder"/>
+        </record>
+        <record id="stage_payroll_settlement" model="hr.offboarding.stage">
+            <field name="mail_template_id" ref="mail_template_settlement_ready"/>
+        </record>
+    </data>
+</odoo>

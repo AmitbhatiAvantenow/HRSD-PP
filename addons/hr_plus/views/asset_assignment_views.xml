@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_asset" model="ir.actions.act_window"><field name="name">Asset Assignments</field>
+<field name="res_model">mn.hr.asset.assignment</field><field name="view_mode">list,form</field></record>
+<record id="action_asset_cat" model="ir.actions.act_window"><field name="name">Asset Categories</field>
+<field name="res_model">mn.hr.asset.category</field><field name="view_mode">list,form</field></record>
+<record id="view_asset_list" model="ir.ui.view"><field name="name">asset.list</field>
+<field name="model">mn.hr.asset.assignment</field><field name="arch" type="xml">
+<list decoration-warning="state=='assigned'" decoration-success="state=='returned'" decoration-danger="state in ('damaged','lost')">
+<field name="name"/><field name="employee_id"/><field name="category_id" widget="badge"/>
+<field name="asset_name"/><field name="serial_number"/><field name="assigned_on"/>
+<field name="returned_on"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_asset_form" model="ir.ui.view"><field name="name">asset.form</field>
+<field name="model">mn.hr.asset.assignment</field><field name="arch" type="xml">
+<form><header><button name="action_return" type="object" string="Mark returned" class="oe_highlight" invisible="state!='assigned'"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="category_id"/><field name="asset_name"/><field name="serial_number"/><field name="purchase_value"/><field name="currency_id" invisible="1"/></group>
+<group><field name="assigned_on"/><field name="returned_on"/><field name="condition_on_issue"/><field name="condition_on_return"/><field name="state" readonly="1" widget="badge"/></group></group>
+<field name="handover_doc" widget="binary"/><field name="notes"/></sheet><chatter/></form>
+</field></record></data></odoo>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="stage_resignation_submitted" model="hr.offboarding.stage">
+            <field name="name">Resignation Submitted</field>
+            <field name="sequence">10</field>
+            <field name="color">1</field>
+        </record>
+        <record id="stage_manager_review" model="hr.offboarding.stage">
+            <field name="name">Manager Review</field>
+            <field name="sequence">20</field>
+            <field name="color">2</field>
+        </record>
+        <record id="stage_hr_review" model="hr.offboarding.stage">
+            <field name="name">HR Review</field>
+            <field name="sequence">30</field>
+            <field name="color">3</field>
+        </record>
+        <record id="stage_exit_approved" model="hr.offboarding.stage">
+            <field name="name">Exit Approved</field>
+            <field name="sequence">40</field>
+            <field name="color">4</field>
+            <field name="has_clearance">1</field>
+        </record>
+        <record id="stage_knowledge_transfer" model="hr.offboarding.stage">
+            <field name="name">Knowledge Transfer</field>
+            <field name="sequence">50</field>
+            <field name="color">5</field>
+        </record>
+        <record id="stage_asset_collection" model="hr.offboarding.stage">
+            <field name="name">Asset Collection</field>
+            <field name="sequence">60</field>
+            <field name="color">6</field>
+            <field name="has_assets">1</field>
+        </record>
+        <record id="stage_it_deprovisioning" model="hr.offboarding.stage">
+            <field name="name">IT Deprovisioning</field>
+            <field name="sequence">70</field>
+            <field name="color">7</field>
+        </record>
+        <record id="stage_payroll_settlement" model="hr.offboarding.stage">
+            <field name="name">Payroll Settlement</field>
+            <field name="sequence">80</field>
+            <field name="color">8</field>
+            <field name="has_payroll">1</field>
+        </record>
+        <record id="stage_exit_interview" model="hr.offboarding.stage">
+            <field name="name">Exit Interview</field>
+            <field name="sequence">90</field>
+            <field name="color">9</field>
+        </record>
+        <record id="stage_experience_letter" model="hr.offboarding.stage">
+            <field name="name">Experience Letter</field>
+            <field name="sequence">100</field>
+            <field name="color">10</field>
+            <field name="has_documents">1</field>
+        </record>
+        <record id="stage_relieving_letter" model="hr.offboarding.stage">
+            <field name="name">Relieving Letter</field>
+            <field name="sequence">110</field>
+            <field name="color">3</field>
+            <field name="has_documents">1</field>
+        </record>
+        <record id="stage_completed" model="hr.offboarding.stage">
+            <field name="name">Completed</field>
+            <field name="sequence">120</field>
+            <field name="color">5</field>
+            <field name="fold">1</field>
+            <field name="is_final">1</field>
+        </record>
+    </data>
+</odoo>

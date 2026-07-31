@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_suggestion" model="ir.actions.act_window"><field name="name">Suggestion Box</field>
+<field name="res_model">mn.hr.suggestion</field><field name="view_mode">list,form</field></record>
+<record id="view_sug_list" model="ir.ui.view"><field name="name">sug.list</field>
+<field name="model">mn.hr.suggestion</field><field name="arch" type="xml">
+<list decoration-info="state=='new'" decoration-success="state=='implemented'" decoration-muted="state=='rejected'">
+<field name="name"/><field name="title"/><field name="employee_id"/><field name="is_anonymous" widget="boolean_toggle"/>
+<field name="category" widget="badge"/><field name="upvote_count"/><field name="estimated_savings" widget="monetary"/>
+<field name="currency_id" invisible="1"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_sug_form" model="ir.ui.view"><field name="name">sug.form</field>
+<field name="model">mn.hr.suggestion</field><field name="arch" type="xml">
+<form><sheet>
+<group><group><field name="title"/><field name="employee_id" invisible="is_anonymous"/><field name="is_anonymous" widget="boolean_toggle"/><field name="category"/></group>
+<group><field name="upvote_count"/><field name="estimated_savings"/><field name="currency_id"/><field name="reviewed_by_id"/></group></group>
+<field name="description"/><field name="expected_benefit"/><field name="review_comments"/>
+<group><field name="state" widget="statusbar"/><field name="implemented_on" invisible="state!='implemented'"/><field name="reward_amount" invisible="state!='implemented'"/></group>
+</sheet><chatter/></form>
+</field></record></data></odoo>

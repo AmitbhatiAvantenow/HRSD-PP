@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_offboarding_task_list" model="ir.ui.view">
+        <field name="name">hr.offboarding.task.list</field>
+        <field name="model">hr.offboarding.task</field>
+        <field name="arch" type="xml">
+            <list string="Offboarding Tasks" editable="bottom" default_group_by="request_id">
+                <field name="sequence" widget="handle"/>
+                <field name="request_id"/>
+                <field name="name"/>
+                <field name="stage_id"/>
+                <field name="assigned_to"/>
+                <field name="due_date"/>
+                <field name="done" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_offboarding_task_kanban" model="ir.ui.view">
+        <field name="name">hr.offboarding.task.kanban</field>
+        <field name="model">hr.offboarding.task</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column hro_task_kanban" default_group_by="request_id">
+                <field name="name"/>
+                <field name="done"/>
+                <field name="due_date"/>
+                <field name="assigned_to"/>
+                <field name="request_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="hro-card hro-task-card #{record.done.raw_value ? 'hro-task-done' : ''}">
+                            <div class="hro-task-check">
+                                <field name="done" widget="boolean_toggle"/>
+                            </div>
+                            <div class="hro-task-body">
+                                <div class="hro-task-name"><field name="name"/></div>
+                                <div class="hro-task-meta">
+                                    <span t-if="record.assigned_to.value" class="hro-chip"><field name="assigned_to"/></span>
+                                    <span t-if="record.due_date.value" class="hro-chip hro-chip-due"><field name="due_date"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_offboarding_task_search" model="ir.ui.view">
+        <field name="name">hr.offboarding.task.search</field>
+        <field name="model">hr.offboarding.task</field>
+        <field name="arch" type="xml">
+            <search string="Offboarding Tasks">
+                <field name="name"/>
+                <field name="request_id"/>
+                <field name="assigned_to"/>
+                <filter string="To Do" name="todo" domain="[('done', '=', False)]"/>
+                <filter string="Done" name="is_done" domain="[('done', '=', True)]"/>
+                <group>
+                    <filter string="Exit Request" name="group_request" context="{'group_by': 'request_id'}"/>
+                    <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_offboarding_task" model="ir.actions.act_window">
+        <field name="name">Tasks &amp; Checklists</field>
+        <field name="res_model">hr.offboarding.task</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="context">{'search_default_todo': 1}</field>
+    </record>
+</odoo>

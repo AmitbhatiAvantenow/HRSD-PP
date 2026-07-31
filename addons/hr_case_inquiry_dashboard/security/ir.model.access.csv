@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_case_category_inquiry_dashboard,hr.case.category.inquiry.dashboard,hr_case_management.model_hr_case_category,base.group_user,1,0,0,0
+access_hr_case_service_inquiry_dashboard,hr.case.service.inquiry.dashboard,hr_case_management.model_hr_case_service,base.group_user,1,0,0,0
+access_hr_case_division_inquiry_dashboard,hr.case.division.inquiry.dashboard,hr_case_management.model_hr_case_division,base.group_user,1,0,0,0

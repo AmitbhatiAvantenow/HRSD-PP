@@ -1,0 +1,325 @@
+.o_hr_esign_wizard {
+  --ohw-indigo: #4f46e5;
+  --ohw-violet: #7c3aed;
+  --ohw-blue: #2563eb;
+  --ohw-green: #10b981;
+  --ohw-orange: #f97316;
+  --ohw-pink: #ec4899;
+  --ohw-teal: #14b8a6;
+  --ohw-border: #e7e5f5;
+  --ohw-bg: #f6f5fc;
+  --ohw-text: #1e1b2e;
+  --ohw-text-muted: #6b7280;
+  --ohw-red: #ef4444;
+  --ohw-red-bg: #fee2e2;
+  --ohw-orange-bg: #fff3e0;
+  --ohw-radius-lg: 16px;
+  --ohw-radius-md: 12px;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 680px;
+  max-width: 100%;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ohw-text);
+  padding: 4px;
+
+  @each $name, $color in (indigo: var(--ohw-indigo), violet: var(--ohw-violet), blue: var(--ohw-blue),
+    green: var(--ohw-green), orange: var(--ohw-orange), pink: var(--ohw-pink), teal: var(--ohw-teal)) {
+    .ohw-color-#{"" + $name} { background: linear-gradient(135deg, #{$color}, color-mix(in srgb, #{$color} 65%, #1e1b2e)); }
+  }
+
+  // ---- Stepper ---------------------------------------------------------
+  .ohw-stepper {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 16px 24px;
+  }
+  .ohw-stepper-track {
+    position: absolute;
+    top: 25px;
+    left: 48px;
+    right: 48px;
+    height: 3px;
+    background: var(--ohw-border);
+    border-radius: 999px;
+    z-index: 0;
+  }
+  .ohw-stepper-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ohw-indigo), var(--ohw-violet));
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+  .ohw-step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    flex: 1;
+  }
+  .ohw-step-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--ohw-border);
+    color: var(--ohw-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.2s ease;
+  }
+  .ohw-step.is-active .ohw-step-dot {
+    border-color: var(--ohw-indigo); color: var(--ohw-indigo);
+    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.14);
+    transform: scale(1.05);
+  }
+  .ohw-step.is-done .ohw-step-dot {
+    background: linear-gradient(135deg, var(--ohw-indigo), var(--ohw-violet));
+    border-color: transparent; color: #fff;
+    box-shadow: 0 4px 10px -3px rgba(79, 70, 229, 0.5);
+  }
+  .ohw-step-label { font-size: 11px; font-weight: 600; color: var(--ohw-text-muted); text-align: center; transition: color 0.2s ease; }
+  .ohw-step.is-active .ohw-step-label { color: var(--ohw-indigo); font-weight: 800; }
+  .ohw-step.is-done .ohw-step-label { color: var(--ohw-text); }
+
+  // ---- Body --------------------------------------------------------------
+  .ohw-body { min-height: 360px; max-height: 58vh; overflow-y: auto; padding: 6px 6px 14px; }
+
+  .ohw-step-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .ohw-step-header-icon {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--ohw-indigo), var(--ohw-violet)); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    box-shadow: 0 6px 14px -6px rgba(79, 70, 229, 0.6);
+  }
+  .ohw-step-title { font-size: 16.5px; font-weight: 800; margin: 2px 0 3px; }
+  .ohw-step-sub { font-size: 12.5px; color: var(--ohw-text-muted); margin: 0; line-height: 1.5; }
+
+  .ohw-toggle-row { display: flex; gap: 8px; background: var(--ohw-bg); border-radius: 11px; padding: 4px; margin-bottom: 18px; width: fit-content; }
+  .ohw-toggle-btn { border: none; background: transparent; padding: 9px 18px; border-radius: 9px; font-size: 12.5px; font-weight: 700; color: var(--ohw-text-muted); transition: all 0.15s ease; }
+  .ohw-toggle-btn.is-active { background: #fff; color: var(--ohw-indigo); box-shadow: 0 2px 6px rgba(30, 27, 75, 0.1); }
+
+  // Employee picker
+  .ohw-employee-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .ohw-employee-card {
+    position: relative;
+    border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-lg); padding: 16px 12px; text-align: center; cursor: pointer;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .ohw-employee-card:hover { border-color: var(--ohw-indigo); transform: translateY(-2px); box-shadow: 0 10px 22px -12px rgba(30, 27, 75, 0.3); }
+  .ohw-employee-card.is-selected { border-color: var(--ohw-indigo); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16), 0 10px 22px -12px rgba(30, 27, 75, 0.3); }
+  .ohw-employee-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; margin: 0 auto 10px;
+    box-shadow: 0 4px 10px -3px rgba(30, 27, 75, 0.35);
+  }
+  .ohw-employee-name { font-size: 12.5px; font-weight: 700; }
+  .ohw-employee-email { font-size: 10.5px; color: var(--ohw-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
+  .ohw-employee-check {
+    position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--ohw-indigo); color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; box-shadow: 0 2px 6px rgba(79, 70, 229, 0.5); border: 2px solid #fff;
+  }
+
+  // Customer (res.partner) picker — wraps Odoo's own Many2One field widget,
+  // reused as-is so search-as-you-type + "Create and edit..." (a real
+  // res.partner form, not just a name) come for free.
+  .ohw-partner-picker {
+    margin-bottom: 16px; max-width: 420px;
+    .o_input { border: 1.5px solid var(--ohw-border); border-radius: 9px; padding: 9px 11px; font-size: 13px; width: 100%; }
+    .o_input:focus { outline: none; border-color: var(--ohw-indigo); }
+  }
+  .ohw-partner-card {
+    display: flex; align-items: center; gap: 12px; max-width: 360px;
+    border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-lg); padding: 14px 16px; background: #fff;
+  }
+  .ohw-partner-card .ohw-employee-avatar { margin: 0; flex-shrink: 0; }
+  .ohw-signer-partner-picker {
+    .o_input { border: 1.5px solid var(--ohw-border); border-radius: 9px; padding: 8px 10px; font-size: 12.5px; width: 100%; }
+    .o_input:focus { outline: none; border-color: var(--ohw-indigo); }
+  }
+
+  // Upload / template
+  .ohw-upload-area { margin-bottom: 16px; }
+  .ohw-upload-drop {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px;
+    border: 2px dashed var(--ohw-border); border-radius: var(--ohw-radius-lg); padding: 34px; cursor: pointer;
+    color: var(--ohw-indigo); font-weight: 700; font-size: 13px; transition: all 0.15s ease;
+  }
+  .ohw-upload-drop:hover { background: var(--ohw-bg); border-color: var(--ohw-indigo); }
+  .ohw-upload-drop input { display: none; }
+  .ohw-upload-drop .fa { font-size: 28px; }
+  .ohw-ai-status { font-size: 12px; color: var(--ohw-text-muted); margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+  .ohw-ai-card {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.06), rgba(124, 58, 237, 0.06));
+    border: 1px solid rgba(79, 70, 229, 0.14); border-radius: var(--ohw-radius-md); padding: 14px 16px; margin-top: 14px; font-size: 12.5px;
+  }
+  .ohw-ai-title { font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 7px; color: var(--ohw-indigo); }
+  .ohw-ai-warning { color: var(--ohw-orange); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; }
+
+  .ohw-template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .ohw-template-card { border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-lg); padding: 18px; text-align: center; cursor: pointer; transition: all 0.15s ease; }
+  .ohw-template-card:hover { border-color: var(--ohw-indigo); transform: translateY(-2px); box-shadow: 0 10px 22px -12px rgba(30, 27, 75, 0.3); }
+  .ohw-template-card.is-selected { border-color: var(--ohw-indigo); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.16); }
+  .ohw-template-card .fa { font-size: 24px; color: var(--ohw-indigo); margin-bottom: 10px; }
+  .ohw-template-name { font-size: 12.5px; font-weight: 700; }
+  .ohw-template-cat { font-size: 10.5px; color: var(--ohw-text-muted); margin-top: 2px; }
+
+  .ohw-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ohw-field label { display: block; font-size: 11.5px; font-weight: 700; color: var(--ohw-text-muted); margin-bottom: 6px; }
+  .ohw-field input, .ohw-field select, .ohw-field textarea {
+    width: 100%; border: 1.5px solid var(--ohw-border); border-radius: 9px; padding: 9px 11px; font-size: 13px;
+    font-family: inherit; transition: border-color 0.15s ease;
+  }
+  .ohw-field textarea { resize: vertical; min-height: 64px; }
+  .ohw-field input:focus, .ohw-field select:focus, .ohw-field textarea:focus { outline: none; border-color: var(--ohw-indigo); }
+  .ohw-field-hint { font-weight: 500; text-transform: none; letter-spacing: normal; }
+
+  // Signers
+  .ohw-signers-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 12px; }
+  .ohw-signer-row { display: grid; grid-template-columns: 26px 1fr 1fr 1fr 34px; gap: 8px; align-items: center; }
+  .ohw-signer-row select, .ohw-signer-row input {
+    border: 1.5px solid var(--ohw-border); border-radius: 9px; padding: 8px 10px; font-size: 12.5px; transition: border-color 0.15s ease;
+  }
+  .ohw-signer-row select:focus, .ohw-signer-row input:focus { outline: none; border-color: var(--ohw-indigo); }
+  .ohw-signer-index {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--ohw-bg); color: var(--ohw-indigo);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+  }
+  .ohw-icon-btn { border: 1.5px solid var(--ohw-border); background: #fff; border-radius: 9px; width: 34px; height: 34px; color: var(--ohw-red); transition: all 0.15s ease; }
+  .ohw-icon-btn:hover { background: var(--ohw-red-bg); border-color: var(--ohw-red-bg); }
+
+  // Review
+  .ohw-review-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; margin-bottom: 18px;
+    background: var(--ohw-bg); border-radius: var(--ohw-radius-md); padding: 16px 18px;
+  }
+  .ohw-review-item label { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ohw-text-muted); margin-bottom: 3px; }
+  .ohw-review-item span { font-size: 13.5px; font-weight: 700; }
+  .ohw-review-signers { border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-md); padding: 12px 16px; }
+  .ohw-review-signer { font-size: 12.5px; padding: 5px 0; border-bottom: 1px solid var(--ohw-border); }
+  .ohw-review-signer:last-child { border-bottom: none; }
+  .ohw-email-setup { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--ohw-border); }
+
+  .ohw-error { background: var(--ohw-red-bg); color: var(--ohw-red); border-radius: 9px; padding: 10px 14px; font-size: 12.5px; margin-top: 14px; font-weight: 600; }
+  .ohw-widget-empty { font-size: 12.5px; color: var(--ohw-text-muted); }
+
+  // ---- Place Fields (drag & drop) -----------------------------------
+  &.ohw-wide { min-width: 960px; }
+  &.ohw-wide .ohw-body { max-height: 68vh; }
+
+  .ohw-signer-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .ohw-signer-tab {
+    --tab-color: var(--ohw-indigo);
+    display: flex; align-items: center; gap: 7px;
+    border: 1.5px solid var(--ohw-border); background: #fff; border-radius: 999px;
+    padding: 7px 12px 7px 9px; font-size: 12px; font-weight: 700; color: var(--ohw-text-muted);
+    transition: all 0.15s ease;
+  }
+  .ohw-signer-tab-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--tab-color); flex-shrink: 0; }
+  .ohw-signer-tab-count {
+    background: var(--ohw-bg); color: var(--ohw-text-muted); border-radius: 999px; min-width: 17px; height: 17px;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; padding: 0 4px;
+  }
+  .ohw-signer-tab.is-active {
+    border-color: var(--tab-color); color: var(--ohw-text);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tab-color) 16%, transparent);
+  }
+  .ohw-signer-tab.is-active .ohw-signer-tab-count { background: var(--tab-color); color: #fff; }
+
+  .ohw-fields-layout { display: flex; gap: 16px; align-items: flex-start; }
+
+  .ohw-fields-palette { flex: 0 0 190px; position: sticky; top: 0; }
+  .ohw-palette-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--ohw-text-muted); margin-bottom: 8px; }
+  .ohw-palette-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .ohw-palette-btn {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-md); background: #fff;
+    padding: 12px 6px; font-size: 10.5px; font-weight: 700; color: var(--ohw-text); cursor: grab;
+    transition: all 0.15s ease; user-select: none;
+  }
+  .ohw-palette-btn:hover { border-color: var(--ohw-indigo); color: var(--ohw-indigo); transform: translateY(-1px); box-shadow: 0 6px 14px -8px rgba(30, 27, 75, 0.3); }
+  .ohw-palette-btn:active { cursor: grabbing; }
+  .ohw-palette-btn .fa { font-size: 16px; }
+
+  .ohw-signature-style { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ohw-font-swatch {
+    border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-md); background: #fff;
+    padding: 10px 4px; font-size: 16px; color: var(--ohw-text-muted); transition: all 0.15s ease;
+  }
+  .ohw-font-swatch:hover { border-color: var(--ohw-indigo); color: var(--ohw-indigo); }
+  .ohw-font-swatch.is-active { border-color: var(--ohw-indigo); color: var(--ohw-indigo); background: var(--ohw-bg); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.14); }
+  .ohw-palette-hint { font-size: 10.5px; color: var(--ohw-text-muted); line-height: 1.4; margin: 8px 0 0; }
+
+  .ohw-fields-canvas { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .ohw-pdf-page {
+    position: relative; width: 100%; border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-md);
+    overflow: hidden; box-shadow: 0 10px 24px -16px rgba(30, 27, 75, 0.35); background: #fff; line-height: 0;
+  }
+  .ohw-pdf-page-img { width: 100%; height: auto; display: block; pointer-events: none; user-select: none; }
+
+  .ohw-placed-field {
+    --field-color: var(--ohw-indigo);
+    position: absolute; box-sizing: border-box;
+    border: 1.5px solid var(--field-color); border-radius: 6px;
+    background: color-mix(in srgb, var(--field-color) 14%, #fff 86%);
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    font-size: 10px; font-weight: 700; color: var(--field-color); white-space: nowrap; overflow: hidden;
+    cursor: move; user-select: none;
+  }
+  .ohw-placed-field .fa { font-size: 11px; flex-shrink: 0; }
+  .ohw-placed-field span:not(.ohw-field-delete):not(.ohw-field-resize) { overflow: hidden; text-overflow: ellipsis; }
+
+  // Signature/Initial boxes read as a live preview of the final mark (a
+  // cursive name on a light card) rather than an opaque colored block —
+  // still color-coded per signer via the border, just not a solid fill.
+  // container-type: size makes the label's cqh-based font-size track the
+  // box's own height, so dragging the resize handle visibly grows/shrinks
+  // the preview text in real time — no JS involved.
+  .ohw-placed-field.ohw-placed-field-signer {
+    background: #fff; border-width: 1.5px; border-style: dashed;
+    box-shadow: 0 4px 10px -6px rgba(30, 27, 75, 0.25);
+    container-type: size;
+  }
+  .ohw-placed-field-signer-label {
+    color: var(--field-color); font-family: var(--ohw-sig-font, "Segoe Script", "Brush Script MT", cursive);
+    font-size: clamp(9px, 55cqh, 42px); font-weight: 700;
+    padding: 0 6px; line-height: 1.1;
+  }
+  .ohw-field-delete {
+    position: absolute; top: -8px; right: -8px; width: 17px; height: 17px; border-radius: 50%;
+    background: var(--ohw-red); color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25); opacity: 0; transition: opacity 0.15s ease;
+  }
+  .ohw-field-resize {
+    position: absolute; bottom: -3px; right: -3px; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--field-color); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    cursor: nwse-resize; opacity: 0; transition: opacity 0.15s ease;
+  }
+  .ohw-placed-field:hover .ohw-field-delete, .ohw-placed-field:hover .ohw-field-resize { opacity: 1; }
+
+  // ---- Footer --------------------------------------------------------
+  .ohw-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; margin-top: 4px; border-top: 1px solid var(--ohw-border); }
+  .ohw-footer-right { display: flex; gap: 10px; }
+  .ohw-btn-ghost {
+    background: #fff; border: 1.5px solid var(--ohw-border); color: var(--ohw-text); border-radius: 10px;
+    padding: 10px 18px; font-size: 12.5px; font-weight: 700; transition: all 0.15s ease;
+  }
+  .ohw-btn-ghost:hover { background: var(--ohw-bg); border-color: var(--ohw-text-muted); }
+  .ohw-btn-primary {
+    background: linear-gradient(135deg, var(--ohw-indigo), var(--ohw-violet)); color: #fff; border: none;
+    border-radius: 10px; padding: 10px 20px; font-size: 12.5px; font-weight: 700;
+    box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.6); transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .ohw-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -8px rgba(79, 70, 229, 0.7); }
+  .ohw-btn-primary:disabled { opacity: 0.6; transform: none; }
+}

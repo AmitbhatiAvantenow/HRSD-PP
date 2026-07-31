@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_training" model="ir.actions.act_window"><field name="name">Training &amp; Certifications</field>
+<field name="res_model">mn.hr.training</field><field name="view_mode">list,form</field><field name="path">training</field></record>
+<record id="view_train_list" model="ir.ui.view"><field name="name">train.list</field>
+<field name="model">mn.hr.training</field><field name="arch" type="xml">
+<list decoration-success="state=='completed'" decoration-warning="state=='ongoing'" decoration-danger="state=='expired'">
+<field name="name"/><field name="employee_id"/><field name="title"/><field name="category" widget="badge"/>
+<field name="completion_date"/><field name="certificate_expiry"/><field name="days_to_expiry"/>
+<field name="is_mandatory" widget="boolean_toggle"/><field name="is_certified" widget="boolean_toggle"/>
+<field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_train_form" model="ir.ui.view"><field name="name">train.form</field>
+<field name="model">mn.hr.training</field><field name="arch" type="xml">
+<form><sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="title"/><field name="provider"/><field name="category"/><field name="delivery"/></group>
+<group><field name="start_date"/><field name="completion_date"/><field name="duration_hours"/><field name="score"/><field name="is_mandatory" widget="boolean_toggle"/><field name="is_certified" widget="boolean_toggle"/></group></group>
+<group><group string="Cost"><field name="cost"/><field name="paid_by"/><field name="currency_id" invisible="1"/></group>
+<group string="Certificate"><field name="certificate_no"/><field name="certificate_expiry"/><field name="days_to_expiry" readonly="1"/></group></group>
+<field name="certificate_file" widget="binary"/></sheet><chatter/></form>
+</field></record></data></odoo>

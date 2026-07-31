@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hrsd.dashboard.stat.card — controls which of the 5 built-in
+         dashboard stat cards (Total Employees, On Leave Today, ...) are
+         visible, to whom, and in what order. The numbers themselves are
+         always computed live in hrsd_dashboard.py.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="hrsd_dashboard_stat_card_list_view" model="ir.ui.view">
+      <field name="name">hrsd.dashboard.stat.card.list</field>
+      <field name="model">hrsd.dashboard.stat.card</field>
+      <field name="arch" type="xml">
+        <list string="Stat Cards" editable="bottom" default_order="sequence, id">
+          <field name="sequence" widget="handle"/>
+          <field name="key"/>
+          <field name="group_ids" widget="many2many_tags" optional="show" placeholder="Everyone"/>
+          <field name="active" widget="boolean_toggle"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="action_hrsd_dashboard_stat_card" model="ir.actions.act_window">
+      <field name="name">Stat Cards</field>
+      <field name="res_model">hrsd.dashboard.stat.card</field>
+      <field name="view_mode">list</field>
+      <field name="help" type="html">
+        <p>
+          Controls which of the summary cards at the top of the HR Dashboard
+          (Total Employees, On Leave Today, ...) are shown, to whom, and in
+          what order. The numbers themselves always reflect live data —
+          only visibility and ordering are configurable here.
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="menu_hrsd_dashboard_stat_card_config"
+              name="Stat Cards"
+              parent="menu_hrsd_root"
+              action="action_hrsd_dashboard_stat_card"
+              groups="base.group_system"
+              sequence="102"/>
+
+  </data>
+</odoo>

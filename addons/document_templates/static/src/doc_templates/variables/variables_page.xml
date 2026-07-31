@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.VariablesPage">
+    <DocShell activeKey="'variables'" eyebrow="'Document Templates'" title="'Variables'"
+              subtitle="'Every dynamic {{ variable }} defined across your templates, in one place.'">
+        <t t-if="groupedByTemplate.length">
+            <div class="doc-card" style="margin-bottom:14px;" t-foreach="groupedByTemplate" t-as="grp" t-key="grp.templateId">
+                <div class="doc-card-title"><t t-esc="grp.templateName"/></div>
+                <table class="doc-table">
+                    <thead>
+                        <tr><th>Label</th><th>Token</th><th>Type</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="grp.items" t-as="v" t-key="v.id">
+                            <td><t t-esc="v.name"/></td>
+                            <td class="doc-mono">{{ <t t-esc="v.key"/> }}</td>
+                            <td><span class="doc-chip doc-c-muted"><t t-esc="v.variable_type"/></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+        <div class="doc-empty" t-else="">No variables defined yet -- add some from a template's Builder.</div>
+    </DocShell>
+</t>
+
+</templates>

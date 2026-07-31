@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_hr_case" model="ir.module.category">
+        <field name="name">HR Case Management</field>
+    </record>
+
+    <!-- Groups -->
+    <record id="group_hr_case_user" model="res.groups">
+        <field name="name">Employee: Raise Cases</field>
+        <field name="comment">Any employee. Can open new HR cases and follow their own cases.</field>
+    </record>
+
+    <record id="group_hr_case_officer" model="res.groups">
+        <field name="name">HR Officer: Manage Assigned Cases</field>
+        <field name="implied_ids" eval="[(4, ref('group_hr_case_user'))]"/>
+        <field name="comment">Members of assignment groups. Can work, update and close cases
+            routed to their team(s).</field>
+    </record>
+
+    <record id="group_hr_case_manager" model="res.groups">
+        <field name="name">HR Manager: Full Access &amp; Configuration</field>
+        <field name="implied_ids" eval="[(4, ref('group_hr_case_officer'))]"/>
+        <field name="comment">Full access to every case, approvals and the configuration menu
+            (Divisions, Categories, Services, Assignment Groups, SLA Policies).</field>
+    </record>
+
+    <!-- Record rules -->
+    <record id="hr_case_rule_employee_own" model="ir.rule">
+        <field name="name">HR Case: employee sees own / opened-by cases only</field>
+        <field name="model_id" ref="model_hr_case"/>
+        <field name="domain_force">
+            ['|', '|', ('employee_id.user_id', '=', user.id),
+                      ('opened_by_id', '=', user.id),
+                      ('subject_person_id.user_id', '=', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('group_hr_case_user'))]"/>
+    </record>
+
+    <record id="hr_case_rule_officer_team" model="ir.rule">
+        <field name="name">HR Officer: sees cases assigned to self or own team(s)</field>
+        <field name="model_id" ref="model_hr_case"/>
+        <field name="domain_force">
+            ['|', ('user_id', '=', user.id), ('team_id.member_ids', 'in', [user.id])]
+        </field>
+        <field name="groups" eval="[(4, ref('group_hr_case_officer'))]"/>
+    </record>
+
+    <record id="hr_case_rule_manager_all" model="ir.rule">
+        <field name="name">HR Manager: sees every case</field>
+        <field name="model_id" ref="model_hr_case"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_hr_case_manager'))]"/>
+    </record>
+
+    <!-- Submission record rules -->
+    <record id="hr_case_submission_rule_employee_own" model="ir.rule">
+        <field name="name">HR Submission: employee sees own submissions only</field>
+        <field name="model_id" ref="model_hr_case_submission"/>
+        <field name="domain_force">
+            [('employee_id.user_id', '=', user.id)]
+        </field>
+        <field name="groups" eval="[(4, ref('group_hr_case_user'))]"/>
+    </record>
+
+    <record id="hr_case_submission_rule_manager_all" model="ir.rule">
+        <field name="name">HR Submission: manager sees all submissions</field>
+        <field name="model_id" ref="model_hr_case_submission"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_hr_case_manager'))]"/>
+    </record>
+</odoo>

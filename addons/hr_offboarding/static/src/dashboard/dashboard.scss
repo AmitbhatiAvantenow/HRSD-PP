@@ -1,0 +1,137 @@
+.hro-dashboard {
+    padding: 28px 32px 40px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.hro-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, $hro-primary 0%, #7c2d12 100%);
+    border-radius: $hro-radius-lg;
+    padding: 32px 36px;
+    color: #fff;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    h1 { font-size: 26px; font-weight: 700; margin: 0 0 6px; color: #fff; }
+    p { margin: 0; opacity: .9; font-size: 14px; color: #fff; }
+}
+
+.hro-hero-actions { display: flex; gap: 10px; }
+
+.hro-btn-primary {
+    background: #fff;
+    color: $hro-primary-dark;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+}
+.hro-btn-ghost {
+    background: rgba(255, 255, 255, .15);
+    color: #fff;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, .4);
+    border-radius: 10px;
+    padding: 10px 18px;
+}
+
+.hro-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.hro-kpi-card {
+    background: $hro-card-bg;
+    border: 1px solid $hro-border;
+    border-radius: $hro-radius;
+    padding: 18px;
+    box-shadow: $hro-shadow;
+    animation: hro-pop .25s ease both;
+
+    .hro-kpi-icon {
+        width: 34px; height: 34px;
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+    .hro-kpi-value { font-size: 24px; font-weight: 700; color: $hro-text; }
+    .hro-kpi-label { font-size: 12px; color: $hro-text-muted; margin-top: 2px; }
+
+    &.hro-kpi-red .hro-kpi-icon { background: $hro-primary-light; color: $hro-primary; }
+    &.hro-kpi-cyan .hro-kpi-icon { background: #ecfeff; color: $hro-accent; }
+    &.hro-kpi-amber .hro-kpi-icon { background: #fffbeb; color: $hro-warning; }
+    &.hro-kpi-green .hro-kpi-icon { background: #f0fdf4; color: $hro-success; }
+}
+
+@keyframes hro-pop {
+    from { opacity: 0; transform: translateY(6px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hro-quick-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.hro-qa {
+    background: $hro-card-bg;
+    border: 1px solid $hro-border;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    color: $hro-text;
+    display: flex; align-items: center; gap: 8px;
+    transition: all .15s ease;
+
+    &:hover { border-color: $hro-primary; color: $hro-primary; box-shadow: $hro-shadow-hover; }
+}
+
+.hro-dashboard-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.hro-panel {
+    padding: 18px 20px;
+    h4 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+}
+.hro-empty { color: $hro-text-muted; font-size: 13px; }
+
+.hro-joiner-row, .hro-task-row, .hro-activity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid $hro-border;
+    &:last-child { border-bottom: none; }
+}
+
+.hro-avatar-sm {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: $hro-primary-light;
+    color: $hro-primary-dark;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+    flex: 0 0 auto;
+}
+
+.hro-joiner-name, .hro-task-row-name { font-weight: 600; font-size: 13px; }
+.hro-joiner-meta, .hro-task-row-meta, .hro-activity-date { font-size: 11px; color: $hro-text-muted; }
+.hro-joiner-info, .hro-task-row-info, .hro-activity-info { flex: 1; min-width: 0; }
+
+.hro-activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: $hro-primary; flex: 0 0 auto;
+}
+.hro-activity-text { font-size: 12.5px; }

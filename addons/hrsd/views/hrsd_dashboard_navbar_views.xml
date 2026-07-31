@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hrsd.dashboard.navbar.item — configurable top navigation links
+         shown across the HR Portal pages (next to "HR Dashboard").
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="hrsd_dashboard_navbar_item_list_view" model="ir.ui.view">
+      <field name="name">hrsd.dashboard.navbar.item.list</field>
+      <field name="model">hrsd.dashboard.navbar.item</field>
+      <field name="arch" type="xml">
+        <list string="Top Navigation" editable="bottom" default_order="sequence, id">
+          <field name="sequence" widget="handle"/>
+          <field name="name"/>
+          <field name="url" widget="url" placeholder="/odoo/employees"/>
+          <field name="group_ids" widget="many2many_tags" optional="show" placeholder="Everyone"/>
+          <field name="active" widget="boolean_toggle"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="action_hrsd_dashboard_navbar_item" model="ir.actions.act_window">
+      <field name="name">Top Navigation</field>
+      <field name="res_model">hrsd.dashboard.navbar.item</field>
+      <field name="view_mode">list</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Add a link to the HR Portal's top navigation bar
+        </p>
+        <p>
+          These links appear next to "HR Dashboard" at the top of every HR Portal
+          page — no code changes needed.
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="menu_hrsd_dashboard_navbar_config"
+              name="Top Navigation"
+              parent="menu_hrsd_root"
+              action="action_hrsd_dashboard_navbar_item"
+              groups="base.group_system"
+              sequence="101"/>
+
+  </data>
+</odoo>

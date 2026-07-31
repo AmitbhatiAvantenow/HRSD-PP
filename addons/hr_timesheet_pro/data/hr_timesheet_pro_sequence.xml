@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_hr_timesheet_sheet" model="ir.sequence">
+        <field name="name">HR Timesheet Sheet</field>
+        <field name="code">hr.timesheet.sheet</field>
+        <field name="prefix">MYT</field>
+        <field name="padding">7</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <template id="hrsd_dashboard_page" name="HR Dashboard">
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1"/>
+          <title><t t-esc="brand['name']"/> HR Dashboard</title>
+          <link rel="stylesheet" type="text/css" href="/hrsd/static/src/css/dashboard.css"/>
+        </head>
+        <body>
+          <div class="hrsd-app">
+
+            <!-- ============================== SIDEBAR ============================== -->
+            <aside class="hrsd-sidebar">
+              <div class="hrsd-brand">
+                <t t-if="brand['logo_url']">
+                  <img t-attf-src="#{brand['logo_url']}" alt="logo" class="hrsd-brand-mark" style="object-fit: cover;"/>
+                </t>
+                <t t-else="">
+                  <div class="hrsd-brand-mark"><t t-esc="brand['initial']"/></div>
+                </t>
+                <div class="hrsd-brand-text">
+                  <div class="hrsd-brand-name"><t t-esc="brand['name']"/></div>
+                  <div class="hrsd-brand-sub">HR PORTAL</div>
+                </div>
+              </div>
+
+              <div class="hrsd-profile">
+                <div class="hrsd-avatar">
+                  <t t-if="profile['image_url']">
+                    <img t-attf-src="#{profile['image_url']}" alt="avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
+                  </t>
+                  <t t-else="">
+                    <t t-esc="profile['avatar_initials']"/>
+                  </t>
+                </div>
+                <div class="hrsd-profile-name"><t t-esc="profile['name']"/></div>
+                <div class="hrsd-status"><span class="hrsd-status-dot"/>Online</div>
+              </div>
+
+              <div class="hrsd-info-block">
+                <div class="hrsd-section-title">Basic Information</div>
+                <div class="hrsd-info-row">
+                  <div class="hrsd-info-label">Employee ID</div>
+                  <div class="hrsd-info-value"><t t-esc="profile['employee_id']"/></div>
+                </div>
+                <div class="hrsd-info-row">
+                  <div class="hrsd-info-label">Department</div>
+                  <div class="hrsd-info-value"><t t-esc="profile['department']"/></div>
+                </div>
+                <div class="hrsd-info-row">
+                  <div class="hrsd-info-label">Email</div>
+                  <div class="hrsd-info-value"><t t-esc="profile['email']"/></div>
+                </div>
+                <div class="hrsd-info-row">
+                  <div class="hrsd-info-label">Phone</div>
+                  <div class="hrsd-info-value"><t t-esc="profile['phone']"/></div>
+                </div>
+                <div class="hrsd-info-row">
+                  <div class="hrsd-info-label">Joined</div>
+                  <div class="hrsd-info-value"><t t-esc="profile['joined']"/></div>
+                </div>
+              </div>
+
+              <div class="hrsd-hierarchy">
+                <div class="hrsd-section-title">Hierarchy</div>
+                <div class="hrsd-hier-list">
+                  <t t-foreach="hierarchy" t-as="h">
+                    <div t-attf-class="hrsd-hier-item #{h['current'] and 'is-current' or ''}">
+                      <div class="hrsd-avatar sm">
+                        <t t-if="h['image_url']">
+                          <img t-attf-src="#{h['image_url']}" alt="avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
+                        </t>
+                        <t t-else="">
+                          <t t-esc="h['initials']"/>
+                        </t>
+                      </div>
+                      <div>
+                        <div class="hrsd-hier-name"><t t-esc="h['name']"/></div>
+                        <div class="hrsd-hier-role"><t t-esc="h['role']"/></div>
+                      </div>
+                    </div>
+                  </t>
+                  <div class="hrsd-hier-reports" t-if="reports">
+                    <t t-foreach="reports" t-as="r">
+                      <div class="hrsd-hier-item">
+                        <div class="hrsd-avatar sm">
+                          <t t-if="r['image_url']">
+                            <img t-attf-src="#{r['image_url']}" alt="avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"/>
+                          </t>
+                          <t t-else="">
+                            <t t-esc="r['initials']"/>
+                          </t>
+                        </div>
+                        <div>
+                          <div class="hrsd-hier-name"><t t-esc="r['name']"/></div>
+                          <div class="hrsd-hier-role"><t t-esc="r['role']"/></div>
+                        </div>
+                      </div>
+                    </t>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" class="hrsd-logout">
+                <t t-out="icon('logout')"/>
+                <span>Logout</span>
+              </button>
+            </aside>
+
+            <!-- ============================== MAIN ============================== -->
+            <div class="hrsd-main">
+              <header class="hrsd-topbar">
+                <button type="button" class="hrsd-icon-btn" data-action="apps">
+                  <t t-out="icon('grid')"/>
+                </button>
+                <nav class="hrsd-nav">
+                  <a class="hrsd-nav-link is-active" data-url="/hrsd/dashboard">HR Dashboard</a>
+                  <t t-foreach="nav_items" t-as="n">
+                    <a class="hrsd-nav-link" t-att-data-url="n['url']"><t t-esc="n['name']"/></a>
+                  </t>
+                </nav>
+                <div class="hrsd-topbar-right">
+                  <div class="hrsd-search">
+                    <t t-out="icon('search')"/>
+                    <input type="text" placeholder="Search modules, features, tasks..."/>
+                  </div>
+                  <div class="hrsd-user-menu">
+                    <button type="button" class="hrsd-user-chip" data-action="toggle-user-menu">
+                      <div class="hrsd-avatar sm"><t t-esc="profile['user_initial']"/></div>
+                      <div class="hrsd-user-chip-text">
+                        <div class="name"><t t-esc="profile['name']"/></div>
+                      </div>
+                      <span class="hrsd-user-chip-caret"><t t-out="icon('chevron-down')"/></span>
+                    </button>
+                    <div class="hrsd-user-dropdown">
+                      <div class="hrsd-user-dropdown-item is-static">
+                        <span>Shortcuts</span>
+                        <span class="hrsd-user-dropdown-kbd">CTRL+K</span>
+                      </div>
+                      <div class="hrsd-user-dropdown-sep"/>
+                      <div class="hrsd-user-dropdown-item is-static">
+                        <span class="hrsd-status-dot"/>
+                        <span>Online</span>
+                      </div>
+                      <a class="hrsd-user-dropdown-item" href="/odoo/action-base.action_res_users_my">My Preferences</a>
+                      <div class="hrsd-user-dropdown-item" data-action="install-app">Install App</div>
+                      <div class="hrsd-user-dropdown-sep"/>
+                      <a class="hrsd-user-dropdown-item" href="/web/session/logout?redirect=/hrsd/dashboard">Log out</a>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <main class="hrsd-content">
+
+                <!-- ===================== DASHBOARD VIEW ===================== -->
+                <div class="hrsd-view hrsd-view-dashboard" id="hrsd-view-dashboard">
+
+                  <!-- Stat cards -->
+                  <section class="hrsd-stats-grid">
+                    <t t-foreach="stat_cards" t-as="s">
+                      <div class="hrsd-stat-card">
+                        <div class="hrsd-stat-top">
+                          <div t-attf-class="hrsd-stat-icon is-#{s['color']}"><t t-out="icon(s['icon'])"/></div>
+                          <div>
+                            <div class="hrsd-stat-value"><t t-esc="s['value']"/></div>
+                            <div class="hrsd-stat-label"><t t-esc="s['label']"/></div>
+                          </div>
+                        </div>
+                        <div class="hrsd-stat-sub"><t t-esc="s['sub']"/></div>
+                      </div>
+                    </t>
+                  </section>
+
+                  <div class="hrsd-quick-label">QUICK ACCESS</div>
+                  <h2 class="hrsd-quick-title">HR Operations</h2>
+                  <div class="hrsd-quick-sub">Manage all human resource activities from one centralized dashboard</div>
+
+                  <!-- Operation cards -->
+                  <section class="hrsd-ops-grid">
+                    <t t-foreach="ops_cards" t-as="o">
+                      <a t-attf-href="#{o['url'] or '#'}"
+                         t-attf-class="hrsd-op-card border-#{o['color'] }"
+                         t-att-data-key="o['id']"
+                         t-att-data-url="o['url']"
+                         data-action="open-detail">
+                        <div t-attf-class="hrsd-op-icon is-#{o['color']}"><t t-out="icon(o['icon'])"/></div>
+                        <div class="hrsd-op-title"><t t-esc="o['title']"/></div>
+                        <div class="hrsd-op-desc"><t t-esc="o['desc']"/></div>
+                      </a>
+                    </t>
+                  </section>
+
+                  <script id="hrsd-dashboard-menu-data" type="application/json"><t t-out="detail_data_json"/></script>
+
+                  <!-- Recent activities + Upcoming birthdays -->
+                  <section class="hrsd-bottom-grid">
+                    <div class="hrsd-panel">
+                      <div class="hrsd-panel-title">Recent Activities</div>
+                      <t t-if="activities">
+                        <t t-foreach="activities" t-as="a">
+                          <div class="hrsd-activity-row">
+                            <div t-attf-class="hrsd-activity-icon is-#{a['color']}"><t t-out="icon(a['icon'])"/></div>
+                            <div>
+                              <div class="hrsd-activity-title"><t t-esc="a['title']"/></div>
+                              <div class="hrsd-activity-time"><t t-esc="a['time_ago']"/></div>
+                            </div>
+                          </div>
+                        </t>
+                      </t>
+                      <t t-else="">
+                        <div class="hrsd-empty">No recent activity yet.</div>
+                      </t>
+                    </div>
+
+                    <div class="hrsd-panel">
+                      <div class="hrsd-panel-title">Upcoming Birthdays</div>
+                      <t t-if="birthdays">
+                        <t t-foreach="birthdays" t-as="b">
+                          <div class="hrsd-birthday-row">
+                            <div class="hrsd-avatar sm"><t t-esc="b['initials']"/></div>
+                            <div>
+                              <div class="hrsd-birthday-name"><t t-esc="b['name']"/></div>
+                              <div class="hrsd-birthday-role"><t t-esc="b['role']"/></div>
+                            </div>
+                            <div class="hrsd-birthday-meta">
+                              <div class="hrsd-birthday-date"><t t-esc="b['date_str']"/></div>
+                              <div class="hrsd-birthday-in"><t t-esc="b['in_str']"/></div>
+                            </div>
+                          </div>
+                        </t>
+                      </t>
+                      <t t-else="">
+                        <div class="hrsd-empty">No upcoming birthdays found.</div>
+                      </t>
+                    </div>
+                  </section>
+
+                </div>
+
+                <!-- ===================== DETAIL VIEW (shown on card click) ===================== -->
+                <div class="hrsd-view hrsd-view-detail" id="hrsd-view-detail" style="display:none;">
+
+                  <div class="hrsd-breadcrumb">
+                    <a href="#" class="hrsd-breadcrumb-home" data-action="go-dashboard">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/>
+                      </svg>
+                    </a>
+                    <span class="hrsd-breadcrumb-sep">›</span>
+                    <a href="#" class="hrsd-breadcrumb-link" data-action="go-dashboard">HR Operations</a>
+                    <span class="hrsd-breadcrumb-sep">›</span>
+                    <span class="hrsd-breadcrumb-current" id="hrsd-detail-breadcrumb-current"></span>
+                  </div>
+
+                  <div class="hrsd-detail-header">
+                    <div class="hrsd-detail-header-left">
+                      <button type="button" class="hrsd-back-btn" data-action="go-dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="19" y1="12" x2="5" y2="12"/>
+                          <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                      </button>
+                      <div>
+                        <h2 class="hrsd-detail-title" id="hrsd-detail-title"></h2>
+                        <div class="hrsd-detail-desc" id="hrsd-detail-desc"></div>
+                      </div>
+                    </div>
+                    <div class="hrsd-detail-graphic" id="hrsd-detail-graphic"></div>
+                  </div>
+
+                  <div class="hrsd-detail-grid" id="hrsd-detail-grid"></div>
+
+                </div>
+
+              </main>
+            </div>
+          </div>
+
+          <script type="text/javascript" src="/hrsd/static/src/js/dashboard.js"></script>
+        </body>
+      </html>
+    </template>
+
+  </data>
+</odoo>

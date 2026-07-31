@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.TemplatesPage">
+    <DocShell activeKey="'templates'" eyebrow="'Document Templates'" title="'Templates'"
+              subtitle="'Browse, preview, and generate documents from any template.'">
+        <t t-set-slot="headerActions">
+            <button class="doc-btn-outline" t-on-click="() => this.openUploadWizard()"><i class="fa fa-upload"/> Upload Template</button>
+            <button class="doc-btn-primary" t-on-click="() => this.openCreateWizard()"><i class="fa fa-plus"/> New Template</button>
+        </t>
+        <TemplateGrid/>
+    </DocShell>
+</t>
+
+</templates>

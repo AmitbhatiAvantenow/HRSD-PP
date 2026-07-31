@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_document_templates_root" name="Document Templates" sequence="30"
+              web_icon="document_templates,static/description/icon.png"/>
+
+    <menuitem id="menu_doc_dashboard" name="Dashboard" parent="menu_document_templates_root"
+              action="action_doc_dashboard" sequence="1"/>
+    <menuitem id="menu_doc_templates" name="Templates" parent="menu_document_templates_root"
+              action="action_doc_templates" sequence="2"/>
+    <menuitem id="menu_doc_categories" name="Categories" parent="menu_document_templates_root"
+              action="action_doc_categories" sequence="3"/>
+    <menuitem id="menu_doc_variables" name="Variables" parent="menu_document_templates_root"
+              action="action_doc_variables" sequence="4"/>
+    <menuitem id="menu_doc_generated" name="Generated Documents" parent="menu_document_templates_root"
+              action="action_doc_generated" sequence="5"/>
+    <menuitem id="menu_doc_approval_workflow" name="Approval Workflow" parent="menu_document_templates_root"
+              action="action_doc_approval_workflow" sequence="6"/>
+    <menuitem id="menu_doc_shared_templates" name="Shared Templates" parent="menu_document_templates_root"
+              action="action_doc_shared_templates" sequence="7"/>
+    <menuitem id="menu_doc_favourite_templates" name="Favourite Templates" parent="menu_document_templates_root"
+              action="action_doc_favourite_templates" sequence="8"/>
+    <menuitem id="menu_doc_ai_generator_stub" name="AI Template Generator" parent="menu_document_templates_root"
+              action="action_doc_ai_generator_stub" sequence="9"/>
+    <menuitem id="menu_doc_marketplace_stub" name="Template Marketplace" parent="menu_document_templates_root"
+              action="action_doc_marketplace_stub" sequence="10"/>
+    <menuitem id="menu_doc_settings" name="Settings" parent="menu_document_templates_root"
+              action="action_doc_settings" sequence="11"/>
+</odoo>

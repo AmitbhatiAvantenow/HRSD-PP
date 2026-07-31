@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <t t-name="crm_activity_hub.CrmActivityHub">
+        <div class="o_crm_activity_hub d-flex flex-column h-100">
+
+            <div class="o_cah_tabbar d-flex border-bottom">
+                <button type="button"
+                        t-attf-class="o_cah_tab btn {{ state.activeTab === 'activity' ? 'o_cah_tab_active' : '' }}"
+                        t-on-click="() => this.selectTab('activity')">Activity</button>
+                <button type="button"
+                        t-attf-class="o_cah_tab btn {{ state.activeTab === 'conversation' ? 'o_cah_tab_active' : '' }}"
+                        t-on-click="() => this.selectTab('conversation')">Conversation</button>
+                <button type="button"
+                        t-attf-class="o_cah_tab btn {{ state.activeTab === 'documents' ? 'o_cah_tab_active' : '' }}"
+                        t-on-click="() => this.selectTab('documents')">Documents</button>
+                <button type="button"
+                        t-attf-class="o_cah_tab btn {{ state.activeTab === 'timeline' ? 'o_cah_tab_active' : '' }}"
+                        t-on-click="() => this.selectTab('timeline')">Timeline</button>
+            </div>
+
+            <div class="o_cah_content flex-grow-1 overflow-auto">
+
+                <!-- ============ ACTIVITY TAB ============ -->
+                <t t-if="state.activeTab === 'activity'">
+                    <div class="o_cah_feed p-3">
+                        <div class="o_cah_search input-group mb-2">
+                            <span class="input-group-text bg-white"><i class="fa fa-search text-muted"/></span>
+                            <input type="text" class="form-control" placeholder="Search activities…"
+                                   t-att-value="state.feedSearch" t-on-input="onSearchInput"/>
+                        </div>
+                        <t t-if="!state.feed.length and !state.feedLoading">
+                            <div class="text-muted text-center py-4">No activity found.</div>
+                        </t>
+                        <t t-foreach="feedGroups" t-as="group" t-key="group.label">
+                            <div class="o_cah_day_label text-muted small fw-bold text-uppercase mt-3 mb-2" t-esc="group.label"/>
+                            <t t-foreach="group.items" t-as="entry" t-key="entry.id">
+                                <div class="o_cah_entry d-flex mb-3">
+                                    <div t-attf-class="o_cah_icon o_cah_icon_{{ entry.color }} d-flex align-items-center justify-content-center flex-shrink-0">
+                                        <i t-attf-class="fa {{ entry.icon }}"/>
+                                    </div>
+                                    <div class="o_cah_entry_body ms-3 flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="fw-bold" t-esc="entry.title"/>
+                                            <span class="text-muted small" t-esc="entry.date"/>
+                                        </div>
+                                        <div class="text-muted small" t-esc="entry.subtitle"/>
+                                        <div t-if="entry.author" class="text-muted small fst-italic" t-esc="entry.author"/>
+                                        <div t-if="entry.attachments and entry.attachments.length" class="o_cah_attachments mt-2">
+                                            <div t-foreach="entry.attachments" t-as="att" t-key="att.id"
+                                                 class="o_cah_att_chip d-flex align-items-center">
+                                                <i class="fa fa-file-o text-muted me-1"/>
+                                                <span class="o_cah_att_name text-truncate" t-esc="att.name"/>
+                                                <span class="text-muted small ms-1" t-esc="formatFileSize(att.file_size)"/>
+                                                <button type="button" class="btn btn-sm btn-link py-0" title="Preview"
+                                                        t-att-disabled="isPreviewLoading(att)"
+                                                        t-on-click="() => this.onClickPreview(att)">
+                                                    <i t-attf-class="fa {{ isPreviewLoading(att) ? 'fa-spinner fa-spin' : 'fa-eye' }}"/>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-link py-0" title="Download"
+                                                        t-on-click="() => this.onClickDownload(att)">
+                                                    <i class="fa fa-download"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                        <div class="text-center mt-2">
+                            <button t-if="state.feedHasMore" type="button" class="btn btn-link"
+                                    t-on-click="() => this.loadFeed()" t-att-disabled="state.feedLoading">
+                                <t t-if="state.feedLoading">Loading…</t>
+                                <t t-else="">Load more activities</t>
+                            </button>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ============ CONVERSATION TAB ============ -->
+                <t t-if="state.activeTab === 'conversation'">
+                    <Chatter
+                        threadModel="'crm.lead'"
+                        threadId="resId"
+                        record="props.record"
+                        hasParentReloadOnAttachmentsChanged="true"
+                        hasParentReloadOnFollowersUpdate="true"
+                        hasParentReloadOnMessagePosted="true"
+                        saveRecord="props.record.save.bind(props.record, { reload: false })"
+                    />
+                </t>
+
+                <!-- ============ DOCUMENTS TAB ============ -->
+                <t t-if="state.activeTab === 'documents'">
+                    <div class="o_cah_documents p-3">
+                        <div class="o_cah_search input-group mb-2">
+                            <span class="input-group-text bg-white"><i class="fa fa-search text-muted"/></span>
+                            <input type="text" class="form-control" placeholder="Search documents…"
+                                   t-att-value="state.documentsSearch" t-on-input="onDocumentsSearchInput"/>
+                        </div>
+                        <t t-if="!state.documents.length">
+                            <div class="text-muted text-center py-4">No documents on this opportunity yet.</div>
+                        </t>
+                        <t t-elif="!filteredDocuments.length">
+                            <div class="text-muted text-center py-4">No documents match your search.</div>
+                        </t>
+                        <div t-foreach="filteredDocuments" t-as="doc" t-key="doc.id"
+                             class="o_cah_doc_row d-flex align-items-center py-2 border-bottom">
+                            <div class="o_cah_icon o_cah_icon_indigo d-flex align-items-center justify-content-center flex-shrink-0">
+                                <i class="fa fa-file-text-o"/>
+                            </div>
+                            <div class="ms-3 flex-grow-1">
+                                <div class="fw-bold" t-esc="doc.name"/>
+                                <div class="text-muted small">
+                                    <t t-esc="formatFileSize(doc.file_size)"/> · <t t-esc="doc.create_date"/>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-link" title="Preview"
+                                    t-att-disabled="isPreviewLoading(doc)"
+                                    t-on-click="() => this.onClickPreview(doc)">
+                                <i t-attf-class="fa {{ isPreviewLoading(doc) ? 'fa-spinner fa-spin' : 'fa-eye' }}"/>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-link" title="Download"
+                                    t-on-click="() => this.onClickDownload(doc)">
+                                <i class="fa fa-download"/>
+                            </button>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ============ TIMELINE TAB ============ -->
+                <t t-if="state.activeTab === 'timeline'">
+                    <div class="o_cah_timeline p-3">
+                        <div class="o_cah_search input-group mb-2">
+                            <span class="input-group-text bg-white"><i class="fa fa-search text-muted"/></span>
+                            <input type="text" class="form-control" placeholder="Search timeline…"
+                                   t-att-value="state.timelineSearch" t-on-input="onTimelineSearchInput"/>
+                        </div>
+                        <t t-if="!state.timeline.length">
+                            <div class="text-muted text-center py-4">No history yet.</div>
+                        </t>
+                        <t t-elif="!filteredTimeline.length">
+                            <div class="text-muted text-center py-4">No history matches your search.</div>
+                        </t>
+                        <div t-foreach="filteredTimeline" t-as="entry" t-key="entry.id" class="o_cah_entry d-flex mb-3">
+                            <div t-attf-class="o_cah_icon o_cah_icon_{{ entry.color }} d-flex align-items-center justify-content-center flex-shrink-0">
+                                <i t-attf-class="fa {{ entry.icon }}"/>
+                            </div>
+                            <div class="o_cah_entry_body ms-3 flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold" t-esc="entry.title"/>
+                                    <span class="text-muted small" t-esc="entry.date"/>
+                                </div>
+                                <div class="text-muted small" t-esc="entry.subtitle"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

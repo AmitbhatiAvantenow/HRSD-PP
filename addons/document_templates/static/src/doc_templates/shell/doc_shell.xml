@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.DocShell">
+    <div class="doc-shell" t-att-class="{ 'doc-sidebar-collapsed': state.collapsed }">
+        <div class="doc-sidebar">
+            <div class="doc-sidebar-brand">
+                <span class="doc-sidebar-logo">DT</span>
+                <div class="doc-sidebar-brand-text">
+                    <div class="doc-sidebar-co"><t t-esc="state.companyName || 'Document Templates'"/></div>
+                    <div class="doc-sidebar-sub">Template Engine</div>
+                </div>
+            </div>
+            <div class="doc-sidebar-nav">
+                <t t-foreach="groupedNav" t-as="grp" t-key="grp.name">
+                    <div class="doc-nav-label"><t t-esc="grp.name"/></div>
+                    <t t-foreach="grp.items" t-as="item" t-key="item.key">
+                        <div class="doc-nav-item"
+                             t-att-class="{active: item.key === props.activeKey}"
+                             t-att-title="item.label"
+                             t-on-click="() => this.go(item)">
+                            <i t-attf-class="fa {{ item.icon }} doc-nav-item-icon"/>
+                            <span class="doc-nav-item-label"><t t-esc="item.label"/></span>
+                            <span class="doc-nav-item-badge" t-if="item.badge"><t t-esc="item.badge"/></span>
+                        </div>
+                    </t>
+                </t>
+            </div>
+            <div class="doc-sidebar-collapse" t-on-click="toggleCollapse">
+                <i t-attf-class="fa {{ state.collapsed ? 'fa-angle-double-right' : 'fa-angle-double-left' }}"/>
+                <span class="doc-nav-item-label">Collapse</span>
+            </div>
+        </div>
+
+        <div class="doc-main">
+            <div class="doc-topbar">
+                <div>
+                    <div class="doc-eyebrow"><t t-esc="props.eyebrow"/></div>
+                    <h1 class="doc-title"><t t-esc="props.title"/></h1>
+                    <p class="doc-subtitle" t-if="props.subtitle"><t t-esc="props.subtitle"/></p>
+                </div>
+                <div class="doc-header-actions" t-if="props.slots.headerActions">
+                    <t t-slot="headerActions"/>
+                </div>
+            </div>
+            <div class="doc-page">
+                <t t-slot="default"/>
+            </div>
+            <div class="doc-footer">
+                <div>
+                    <span class="doc-footer-label">Module</span>
+                    <t t-esc="props.footerModule or props.title"/>
+                </div>
+                <div class="doc-footer-brand">
+                    Document Templates · v1.0.0 · <span class="doc-status-dot"/> All systems operational
+                </div>
+            </div>
+        </div>
+    </div>
+</t>
+
+</templates>

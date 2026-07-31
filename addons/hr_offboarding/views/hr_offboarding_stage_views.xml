@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_offboarding_stage_list" model="ir.ui.view">
+        <field name="name">hr.offboarding.stage.list</field>
+        <field name="model">hr.offboarding.stage</field>
+        <field name="arch" type="xml">
+            <list string="Exit Stages" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="has_clearance"/>
+                <field name="has_assets"/>
+                <field name="has_documents"/>
+                <field name="has_payroll"/>
+                <field name="is_final"/>
+                <field name="fold"/>
+                <field name="mail_template_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_offboarding_stage_form" model="ir.ui.view">
+        <field name="name">hr.offboarding.stage.form</field>
+        <field name="model">hr.offboarding.stage</field>
+        <field name="arch" type="xml">
+            <form string="Exit Stage">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                        <field name="color"/>
+                        <field name="has_clearance"/>
+                        <field name="has_assets"/>
+                        <field name="has_documents"/>
+                        <field name="has_payroll"/>
+                        <field name="is_final"/>
+                        <field name="fold"/>
+                        <field name="mail_template_id"/>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_offboarding_stage" model="ir.actions.act_window">
+        <field name="name">Exit Stages</field>
+        <field name="res_model">hr.offboarding.stage</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

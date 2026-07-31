@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="mn_hr_plus.Engagement">
+    <div class="hrp-dashboard">
+
+        <!-- ══ HEADER ══════════════════════════════════ -->
+        <div class="hrp-header">
+            <div>
+                <div class="hrp-header__eyebrow">
+                    <span class="hrp-live-dot"/>
+                    Engagement &amp; Culture · Live
+                </div>
+                <h1 class="hrp-header__title">How <strong>engaged</strong> is your team?</h1>
+            </div>
+            <button class="hrp-refresh-btn" t-on-click="refresh">↻ Refresh</button>
+        </div>
+
+        <!-- ══ KPI CARDS ════════════════════════════════ -->
+        <div class="hrp-kpi-grid">
+            <div class="hrp-kpi-card c-amber">
+                <span class="hrp-kpi-card__icon">🏆</span>
+                <div class="hrp-kpi-card__label">Recognitions (90d)</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.recognitions_90d or 0"/>
+                <div class="hrp-kpi-card__sub">last 90 days</div>
+            </div>
+            <div class="hrp-kpi-card c-green">
+                <span class="hrp-kpi-card__icon">🎯</span>
+                <div class="hrp-kpi-card__label">Active OKRs</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.active_okrs or 0"/>
+                <div class="hrp-kpi-card__sub">in progress</div>
+            </div>
+            <div class="hrp-kpi-card c-teal">
+                <span class="hrp-kpi-card__icon">📈</span>
+                <div class="hrp-kpi-card__label">OKR Progress</div>
+                <div class="hrp-kpi-card__value">
+                    <t t-esc="state.kpis.avg_okr_progress or 0"/>%
+                </div>
+                <div class="hrp-kpi-card__sub">average</div>
+            </div>
+            <div class="hrp-kpi-card c-blue">
+                <span class="hrp-kpi-card__icon">📊</span>
+                <div class="hrp-kpi-card__label">eNPS Score</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.enps or 0"/>
+                <div class="hrp-kpi-card__sub">employee NPS</div>
+            </div>
+            <div class="hrp-kpi-card c-purple">
+                <span class="hrp-kpi-card__icon">💬</span>
+                <div class="hrp-kpi-card__label">Suggestions Open</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.suggestions_open or 0"/>
+                <div class="hrp-kpi-card__sub">pending review</div>
+            </div>
+            <div class="hrp-kpi-card c-slate">
+                <span class="hrp-kpi-card__icon">🤝</span>
+                <div class="hrp-kpi-card__label">Referral Conv.</div>
+                <div class="hrp-kpi-card__value">
+                    <t t-esc="state.kpis.referral_conv_pct or 0"/>%
+                </div>
+                <div class="hrp-kpi-card__sub">
+                    <t t-esc="state.kpis.referrals_hired or 0"/> /
+                    <t t-esc="state.kpis.referrals or 0"/> hired
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ ROW 2 : eNPS block + OKR ring + Rec donut ══ -->
+        <div class="hrp-grid-3">
+
+            <!-- eNPS score block -->
+            <div class="hrp-panel hrp-panel-blue">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">eNPS Score</h3>
+                </div>
+                <div t-att-class="'hrp-score-block ' + this.enpsClass()">
+                    <div class="hrp-score-block__value" t-esc="state.kpis.enps or 0"/>
+                    <div class="hrp-score-block__label">Employee NPS</div>
+                    <div class="hrp-score-block__sub">
+                        Based on <t t-esc="state.kpis.exits_12m or 0"/> exit interviews
+                    </div>
+                </div>
+            </div>
+
+            <!-- OKR Progress ring -->
+            <div class="hrp-panel hrp-panel-green">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">OKR Progress</h3>
+                </div>
+                <div class="hrp-ring-wrap">
+                    <canvas t-ref="okrRing" width="150" height="150"/>
+                    <div class="hrp-ring-stats">
+                        <div class="hrp-ring-stat">
+                            <span>Active OKRs</span>
+                            <strong t-esc="state.kpis.active_okrs or 0"/>
+                        </div>
+                        <div class="hrp-ring-stat">
+                            <span>Active 360s</span>
+                            <strong t-esc="state.kpis.active_360 or 0"/>
+                        </div>
+                        <div class="hrp-ring-stat">
+                            <span>Implemented</span>
+                            <strong t-esc="state.kpis.suggestions_implemented or 0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recognitions donut -->
+            <div class="hrp-panel hrp-panel-amber">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Recognitions by Type</h3>
+                </div>
+                <div class="hrp-chart-wrap">
+                    <canvas t-ref="recChart" width="150" height="150"/>
+                    <div class="hrp-chart-legend">
+                        <t t-foreach="state.recognitions_by_type" t-as="r" t-key="r[0]">
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot"
+                                     t-att-style="'background:' + this.recColor(r_index)"/>
+                                <span class="hrp-chart-legend__label" t-esc="r[0]"/>
+                                <span class="hrp-chart-legend__val" t-esc="r[1]"/>
+                            </div>
+                        </t>
+                        <div t-if="!state.recognitions_by_type.length"
+                             class="hrp-panel__empty" style="padding:12px 0">
+                            No recognitions yet
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ══ ROW 3 : Recognition bars + Exit bars ═════ -->
+        <div class="hrp-grid-2-2">
+            <div class="hrp-panel hrp-panel-amber">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Recognitions by Type (90d)</h3>
+                </div>
+                <div t-if="!state.recognitions_by_type.length" class="hrp-panel__empty">
+                    No recognitions in the last 90 days
+                </div>
+                <t t-foreach="state.recognitions_by_type" t-as="r" t-key="r[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="r[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--amber"
+                                 t-att-style="'width:' + this.barWidth(r[1], state.recognitions_by_type)"/>
+                        </div>
+                        <div class="hrp-bar-val" t-esc="r[1]"/>
+                    </div>
+                </t>
+            </div>
+
+            <div class="hrp-panel hrp-panel-red">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Exit Reasons (12m)</h3>
+                </div>
+                <div t-if="!state.exit_reasons.length" class="hrp-panel__empty">
+                    No exits in the last 12 months
+                </div>
+                <t t-foreach="state.exit_reasons" t-as="r" t-key="r[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="r[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--red"
+                                 t-att-style="'width:' + this.barWidth(r[1], state.exit_reasons)"/>
+                        </div>
+                        <div class="hrp-bar-val" t-esc="r[1]"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+
+        <!-- ══ ROW 4 : Top Recognised ════════════════════ -->
+        <div class="hrp-panel hrp-panel-purple" style="animation-delay:0.45s">
+            <div class="hrp-panel__header">
+                <div class="hrp-panel__accent"/>
+                <h3 class="hrp-panel__title">🏆 Most Recognised Employees (90d)</h3>
+            </div>
+            <div t-if="!state.top_recognised.length" class="hrp-panel__empty">
+                No recognitions recorded yet
+            </div>
+            <div class="hrp-pill-grid">
+                <t t-foreach="state.top_recognised" t-as="e" t-key="e[0]">
+                    <div class="hrp-pill hrp-pill--purple">
+                        <t t-esc="e[0]"/>
+                        <span class="hrp-pill__count">×<t t-esc="e[1]"/></span>
+                    </div>
+                </t>
+            </div>
+        </div>
+
+    </div>
+</t>
+</templates>

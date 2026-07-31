@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_offboarding_request_form" model="ir.ui.view">
+        <field name="name">hr.offboarding.request.form</field>
+        <field name="model">hr.offboarding.request</field>
+        <field name="arch" type="xml">
+            <form string="Exit Request">
+                <header>
+                    <field name="stage_id" widget="statusbar" options="{'clickable': '1'}"/>
+                    <button name="action_open_journey" type="object" string="Open Exit Journey" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="employee_id" placeholder="Employee"/>
+                        </h1>
+                        <h3><field name="name" readonly="1"/></h3>
+                    </div>
+                    <group>
+                        <group string="Position">
+                            <field name="job_id"/>
+                            <field name="department_id"/>
+                            <field name="manager_id"/>
+                            <field name="successor_id"/>
+                            <field name="hr_user_id"/>
+                        </group>
+                        <group string="Exit Details">
+                            <field name="resignation_date"/>
+                            <field name="last_working_day"/>
+                            <field name="notice_period_days"/>
+                            <field name="reason"/>
+                            <field name="countdown" readonly="1"/>
+                            <field name="progress" widget="progressbar"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="email"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tasks &amp; Checklists">
+                            <field name="task_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="stage_id"/>
+                                    <field name="assigned_to"/>
+                                    <field name="due_date"/>
+                                    <field name="done" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Clearance">
+                            <field name="clearance_ids">
+                                <list editable="bottom">
+                                    <field name="department"/>
+                                    <field name="status"/>
+                                    <field name="approver_id"/>
+                                    <field name="signed_date"/>
+                                    <field name="comments"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Assets">
+                            <field name="asset_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="asset_type"/>
+                                    <field name="status"/>
+                                    <field name="serial_number"/>
+                                    <field name="condition"/>
+                                    <field name="return_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Documents">
+                            <field name="document_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="status"/>
+                                    <field name="datas" filename="datas_fname"/>
+                                    <field name="datas_fname" invisible="1"/>
+                                    <field name="issue_date"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Settlement">
+                            <field name="payroll_ids">
+                                <list editable="bottom">
+                                    <field name="leave_encashment"/>
+                                    <field name="pending_salary"/>
+                                    <field name="bonus"/>
+                                    <field name="gratuity"/>
+                                    <field name="loans"/>
+                                    <field name="tax"/>
+                                    <field name="pf"/>
+                                    <field name="net_settlement"/>
+                                    <field name="status"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Exit Interview">
+                            <field name="interview_ids">
+                                <list editable="bottom">
+                                    <field name="scheduled_date"/>
+                                    <field name="interviewer_id"/>
+                                    <field name="exit_reason"/>
+                                    <field name="overall_rating"/>
+                                    <field name="status"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_offboarding_request_list" model="ir.ui.view">
+        <field name="name">hr.offboarding.request.list</field>
+        <field name="model">hr.offboarding.request</field>
+        <field name="arch" type="xml">
+            <list string="Exit Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="department_id"/>
+                <field name="stage_id"/>
+                <field name="last_working_day"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="priority" widget="priority"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_offboarding_request_search" model="ir.ui.view">
+        <field name="name">hr.offboarding.request.search</field>
+        <field name="model">hr.offboarding.request</field>
+        <field name="arch" type="xml">
+            <search string="Exit Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+                <field name="stage_id"/>
+                <filter string="Delayed" name="delayed" domain="[('is_delayed', '=', True)]"/>
+                <group>
+                    <filter string="Stage" name="group_stage" context="{'group_by': 'stage_id'}"/>
+                    <filter string="Department" name="group_department" context="{'group_by': 'department_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_offboarding_request" model="ir.actions.act_window">
+        <field name="name">Exit Requests</field>
+        <field name="res_model">hr.offboarding.request</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_hr_offboarding_request_new" model="ir.actions.act_window">
+        <field name="name">New Exit Request</field>
+        <field name="res_model">hr.offboarding.request</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

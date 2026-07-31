@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Landing dashboard (OWL client action)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="action_hr_esign_dashboard" model="ir.actions.client">
+      <field name="name">HR Sign</field>
+      <field name="tag">hr_esign_dashboard</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.esign.document
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_esign_document_list_view" model="ir.ui.view">
+      <field name="name">hr.esign.document.list</field>
+      <field name="model">hr.esign.document</field>
+      <field name="arch" type="xml">
+        <list string="Documents" default_order="create_date desc" decoration-muted="state == 'archived'">
+          <field name="code"/>
+          <field name="name"/>
+          <field name="partner_id" widget="many2one_avatar"/>
+          <field name="category"/>
+          <field name="signed_count" string="Signed"/>
+          <field name="signer_count" string="Total Signers"/>
+          <field name="progress" widget="progressbar"/>
+          <field name="priority" widget="priority"/>
+          <field name="due_date"/>
+          <field name="state" widget="badge"
+                 decoration-info="state in ('draft',)"
+                 decoration-warning="state in ('sent', 'in_progress')"
+                 decoration-success="state == 'completed'"
+                 decoration-danger="state in ('rejected', 'expired')"/>
+          <field name="create_date" widget="datetime"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hr_esign_document_kanban_view" model="ir.ui.view">
+      <field name="name">hr.esign.document.kanban</field>
+      <field name="model">hr.esign.document</field>
+      <field name="arch" type="xml">
+        <kanban default_group_by="state" class="o_hr_esign_kanban">
+          <field name="progress"/>
+          <templates>
+            <t t-name="card">
+              <div class="o_hr_esign_kanban_card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <field name="name" class="fw-bold fs-6"/>
+                  <field name="priority" widget="priority"/>
+                </div>
+                <div class="text-muted small mb-1">
+                  <field name="code"/> · <field name="category"/>
+                </div>
+                <div class="d-flex align-items-center gap-2 mt-2">
+                  <field name="partner_id" widget="many2one_avatar"/>
+                  <span t-esc="record.partner_id.value"/>
+                </div>
+                <div class="o_hr_esign_kanban_progress mt-2">
+                  <div class="o_hr_esign_kanban_progress_track">
+                    <div class="o_hr_esign_kanban_progress_fill" t-attf-style="width: {{record.progress.raw_value}}%"/>
+                  </div>
+                  <span class="small text-muted" t-esc="record.progress.raw_value + '%'"/>
+                </div>
+                <footer class="mt-2">
+                  <field name="due_date"/>
+                  <div class="ms-auto">
+                    <field name="state" widget="badge"
+                           decoration-info="state in ('draft',)"
+                           decoration-warning="state in ('sent', 'in_progress')"
+                           decoration-success="state == 'completed'"
+                           decoration-danger="state in ('rejected', 'expired')"/>
+                  </div>
+                </footer>
+              </div>
+            </t>
+          </templates>
+        </kanban>
+      </field>
+    </record>
+
+    <record id="hr_esign_document_form_view" model="ir.ui.view">
+      <field name="name">hr.esign.document.form</field>
+      <field name="model">hr.esign.document</field>
+      <field name="arch" type="xml">
+        <form string="Document">
+          <header>
+            <button name="action_send" type="object" string="Send for Signature" class="btn-primary" invisible="state != 'draft'"/>
+            <button name="action_download_signed" type="object" string="Download Signed Document" invisible="signed_count == 0"/>
+            <button name="action_archive_document" type="object" string="Archive" invisible="state not in ('completed', 'rejected', 'expired')"/>
+            <field name="state" widget="statusbar" statusbar_visible="draft,sent,in_progress,completed"/>
+          </header>
+          <sheet>
+            <div class="oe_title">
+              <label for="name"/>
+              <h1><field name="name" placeholder="Document Title…"/></h1>
+              <field name="code" readonly="1"/>
+            </div>
+            <group>
+              <group string="Document">
+                <field name="partner_id"/>
+                <field name="category"/>
+                <field name="template_id"/>
+                <field name="file_data" filename="file_name"/>
+                <field name="file_name" invisible="1"/>
+                <field name="final_signed_file_data" filename="final_signed_file_name" string="Final Sign Doc"/>
+                <field name="final_signed_file_name" invisible="1"/>
+              </group>
+              <group string="Workflow">
+                <field name="workflow_type"/>
+                <field name="priority" widget="priority"/>
+                <field name="due_date"/>
+                <field name="progress" widget="progressbar"/>
+              </group>
+            </group>
+            <group string="Signing Email">
+              <field name="email_subject" placeholder="Signature requested: ..." readonly="state != 'draft'"/>
+              <field name="cc_emails" placeholder="cc1@example.com, cc2@example.com" readonly="state != 'draft'"/>
+              <field name="email_message" placeholder="Optional note for the signer(s)…" readonly="state != 'draft'"/>
+            </group>
+            <notebook>
+              <page string="Signers" name="signers">
+                <field name="signer_ids">
+                  <list editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="partner_id"/>
+                    <field name="name"/>
+                    <field name="email"/>
+                    <field name="status" widget="badge"
+                           decoration-info="status == 'pending'"
+                           decoration-warning="status == 'viewed'"
+                           decoration-success="status == 'signed'"
+                           decoration-danger="status == 'rejected'"/>
+                    <field name="signed_date"/>
+                    <field name="sign_url" widget="CopyClipboardURL" string="Link" optional="show"/>
+                  </list>
+                </field>
+              </page>
+              <page string="Fields" name="fields">
+                <field name="field_ids">
+                  <list create="false" default_order="page, sequence">
+                    <field name="page"/>
+                    <field name="field_type"/>
+                    <field name="signer_id"/>
+                    <field name="pos_x" string="X %"/>
+                    <field name="pos_y" string="Y %"/>
+                    <field name="width" string="W %"/>
+                    <field name="height" string="H %"/>
+                    <field name="required"/>
+                    <field name="value"/>
+                  </list>
+                </field>
+              </page>
+              <page string="Audit Trail" name="audit">
+                <field name="audit_ids">
+                  <list default_order="create_date desc">
+                    <field name="create_date" widget="datetime"/>
+                    <field name="event_type"/>
+                    <field name="actor_name"/>
+                    <field name="description"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="hr_esign_document_search_view" model="ir.ui.view">
+      <field name="name">hr.esign.document.search</field>
+      <field name="model">hr.esign.document</field>
+      <field name="arch" type="xml">
+        <search string="Search Documents">
+          <field name="name"/>
+          <field name="code"/>
+          <field name="partner_id"/>
+          <filter name="in_progress" string="In Progress" domain="[('state', 'in', ('sent', 'in_progress'))]"/>
+          <filter name="completed" string="Completed" domain="[('state', '=', 'completed')]"/>
+          <filter name="my_documents" string="My Documents" domain="[('created_by_id', '=', uid)]"/>
+          <group>
+            <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+            <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id="action_hr_esign_document" model="ir.actions.act_window">
+      <field name="name">Documents</field>
+      <field name="res_model">hr.esign.document</field>
+      <field name="view_mode">kanban,list,form</field>
+      <field name="search_view_id" ref="hr_esign_document_search_view"/>
+      <field name="context">{'search_default_in_progress': 0}</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">No documents yet</p>
+        <p>Use the "Create Document" quick action on the HR Sign dashboard to send your first signature request.</p>
+      </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.esign.template
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_esign_template_list_view" model="ir.ui.view">
+      <field name="name">hr.esign.template.list</field>
+      <field name="model">hr.esign.template</field>
+      <field name="arch" type="xml">
+        <list string="Templates">
+          <field name="name"/>
+          <field name="category"/>
+          <field name="usage_count"/>
+          <field name="is_pinned" widget="boolean_toggle"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hr_esign_template_form_view" model="ir.ui.view">
+      <field name="name">hr.esign.template.form</field>
+      <field name="model">hr.esign.template</field>
+      <field name="arch" type="xml">
+        <form string="Template">
+          <sheet>
+            <div class="oe_title"><label for="name"/><h1><field name="name" placeholder="Template Name…"/></h1></div>
+            <group>
+              <field name="category"/>
+              <field name="is_pinned"/>
+              <field name="file_data" filename="file_name"/>
+              <field name="file_name" invisible="1"/>
+              <field name="usage_count" readonly="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_hr_esign_template" model="ir.actions.act_window">
+      <field name="name">Templates</field>
+      <field name="res_model">hr.esign.template</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.esign.audit.log
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_esign_audit_log_list_view" model="ir.ui.view">
+      <field name="name">hr.esign.audit.log.list</field>
+      <field name="model">hr.esign.audit.log</field>
+      <field name="arch" type="xml">
+        <list string="Audit Logs" default_order="create_date desc" create="false" edit="false">
+          <field name="create_date" widget="datetime"/>
+          <field name="document_id"/>
+          <field name="event_type" widget="badge"/>
+          <field name="actor_name"/>
+          <field name="description"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="action_hr_esign_audit_log" model="ir.actions.act_window">
+      <field name="name">Audit Logs</field>
+      <field name="res_model">hr.esign.audit.log</field>
+      <field name="view_mode">list</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Menu — standalone "HR Sign" app
+         ═══════════════════════════════════════════════════════════════════ -->
+    <menuitem id="menu_hr_esign_root"
+              name="HR Sign"
+              action="action_hr_esign_dashboard"
+              sequence="6"/>
+
+    <menuitem id="menu_hr_esign_dashboard"
+              name="Dashboard"
+              parent="menu_hr_esign_root"
+              action="action_hr_esign_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_esign_documents"
+              name="Documents"
+              parent="menu_hr_esign_root"
+              action="action_hr_esign_document"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_esign_templates"
+              name="Templates"
+              parent="menu_hr_esign_root"
+              action="action_hr_esign_template"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_esign_audit"
+              name="Audit Logs"
+              parent="menu_hr_esign_root"
+              action="action_hr_esign_audit_log"
+              sequence="40"/>
+
+  </data>
+</odoo>

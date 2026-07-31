@@ -1,0 +1,89 @@
+
+.o_action_manager:has(.hro-app) {
+    background: $hro-bg;
+}
+
+.hro-app {
+    background: $hro-bg;
+    min-height: 100%;
+    color: $hro-text;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.hro-card {
+    background: $hro-card-bg;
+    border: 1px solid $hro-border;
+    border-radius: $hro-radius;
+    box-shadow: $hro-shadow;
+    transition: box-shadow .15s ease, transform .15s ease;
+
+    &:hover {
+        box-shadow: $hro-shadow-hover;
+        transform: translateY(-1px);
+    }
+}
+
+.hro-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: $hro-primary-light;
+    color: $hro-primary-dark;
+    font-weight: 600;
+}
+
+.hro-chip-due { background: #fef3c7; color: #92400e; }
+
+.hro-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: capitalize;
+}
+.hro-badge-pending { background: #f3f4f6; color: $hro-muted; }
+.hro-badge-uploaded { background: #fef3c7; color: $hro-warning; }
+.hro-badge-verified { background: #dcfce7; color: $hro-success; }
+.hro-badge-rejected { background: #fee2e2; color: $hro-danger; }
+.hro-badge-assigned { background: #dbeafe; color: #1d4ed8; }
+.hro-badge-delivered { background: #dcfce7; color: $hro-success; }
+.hro-badge-returned { background: #fef3c7; color: $hro-warning; }
+
+// Task kanban
+.hro-task-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.hro-task-name { font-weight: 600; font-size: 13px; }
+.hro-task-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.hro-task-done .hro-task-name { text-decoration: line-through; color: $hro-text-muted; }
+
+// Document / Equipment kanban
+.hro-doc-card, .hro-eq-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 8px;
+}
+.hro-doc-icon, .hro-eq-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: $hro-primary-light;
+    color: $hro-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex: 0 0 auto;
+}
+.hro-doc-name, .hro-eq-name { font-weight: 600; font-size: 13px; }
+.hro-doc-owner, .hro-eq-owner { font-size: 11px; color: $hro-text-muted; margin-bottom: 4px; }

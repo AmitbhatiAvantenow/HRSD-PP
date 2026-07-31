@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="mn_hr_plus.Training">
+    <div class="hrp-dashboard">
+
+        <!-- ══ HEADER ══════════════════════════════════ -->
+        <div class="hrp-header">
+            <div>
+                <div class="hrp-header__eyebrow">
+                    <span class="hrp-live-dot"/>
+                    Training &amp; Compliance · Live
+                </div>
+                <h1 class="hrp-header__title">Track <strong>learning</strong> and <strong>compliance</strong>.</h1>
+            </div>
+            <button class="hrp-refresh-btn" t-on-click="refresh">↻ Refresh</button>
+        </div>
+
+        <!-- ══ KPI CARDS ════════════════════════════════ -->
+        <div class="hrp-kpi-grid">
+            <div class="hrp-kpi-card c-teal">
+                <span class="hrp-kpi-card__icon">📚</span>
+                <div class="hrp-kpi-card__label">Total Trainings</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.total_trainings or 0"/>
+                <div class="hrp-kpi-card__sub">all records</div>
+            </div>
+            <div class="hrp-kpi-card c-green">
+                <span class="hrp-kpi-card__icon">✅</span>
+                <div class="hrp-kpi-card__label">Completed</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.completed or 0"/>
+                <div class="hrp-kpi-card__sub">finished</div>
+            </div>
+            <div class="hrp-kpi-card c-amber">
+                <span class="hrp-kpi-card__icon">▶️</span>
+                <div class="hrp-kpi-card__label">Ongoing</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.ongoing or 0"/>
+                <div class="hrp-kpi-card__sub">in progress</div>
+            </div>
+            <div class="hrp-kpi-card c-blue">
+                <span class="hrp-kpi-card__icon">🎓</span>
+                <div class="hrp-kpi-card__label">Mandatory Done</div>
+                <div class="hrp-kpi-card__value">
+                    <t t-esc="state.kpis.mandatory_done or 0"/> / <t t-esc="state.kpis.mandatory_total or 0"/>
+                </div>
+                <div class="hrp-kpi-card__sub">required trainings</div>
+            </div>
+            <div class="hrp-kpi-card c-slate">
+                <span class="hrp-kpi-card__icon">💡</span>
+                <div class="hrp-kpi-card__label">Total Hours</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.total_hours or 0"/>
+                <div class="hrp-kpi-card__sub">learning hours</div>
+            </div>
+            <div class="hrp-kpi-card c-red"
+                 t-att-class="(state.kpis.expired || 0) > 0 ? 'hrp-urgent' : ''">
+                <span class="hrp-kpi-card__icon">⛔</span>
+                <div class="hrp-kpi-card__label">Expired Certs</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.expired or 0"/>
+                <div class="hrp-kpi-card__sub">action required</div>
+            </div>
+        </div>
+
+        <!-- ══ ROW 2 : Compliance Ring + Expiring ══════ -->
+        <div class="hrp-grid-2-1">
+
+            <!-- Expiring Certifications table -->
+            <div class="hrp-panel hrp-panel-red">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Expiring Certifications (30d)</h3>
+                </div>
+                <div t-if="!state.expiring.length" class="hrp-panel__empty">
+                    ✓ No certifications expiring soon
+                </div>
+                <table t-if="state.expiring.length" class="hrp-table">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Training</th>
+                            <th style="text-align:center">Expiry</th>
+                            <th style="text-align:center">Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="state.expiring" t-as="e" t-key="e.id">
+                            <tr class="clickable" t-on-click="() => this.openTraining(e.id)">
+                                <td t-esc="e.employee"/>
+                                <td t-esc="e.title"/>
+                                <td style="text-align:center" t-esc="e.expiry"/>
+                                <td t-att-class="e.days &lt;= 7 ? 'days-critical' : 'days-warning'"
+                                    style="text-align:center"
+                                    t-esc="e.days"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Compliance ring gauge -->
+            <div class="hrp-panel hrp-panel-green">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Mandatory Compliance</h3>
+                </div>
+                <div class="hrp-ring-wrap">
+                    <canvas t-ref="complianceRing" width="160" height="160"/>
+                    <div class="hrp-ring-stats">
+                        <div class="hrp-ring-stat">
+                            <span>Mandatory Total</span>
+                            <strong t-esc="state.kpis.mandatory_total or 0"/>
+                        </div>
+                        <div class="hrp-ring-stat">
+                            <span>Completed</span>
+                            <strong t-esc="state.kpis.mandatory_done or 0"/>
+                        </div>
+                        <div class="hrp-ring-stat">
+                            <span>Expiring (30d)</span>
+                            <strong t-esc="state.kpis.expiring_30d or 0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ ROW 3 : Hours by Category + Top Learners ═ -->
+        <div class="hrp-grid-2-2">
+            <div class="hrp-panel hrp-panel-teal">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Training Hours by Category</h3>
+                </div>
+                <div t-if="!state.by_category.length" class="hrp-panel__empty">No data</div>
+                <t t-foreach="state.by_category" t-as="c" t-key="c[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="c[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--teal"
+                                 t-att-style="'width:' + this.barWidth(c[1], state.by_category)"/>
+                        </div>
+                        <div class="hrp-bar-val"><t t-esc="c[1]"/>h</div>
+                    </div>
+                </t>
+            </div>
+
+            <div class="hrp-panel hrp-panel-amber">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Top Learners</h3>
+                </div>
+                <div t-if="!state.top_learners.length" class="hrp-panel__empty">No completed trainings</div>
+                <div class="hrp-pill-grid">
+                    <t t-foreach="state.top_learners" t-as="l" t-key="l[0]">
+                        <div class="hrp-pill hrp-pill--amber">
+                            <t t-esc="l[0]"/>
+                            <span class="hrp-pill__count"><t t-esc="l[1]"/>h</span>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</t>
+</templates>

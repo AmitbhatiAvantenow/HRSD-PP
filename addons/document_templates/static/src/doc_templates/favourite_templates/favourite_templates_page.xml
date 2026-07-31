@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.FavouriteTemplatesPage">
+    <DocShell activeKey="'favourite_templates'" eyebrow="'Document Templates'" title="'Favourite Templates'"
+              subtitle="'Your starred templates, one click away.'">
+        <TemplateGrid domainExtra="domainExtra" emptyLabel="'No favourites yet -- star a template from the Templates page.'"/>
+    </DocShell>
+</t>
+
+</templates>

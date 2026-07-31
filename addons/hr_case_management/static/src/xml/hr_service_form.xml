@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_case_management.ServiceForm" owl="1">
+        <div class="o_action h-100 d-flex flex-column">
+
+            <!-- ── Loading ─────────────────────────────────────────────────── -->
+            <t t-if="state.loading">
+                <div class="d-flex justify-content-center align-items-center flex-grow-1">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading…</span>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ── Fatal error (no producer) ───────────────────────────────── -->
+            <t t-elif="state.fatalError">
+                <div class="alert alert-danger m-4">
+                    <i class="fa fa-exclamation-circle me-2"/>
+                    <t t-esc="state.fatalError"/>
+                </div>
+            </t>
+
+            <!-- ── Form ────────────────────────────────────────────────────── -->
+            <t t-else="">
+                <!-- Sticky action bar (mirrors Odoo form header) -->
+                <div class="o_cp_buttons d-flex align-items-center gap-2 px-3 py-2 border-bottom bg-white">
+                    <button class="btn btn-primary"
+                            t-att-disabled="state.submitting || undefined"
+                            t-on-click="onSubmit">
+                        <t t-if="state.submitting">
+                            <span class="spinner-border spinner-border-sm me-1" role="status"/>
+                            Submitting…
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-paper-plane me-1"/>
+                            Submit Request
+                        </t>
+                    </button>
+                    <button class="btn btn-outline-secondary"
+                            t-on-click="onCancel">
+                        Discard
+                    </button>
+                </div>
+
+                <!-- Scrollable content area -->
+                <div class="o_content p-4 overflow-auto flex-grow-1">
+                    <div style="max-width:860px; margin:0 auto;">
+
+                        <!-- Validation / server error -->
+                        <div t-if="state.error" class="alert alert-danger mb-4">
+                            <i class="fa fa-exclamation-circle me-2"/>
+                            <t t-esc="state.error"/>
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+
+                            <!-- Card header: form icon + title + description -->
+                            <div class="card-header bg-white py-4 px-4 border-bottom">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded d-flex align-items-center justify-content-center flex-shrink-0"
+                                         style="width:64px; height:64px; background:#714B67;">
+                                        <i class="fa fa-wpforms fa-2x text-white"/>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-1" t-esc="state.producer.name"/>
+                                        <div t-if="state.producer.description"
+                                             class="text-muted small"
+                                             t-out="state.producer.description"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card body: fields -->
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-4">
+                                    <span class="text-danger fw-bold">*</span> Indicates required
+                                </p>
+
+                                <!-- Fixed fields: Submitted By + Subject -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">
+                                            Inquiry Raised By
+                                        </label>
+                                        <input type="text" class="form-control bg-light"
+                                               t-att-value="state.employee ? state.employee.name : ''"
+                                               readonly="readonly"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">
+                                            <span class="text-danger">*</span>
+                                            Subject / Summary
+                                        </label>
+                                        <input type="text" class="form-control"
+                                               placeholder="Briefly describe your request…"
+                                               t-model="state.shortDescription"/>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic questions -->
+                                <t t-if="state.questions.length">
+                                    <hr class="my-4"/>
+                                    <div class="row g-3">
+                                        <t t-foreach="state.questions" t-as="q" t-key="q.id">
+                                            <div t-att-class="getColClass(q)">
+                                                <label class="form-label fw-semibold">
+                                                    <span t-if="q.required"
+                                                          class="text-danger">*</span>
+                                                    <t t-esc="q.label"/>
+                                                </label>
+
+                                                <!-- SHORT TEXT -->
+                                                <t t-if="q.field_type === 'text'">
+                                                    <input type="text" class="form-control"
+                                                           t-att-placeholder="q.placeholder || ''"
+                                                           t-att-value="state.answers[q.id]"
+                                                           t-on-input="(e) => this.updateAnswer(q.id, e.target.value)"/>
+                                                </t>
+
+                                                <!-- LONG TEXT -->
+                                                <t t-if="q.field_type === 'textarea'">
+                                                    <textarea class="form-control" rows="4"
+                                                              t-att-placeholder="q.placeholder || ''"
+                                                              t-on-input="(e) => this.updateAnswer(q.id, e.target.value)"><t t-esc="state.answers[q.id]"/></textarea>
+                                                </t>
+
+                                                <!-- MULTIPLE CHOICE -->
+                                                <t t-if="q.field_type === 'selection'">
+                                                    <select class="form-select"
+                                                            t-on-change="(e) => this.updateAnswer(q.id, e.target.value)">
+                                                        <option value="">-- None --</option>
+                                                        <t t-foreach="getSelectionOptions(q)"
+                                                           t-as="opt" t-key="opt">
+                                                            <option t-att-value="opt">
+                                                                <t t-esc="opt"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </t>
+
+                                                <!-- YES / NO -->
+                                                <t t-if="q.field_type === 'boolean'">
+                                                    <div class="d-flex gap-4 mt-1">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input"
+                                                                   type="radio"
+                                                                   t-att-name="'q_' + q.id"
+                                                                   t-att-id="'q_' + q.id + '_yes'"
+                                                                   t-att-checked="state.answers[q.id] === true || undefined"
+                                                                   t-on-change="() => this.updateAnswer(q.id, true)"/>
+                                                            <label class="form-check-label"
+                                                                   t-att-for="'q_' + q.id + '_yes'">
+                                                                Yes
+                                                            </label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input"
+                                                                   type="radio"
+                                                                   t-att-name="'q_' + q.id"
+                                                                   t-att-id="'q_' + q.id + '_no'"
+                                                                   t-att-checked="state.answers[q.id] !== true || undefined"
+                                                                   t-on-change="() => this.updateAnswer(q.id, false)"/>
+                                                            <label class="form-check-label"
+                                                                   t-att-for="'q_' + q.id + '_no'">
+                                                                No
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </t>
+
+                                                <!-- DATE -->
+                                                <t t-if="q.field_type === 'date'">
+                                                    <input type="date" class="form-control"
+                                                           t-att-value="state.answers[q.id]"
+                                                           t-on-change="(e) => this.updateAnswer(q.id, e.target.value)"/>
+                                                </t>
+
+                                                <!-- EMPLOYEE -->
+                                                <t t-if="q.field_type === 'employee'">
+                                                    <select class="form-select"
+                                                            t-on-change="(e) => this.updateAnswer(q.id, e.target.value ? parseInt(e.target.value) : false)">
+                                                        <option value="">-- Select Employee --</option>
+                                                        <t t-foreach="state.allEmployees"
+                                                           t-as="emp" t-key="emp.id">
+                                                            <option t-att-value="emp.id">
+                                                                <t t-esc="emp.name"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </t>
+
+                                                <!-- Help text -->
+                                                <div t-if="q.help_text"
+                                                     class="form-text text-muted">
+                                                    <i class="fa fa-info-circle me-1"/>
+                                                    <t t-esc="q.help_text"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+
+                            </div><!-- /card-body -->
+                        </div><!-- /card -->
+                    </div>
+                </div><!-- /o_content -->
+            </t>
+
+        </div>
+    </t>
+
+</templates>

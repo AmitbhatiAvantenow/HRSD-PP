@@ -1,0 +1,559 @@
+// ══════════════════════════════════════════════
+//  HR Plus — Modern Dashboard Styles
+// ══════════════════════════════════════════════
+
+// ── Keyframe Animations ──────────────────────
+@keyframes hrp-fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes hrp-slide-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes hrp-live-pulse {
+    0%, 100% { opacity: 1;   transform: scale(1);    }
+    50%       { opacity: 0.3; transform: scale(0.7);  }
+}
+@keyframes hrp-urgent-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    50%       { box-shadow: 0 0 20px 6px rgba(239, 68, 68, 0.22); }
+}
+@keyframes hrp-hire-pop {
+    from { opacity: 0; transform: scale(0.93); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+// ── Root ─────────────────────────────────────
+.hrp-dashboard {
+    background: linear-gradient(145deg, #07101e 0%, #0c1a30 55%, #09112a 100%);
+    // height:100% + overflow-y:auto is what creates the scroll container.
+    // min-height would let the element grow unboundedly, preventing scroll.
+    height: 100%;
+    box-sizing: border-box;
+    padding: 28px 30px 40px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #e2e8f0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    *, *::before, *::after { box-sizing: border-box; }
+}
+
+// ── Header ───────────────────────────────────
+.hrp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    animation: hrp-fade-up 0.5s ease both;
+}
+.hrp-header__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #38bdf8;
+    margin-bottom: 8px;
+}
+.hrp-live-dot {
+    width: 7px;
+    height: 7px;
+    background: #22d3ee;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: hrp-live-pulse 2s ease-in-out infinite;
+}
+.hrp-header__title {
+    margin: 0 0 5px;
+    font-size: 26px;
+    font-weight: 300;
+    color: #f1f5f9;
+    letter-spacing: -0.02em;
+
+    strong {
+        font-weight: 800;
+        background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+.hrp-header__date {
+    font-size: 12px;
+    color: #475569;
+}
+.hrp-refresh-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(56, 189, 248, 0.1);
+        border-color: rgba(56, 189, 248, 0.4);
+        color: #38bdf8;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(56, 189, 248, 0.15);
+    }
+    &:active { transform: translateY(0); }
+}
+
+// ── KPI Grid ─────────────────────────────────
+.hrp-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+.hrp-kpi-card {
+    position: relative;
+    border-radius: 16px;
+    padding: 20px 18px 16px;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: hrp-fade-up 0.55s ease both;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -28px; right: -18px;
+        width: 100px; height: 100px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    &:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+    }
+    &.hrp-urgent {
+        animation: hrp-fade-up 0.55s ease both,
+                   hrp-urgent-glow 2.2s ease-in-out 0.6s infinite;
+    }
+
+    // Colour variants
+    &.c-teal   { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); color: #ccfbf1; }
+    &.c-red    { background: linear-gradient(135deg, #dc2626 0%, #9f1239 100%); color: #fee2e2; }
+    &.c-purple { background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%); color: #f3e8ff; }
+    &.c-green  { background: linear-gradient(135deg, #16a34a 0%, #14532d 100%); color: #dcfce7; }
+    &.c-amber  { background: linear-gradient(135deg, #d97706 0%, #92400e 100%); color: #fef3c7; }
+    &.c-orange { background: linear-gradient(135deg, #ea580c 0%, #9a3412 100%); color: #ffedd5; }
+    &.c-slate  { background: linear-gradient(135deg, #334155 0%, #1e293b 100%); color: #cbd5e1; }
+}
+// Stagger animation delays
+.hrp-kpi-card:nth-child(1) { animation-delay: 0.06s; }
+.hrp-kpi-card:nth-child(2) { animation-delay: 0.12s; }
+.hrp-kpi-card:nth-child(3) { animation-delay: 0.18s; }
+.hrp-kpi-card:nth-child(4) { animation-delay: 0.24s; }
+.hrp-kpi-card:nth-child(5) { animation-delay: 0.30s; }
+.hrp-kpi-card:nth-child(6) { animation-delay: 0.36s; }
+.hrp-kpi-card:nth-child(7) { animation-delay: 0.42s; }
+
+.hrp-kpi-card__icon {
+    font-size: 20px;
+    display: block;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+.hrp-kpi-card__label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+.hrp-kpi-card__value {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.hrp-kpi-card.c-slate .hrp-kpi-card__value {
+    background: linear-gradient(90deg, #fde68a, #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hrp-kpi-card__sub {
+    font-size: 10.5px;
+    opacity: 0.72;
+    line-height: 1.35;
+}
+
+// ── Panels ───────────────────────────────────
+.hrp-panel {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 22px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    animation: hrp-fade-up 0.5s ease 0.3s both;
+}
+.hrp-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.hrp-panel__accent {
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+.hrp-panel__title {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0;
+}
+.hrp-panel__empty {
+    color: #374151;
+    font-size: 13px;
+    text-align: center;
+    padding: 28px 0;
+    font-style: italic;
+}
+
+// Panel colour themes
+.hrp-panel-teal   { .hrp-panel__accent { background: #2dd4bf; } .hrp-panel__title { color: #2dd4bf; } }
+.hrp-panel-purple { .hrp-panel__accent { background: #c084fc; } .hrp-panel__title { color: #c084fc; } }
+.hrp-panel-green  { .hrp-panel__accent { background: #4ade80; } .hrp-panel__title { color: #4ade80; } }
+.hrp-panel-blue   { .hrp-panel__accent { background: #60a5fa; } .hrp-panel__title { color: #60a5fa; } }
+.hrp-panel-amber  { .hrp-panel__accent { background: #fbbf24; } .hrp-panel__title { color: #fbbf24; } }
+
+// ── List rows ────────────────────────────────
+.hrp-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 4px;
+    cursor: default;
+    border-radius: 6px;
+    transition: padding-left 0.15s ease, background 0.15s ease;
+    animation: hrp-slide-in 0.35s ease both;
+
+    &:last-child { border-bottom: none; }
+    &.clickable  { cursor: pointer; }
+    &.clickable:hover {
+        padding-left: 10px;
+        background: rgba(255, 255, 255, 0.03);
+    }
+}
+.hrp-row__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.hrp-row__meta {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 3px;
+}
+.hrp-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    &.bd-danger  { background: rgba(239, 68, 68, 0.18);  color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);  }
+    &.bd-warning { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+}
+
+// ── Layout grids ─────────────────────────────
+.hrp-grid-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+.hrp-grid-2-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+// ── Donut chart ───────────────────────────────
+.hrp-chart-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+.hrp-chart-legend {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.hrp-chart-legend__item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+.hrp-chart-legend__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.hrp-chart-legend__label { flex: 1; }
+.hrp-chart-legend__val {
+    font-weight: 700;
+    color: #e2e8f0;
+    font-size: 13px;
+    min-width: 22px;
+    text-align: right;
+}
+
+// ── Recent Hires cards ────────────────────────
+.hrp-hire-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+.hrp-hire-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 14px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    animation: hrp-hire-pop 0.4s ease both;
+
+    &:hover {
+        border-color: rgba(96, 165, 250, 0.3);
+        transform: translateY(-2px);
+    }
+}
+.hrp-hire-card__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 4px;
+}
+.hrp-hire-card__meta {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+// ── Extra KPI card colours (People page) ─────
+.hrp-kpi-card {
+    &.c-blue { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: #dbeafe; }
+    &.c-pink { background: linear-gradient(135deg, #db2777 0%, #9d174d 100%); color: #fce7f3; }
+}
+
+// ── Extra panel colours ───────────────────────
+.hrp-panel-red { .hrp-panel__accent { background: #f87171; } .hrp-panel__title { color: #f87171; } }
+
+// ── 3-col layout helper ───────────────────────
+.hrp-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+// ── Animated horizontal bars ──────────────────
+@keyframes hrp-bar-grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+.hrp-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+}
+.hrp-bar-label {
+    width: 90px;
+    font-size: 12px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hrp-bar-track {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.hrp-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transform-origin: left;
+    animation: hrp-bar-grow 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.hrp-bar-fill--teal   { background: linear-gradient(90deg, #0d9488, #34d399); }
+.hrp-bar-fill--amber  { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.hrp-bar-fill--purple { background: linear-gradient(90deg, #9333ea, #c084fc); }
+.hrp-bar-fill--green  { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.hrp-bar-fill--red    { background: linear-gradient(90deg, #dc2626, #f87171); }
+.hrp-bar-fill--blue   { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+.hrp-bar-val {
+    width: 36px;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+    flex-shrink: 0;
+}
+
+// ── Compliance ring / gauge ───────────────────
+.hrp-ring-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.hrp-ring-stats {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.hrp-ring-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #94a3b8;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+
+    &:last-child { border-bottom: none; }
+    strong { color: #e2e8f0; font-size: 14px; font-weight: 700; }
+}
+
+// ── eNPS / big score display ──────────────────
+.hrp-score-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0 10px;
+
+    &__value {
+        font-size: 64px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+    &__label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+    &__sub {
+        font-size: 12px;
+        color: #475569;
+        margin-top: 4px;
+    }
+    &.good .hrp-score-block__value { color: #4ade80; }
+    &.ok   .hrp-score-block__value { color: #fbbf24; }
+    &.bad  .hrp-score-block__value { color: #f87171; }
+}
+
+// ── Pill tags (top learners / top recognised) ─
+.hrp-pill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 4px;
+}
+.hrp-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    animation: hrp-fade-up 0.4s ease both;
+    transition: transform 0.2s ease;
+
+    &:hover { transform: translateY(-2px); }
+
+    &--amber {
+        background: rgba(217, 119, 6, 0.15);
+        color: #fbbf24;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+    &--purple {
+        background: rgba(147, 51, 234, 0.15);
+        color: #c084fc;
+        border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+    &__count {
+        background: rgba(255,255,255,0.1);
+        border-radius: 100px;
+        padding: 1px 7px;
+        font-size: 11px;
+        font-weight: 800;
+    }
+}
+
+// ── Expiring certs table ──────────────────────
+.hrp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.hrp-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #475569;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.hrp-table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #e2e8f0;
+    vertical-align: middle;
+}
+.hrp-table tr:last-child td { border-bottom: none; }
+.hrp-table tr.clickable { cursor: pointer; transition: background 0.15s; }
+.hrp-table tr.clickable:hover td { background: rgba(255,255,255,0.02); }
+.hrp-table td.days-critical { color: #f87171; font-weight: 700; }
+.hrp-table td.days-warning  { color: #fbbf24; font-weight: 700; }
+
+// ── Odoo overrides ────────────────────────────
+.o_form_view .o_form_button_save {
+    background: #0F766E !important;
+    border-color: #0F766E !important;
+}

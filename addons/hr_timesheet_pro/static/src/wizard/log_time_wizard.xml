@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="hr_timesheet_pro.LogTimeWizard">
+    <div class="o_htp_log_wizard">
+
+      <!-- Loading -->
+      <div t-if="state.loadingEmployee" class="htl-loading">
+        <i class="fa fa-spinner fa-spin"/> Loading…
+      </div>
+
+      <!-- No employee linked -->
+      <div t-elif="!state.employeeId" class="htl-error" t-esc="state.error"/>
+
+      <!-- Success -->
+      <div t-elif="state.success" class="htl-success">
+        <div class="htl-success-burst"><i class="fa fa-check"/></div>
+        <h2 class="htl-success-title">Time Logged!</h2>
+        <p class="htl-success-sub">
+          <t t-esc="state.hours"/>h logged for <t t-esc="state.date"/><t t-if="state.taskName"> on <t t-esc="state.taskName"/></t>.
+        </p>
+        <div class="htl-success-actions">
+          <button type="button" class="htl-btn-ghost" t-on-click="onClose">Close</button>
+          <button type="button" class="htl-btn-ghost" t-on-click="logAnother"><i class="fa fa-plus me-1"/> Log Another</button>
+          <button type="button" class="htl-btn-primary" t-on-click="viewTimesheet">
+            <i class="fa fa-external-link me-1"/> View Timesheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <t t-else="">
+        <div class="htl-header">
+          <div class="htl-header-icon"><i class="fa fa-clock-o"/></div>
+          <div>
+            <h3 class="htl-title">Log Time</h3>
+            <p class="htl-sub">Record the hours you worked — this is the fastest way to keep your timesheet up to date.</p>
+          </div>
+          <img class="htl-avatar" t-att-src="avatarUrl" alt=""/>
+        </div>
+
+        <div t-if="state.sheetId and state.locked" class="htl-banner htl-banner-info">
+          <i class="fa fa-info-circle"/>
+          <div>
+            <strong>This week is already filled — no need again.</strong>
+            <div>Your timesheet for this week (<t t-esc="state.sheetName"/>) is <t t-esc="state.sheetState"/>.</div>
+          </div>
+          <button type="button" class="htl-btn-ghost" t-on-click="viewTimesheet">View</button>
+        </div>
+        <div t-elif="state.existingLineId" class="htl-banner htl-banner-success">
+          <i class="fa fa-pencil"/>
+          <div>
+            <strong>You already logged this day — editing it.</strong>
+            <div>Saving will update your existing entry for <t t-esc="state.date"/>.</div>
+          </div>
+        </div>
+
+        <div class="htl-form-grid">
+          <div class="htl-field">
+            <label>Date</label>
+            <input type="date" t-att-value="state.date" t-on-change="onDateChange" t-att-disabled="state.locked"/>
+          </div>
+          <div class="htl-field">
+            <label>Project <span class="htl-field-hint">(optional)</span></label>
+            <div class="htl-picker" t-att-class="state.locked ? 'is-disabled' : ''">
+              <Many2One t-props="projectPickerProps"/>
+            </div>
+          </div>
+          <div class="htl-field">
+            <label>Task <span class="htl-field-hint">(optional)</span></label>
+            <div class="htl-picker" t-att-class="state.locked ? 'is-disabled' : ''">
+              <Many2One t-props="taskPickerProps"/>
+            </div>
+          </div>
+          <div class="htl-field">
+            <label>Start Time</label>
+            <input type="time" t-att-value="toTimeInput(state.start)" t-on-change="onStartChange" t-att-disabled="state.locked"/>
+          </div>
+          <div class="htl-field">
+            <label>End Time</label>
+            <input type="time" t-att-value="toTimeInput(state.end)" t-on-change="onEndChange" t-att-disabled="state.locked"/>
+          </div>
+          <div class="htl-field">
+            <label>Total Hours</label>
+            <div class="htl-hours-value" t-esc="state.hours"/>
+          </div>
+        </div>
+
+        <div class="htl-billable-row">
+          <label>Billable</label>
+          <button type="button"
+                  t-attf-class="htl-toggle {{ state.billable ? 'is-on' : '' }}"
+                  t-att-disabled="state.locked"
+                  t-on-click="toggleBillable">
+            <span class="htl-toggle-knob"/>
+          </button>
+          <span class="htl-toggle-text" t-esc="state.billable ? 'Yes' : 'No'"/>
+        </div>
+
+        <div class="htl-field htl-description-field">
+          <label>Description <span t-if="isCommentRequired" class="htl-required">*</span></label>
+          <textarea rows="3" placeholder="What did you work on?"
+                    t-model="state.comments"
+                    t-att-disabled="state.locked"></textarea>
+          <div t-if="isCommentMissing" class="htl-field-error">
+            <i class="fa fa-exclamation-triangle"/> Description is required for billable days
+          </div>
+        </div>
+
+        <div t-if="state.error" class="htl-error" t-esc="state.error"/>
+
+        <div class="htl-footer">
+          <button type="button" class="htl-btn-ghost" t-on-click="onCancel">Cancel</button>
+          <button type="button" class="htl-btn-link" t-on-click="openWeeklyWizard">
+            <i class="fa fa-calendar me-1"/> Submit Weekly Timesheet instead
+          </button>
+          <button type="button" class="htl-btn-primary" t-if="!state.locked"
+                  t-att-disabled="state.saving or state.checkingWeek"
+                  t-on-click="onSave">
+            <i t-if="state.saving" class="fa fa-spinner fa-spin"/> Save Entry
+          </button>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

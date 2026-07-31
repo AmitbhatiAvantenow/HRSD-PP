@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ac_laptop" model="mn.hr.asset.category"><field name="name">Laptop / desktop</field><field name="icon">fa-laptop</field><field name="serial_required">True</field></record>
+        <record id="ac_phone" model="mn.hr.asset.category"><field name="name">Mobile phone</field><field name="icon">fa-mobile-alt</field><field name="serial_required">True</field></record>
+        <record id="ac_sim" model="mn.hr.asset.category"><field name="name">SIM card / line</field><field name="icon">fa-sim-card</field></record>
+        <record id="ac_badge" model="mn.hr.asset.category"><field name="name">Access badge / card</field><field name="icon">fa-id-badge</field></record>
+        <record id="ac_uniform" model="mn.hr.asset.category"><field name="name">Uniform</field><field name="icon">fa-tshirt</field></record>
+        <record id="ac_vehicle" model="mn.hr.asset.category"><field name="name">Company vehicle</field><field name="icon">fa-car</field><field name="serial_required">True</field></record>
+        <record id="ac_keys" model="mn.hr.asset.category"><field name="name">Keys</field><field name="icon">fa-key</field></record>
+        <record id="ac_tools" model="mn.hr.asset.category"><field name="name">Tools / equipment</field><field name="icon">fa-tools</field></record>
+        <record id="ac_other" model="mn.hr.asset.category"><field name="name">Other</field><field name="icon">fa-box</field></record>
+    </data>
+</odoo>

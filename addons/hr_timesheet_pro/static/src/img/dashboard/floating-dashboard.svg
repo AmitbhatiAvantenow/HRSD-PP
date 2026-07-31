@@ -1,0 +1,105 @@
+<svg width="500" height="500" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .htp-fd-card { animation: htpFdFloat 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .htp-fd-card-1 { animation-duration: 6s; }
+    .htp-fd-card-2 { animation-duration: 7s; animation-delay: .4s; }
+    .htp-fd-card-3 { animation-duration: 5.5s; animation-delay: .8s; }
+    .htp-fd-card-4 { animation-duration: 4.5s; animation-delay: .2s; }
+    .htp-fd-card-5 { animation-duration: 5s; animation-delay: 1s; }
+    .htp-fd-card-6 { animation-duration: 6.5s; animation-delay: .6s; }
+    @keyframes htpFdFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+    .htp-fd-spark { animation: htpFdSpark 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .htp-fd-spark-1 { animation-delay: 0s; }
+    .htp-fd-spark-2 { animation-delay: .8s; }
+    .htp-fd-spark-3 { animation-delay: 1.4s; }
+    @keyframes htpFdSpark {
+      0%, 100% { opacity: .2; transform: scale(.7); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+  </style>
+  <defs>
+    <linearGradient id="fdPrimary" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8b7bfa"/>
+      <stop offset="100%" stop-color="#6d5ef8"/>
+    </linearGradient>
+    <linearGradient id="fdCyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="fdShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#3b2f9c" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <!-- Analytics graph card -->
+  <g class="htp-fd-card htp-fd-card-1" filter="url(#fdShadow)">
+    <rect x="60" y="70" width="230" height="150" rx="20" fill="#ffffff"/>
+    <circle cx="90" cy="100" r="8" fill="url(#fdPrimary)"/>
+    <rect x="108" y="94" width="90" height="10" rx="5" fill="#e7e6f3"/>
+    <polyline points="80,190 120,160 150,175 190,130 230,145 260,110"
+              fill="none" stroke="url(#fdCyan)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="260" cy="110" r="7" fill="#06b6d4"/>
+  </g>
+
+  <!-- Calendar card -->
+  <g class="htp-fd-card htp-fd-card-2" filter="url(#fdShadow)">
+    <rect x="270" y="230" width="170" height="150" rx="18" fill="#ffffff"/>
+    <rect x="270" y="230" width="170" height="42" rx="18" fill="url(#fdPrimary)"/>
+    <rect x="270" y="254" width="170" height="18" fill="url(#fdPrimary)"/>
+    <g fill="#e7e6f3">
+      <rect x="292" y="290" width="20" height="16" rx="4"/>
+      <rect x="324" y="290" width="20" height="16" rx="4"/>
+      <rect x="356" y="290" width="20" height="16" rx="4"/>
+      <rect x="388" y="290" width="20" height="16" rx="4"/>
+      <rect x="292" y="316" width="20" height="16" rx="4"/>
+      <rect x="356" y="316" width="20" height="16" rx="4"/>
+      <rect x="388" y="316" width="20" height="16" rx="4"/>
+    </g>
+    <rect x="324" y="316" width="20" height="16" rx="4" fill="#06b6d4"/>
+    <rect x="292" y="342" width="20" height="16" rx="4" fill="#e7e6f3"/>
+    <rect x="324" y="342" width="20" height="16" rx="4" fill="#e7e6f3"/>
+  </g>
+
+  <!-- Clock badge -->
+  <g class="htp-fd-card htp-fd-card-3" filter="url(#fdShadow)">
+    <circle cx="120" cy="280" r="52" fill="#ffffff"/>
+    <circle cx="120" cy="280" r="40" fill="none" stroke="#eeecff" stroke-width="6"/>
+    <circle cx="120" cy="280" r="40" fill="none" stroke="url(#fdPrimary)" stroke-width="6"
+            stroke-linecap="round" stroke-dasharray="180 251" transform="rotate(-90 120 280)"/>
+    <line x1="120" y1="280" x2="120" y2="255" stroke="#5b4bdb" stroke-width="4" stroke-linecap="round"/>
+    <line x1="120" y1="280" x2="138" y2="290" stroke="#5b4bdb" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="120" cy="280" r="4" fill="#5b4bdb"/>
+  </g>
+
+  <!-- Checkmark badge -->
+  <g class="htp-fd-card htp-fd-card-4" filter="url(#fdShadow)">
+    <circle cx="400" cy="140" r="38" fill="#ffffff"/>
+    <circle cx="400" cy="140" r="38" fill="url(#fdCyan)" opacity="0.12"/>
+    <path d="M384 140 L395 151 L417 127" fill="none" stroke="#06b6d4" stroke-width="7"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Timesheet document -->
+  <g class="htp-fd-card htp-fd-card-5" filter="url(#fdShadow)">
+    <rect x="330" y="60" width="34" height="46" rx="5" fill="#ffffff" transform="rotate(-8 347 83)"/>
+  </g>
+
+  <!-- Timer chip -->
+  <g class="htp-fd-card htp-fd-card-6" filter="url(#fdShadow)">
+    <rect x="30" y="200" width="60" height="60" rx="16" fill="#ffffff"/>
+    <circle cx="60" cy="232" r="16" fill="none" stroke="#f97316" stroke-width="5"/>
+    <line x1="60" y1="232" x2="60" y2="222" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+    <line x1="60" y1="232" x2="67" y2="236" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+    <rect x="55" y="212" width="10" height="5" rx="2" fill="#f97316"/>
+  </g>
+
+  <!-- Floating sparkles -->
+  <g fill="#ffffff">
+    <circle class="htp-fd-spark htp-fd-spark-1" cx="440" cy="380" r="5"/>
+    <circle class="htp-fd-spark htp-fd-spark-2" cx="60" cy="140" r="4"/>
+    <circle class="htp-fd-spark htp-fd-spark-3" cx="230" cy="440" r="4.5"/>
+  </g>
+</svg>

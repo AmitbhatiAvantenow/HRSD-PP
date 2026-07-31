@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SERVICE CATALOG  —  kanban view of Form Templates (producers)
+         Employees browse and launch a form from here.
+    ═══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_hr_case_producer_catalog_kanban" model="ir.ui.view">
+        <field name="name">hr.case.producer.catalog.kanban</field>
+        <field name="model">hr.case.producer</field>
+        <field name="arch" type="xml">
+            <kanban create="0" edit="0" delete="0"
+                    default_group_by=""
+                    class="o_kanban_small_column">
+                <field name="id"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="image"/>
+                <field name="service_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card d-flex flex-column"
+                             style="min-height:210px;cursor:default;">
+                            <!-- Card body -->
+                            <div class="d-flex align-items-start p-3 flex-grow-1">
+                                <!-- Icon / image -->
+                                <div class="me-3 flex-shrink-0">
+                                    <img t-if="record.image.raw_value"
+                                         t-att-src="kanban_image('hr.case.producer', 'image', record.id.raw_value)"
+                                         t-att-alt="record.name.raw_value"
+                                         class="rounded"
+                                         style="width:56px;height:56px;object-fit:cover;"/>
+                                    <div t-else=""
+                                         class="rounded d-flex align-items-center justify-content-center"
+                                         style="width:56px;height:56px;background:#714B67;">
+                                        <i class="fa fa-wpforms fa-2x" style="color:#fff;" title="Form"/>
+                                    </div>
+                                </div>
+                                <!-- Title + service + excerpt -->
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-bold mb-1" style="font-size:15px;">
+                                        <field name="name"/>
+                                    </div>
+                                    <div class="text-muted" style="font-size:12px;">
+                                        <i class="fa fa-tag me-1" title="Service"/>
+                                        <field name="service_id"/>
+                                    </div>
+                                    <div t-if="record.description.raw_value"
+                                         class="mt-1 o_field_html text-muted"
+                                         style="font-size:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">
+                                        <field name="description" widget="html"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Footer action button -->
+                            <div class="border-top p-2">
+                                <button name="action_start_submission"
+                                        type="object"
+                                        string="Submit Request"
+                                        class="btn btn-primary btn-sm w-100"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_case_producer_catalog_search" model="ir.ui.view">
+        <field name="name">hr.case.producer.catalog.search</field>
+        <field name="model">hr.case.producer</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Form Name"/>
+                <field name="service_id"/>
+                <filter string="Active" name="active" domain="[('active','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_case_catalog" model="ir.actions.act_window">
+        <field name="name">Service Catalog</field>
+        <field name="res_model">hr.case.producer</field>
+        <field name="view_mode">kanban,list</field>
+        <field name="domain">[('active', '=', True)]</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="path">hr-cases</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_hr_case_producer_catalog_kanban')}),
+        ]"/>
+    </record>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SUBMISSION ANSWER  —  popup form to fill in one answer
+    ═══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_hr_case_submission_answer_form" model="ir.ui.view">
+        <field name="name">hr.case.submission.answer.form</field>
+        <field name="model">hr.case.submission.answer</field>
+        <field name="arch" type="xml">
+            <form string="Answer">
+                <sheet>
+                    <group>
+                        <field name="field_type" invisible="1"/>
+                        <field name="required" invisible="1"/>
+                        <field name="question_label" string="Question" readonly="1"/>
+                        <field name="help_text" string="Hint" readonly="1"
+                               invisible="not help_text"/>
+                    </group>
+                    <group string="Your Answer">
+                        <field name="value_char" string="Answer"
+                               invisible="field_type != 'text'"/>
+                        <field name="value_text" string="Answer"
+                               widget="text"
+                               invisible="field_type != 'textarea'"/>
+                        <field name="value_date" string="Answer"
+                               invisible="field_type != 'date'"/>
+                        <field name="value_boolean" string="Answer"
+                               invisible="field_type != 'boolean'"/>
+                        <field name="value_employee_id" string="Answer"
+                               invisible="field_type != 'employee'"/>
+                        <field name="value_selection" string="Answer"
+                               invisible="field_type != 'selection'"/>
+                        <field name="selection_values"
+                               string="Available Choices"
+                               widget="text"
+                               readonly="1"
+                               invisible="field_type != 'selection' or not selection_values"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SUBMISSION  —  list (My Requests) and form views
+    ═══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_hr_case_submission_list" model="ir.ui.view">
+        <field name="name">hr.case.submission.list</field>
+        <field name="model">hr.case.submission</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-muted="state == 'submitted'">
+                <field name="name" string="Reference"/>
+                <field name="producer_id" string="Form"/>
+                <field name="employee_id"/>
+                <field name="short_description" string="Subject"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state == 'submitted'"/>
+                <field name="date_submitted" optional="show"/>
+                <field name="case_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_case_submission_form" model="ir.ui.view">
+        <field name="name">hr.case.submission.form</field>
+        <field name="model">hr.case.submission</field>
+        <field name="arch" type="xml">
+            <form string="Service Request">
+                <header>
+                    <button name="action_submit"
+                            type="object"
+                            string="Submit Request"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_case"
+                                class="oe_stat_button" icon="fa-folder-open"
+                                invisible="not case_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">View Case</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Instructions banner from the form template -->
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="not producer_description">
+                        <field name="producer_description" widget="html"/>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="producer_id" readonly="1"/>
+                            <field name="employee_id"
+                                   readonly="state == 'submitted'"/>
+                        </group>
+                        <group>
+                            <field name="date_submitted"
+                                   invisible="not date_submitted"/>
+                            <field name="case_id" invisible="not case_id"/>
+                        </group>
+                    </group>
+
+                    <group string="Subject / Summary">
+                        <field name="short_description"
+                               nolabel="1"
+                               colspan="2"
+                               placeholder="Briefly describe your request…"
+                               readonly="state == 'submitted'"/>
+                    </group>
+
+                    <notebook invisible="not answer_ids">
+                        <page string="Questions &amp; Answers" name="answers">
+                            <field name="answer_ids"
+                                   readonly="state == 'submitted'"
+                                   context="{'form_view_ref': 'hr_case_management.view_hr_case_submission_answer_form'}">
+                                <list create="0" delete="0">
+                                    <field name="field_type" column_invisible="1"/>
+                                    <field name="required" column_invisible="1"/>
+                                    <field name="question_label" string="Question"
+                                           readonly="1"/>
+                                    <field name="answer_summary" string="Answer"
+                                           readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_case_submission_search" model="ir.ui.view">
+        <field name="name">hr.case.submission.search</field>
+        <field name="model">hr.case.submission</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Reference"/>
+                <field name="producer_id" string="Form"/>
+                <field name="employee_id"/>
+                <field name="short_description" string="Subject"/>
+                <filter string="Draft" name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Submitted" name="submitted"
+                        domain="[('state','=','submitted')]"/>
+                <group name="group_by">
+                    <filter string="Form" name="group_producer"
+                            context="{'group_by': 'producer_id'}"/>
+                    <filter string="Status" name="group_state"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- My Requests action — filtered to current user's employee -->
+    <record id="action_hr_case_submission_my" model="ir.actions.act_window">
+        <field name="name">My Requests</field>
+        <field name="res_model">hr.case.submission</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="view_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {'view_mode': 'list',
+                    'view_id': ref('view_hr_case_submission_list')}),
+            (0, 0, {'view_mode': 'form',
+                    'view_id': ref('view_hr_case_submission_form')}),
+        ]"/>
+    </record>
+
+    <!-- All Submissions action — for managers -->
+    <record id="action_hr_case_submission_all" model="ir.actions.act_window">
+        <field name="name">All Submissions</field>
+        <field name="res_model">hr.case.submission</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

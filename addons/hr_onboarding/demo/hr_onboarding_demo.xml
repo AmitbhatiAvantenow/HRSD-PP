@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <data>
+
+        <!-- Self-contained demo org chart (kept local to hr_onboarding so this data
+             does not depend on hr module demo data being installed). -->
+        <record id="demo_dep_rd" model="hr.department">
+            <field name="name">Engineering</field>
+        </record>
+        <record id="demo_dep_sales" model="hr.department">
+            <field name="name">Sales &amp; Marketing</field>
+        </record>
+        <record id="demo_dep_admin" model="hr.department">
+            <field name="name">Administration</field>
+        </record>
+        <record id="demo_dep_ps" model="hr.department">
+            <field name="name">Professional Services</field>
+        </record>
+        <record id="demo_dep_mgmt" model="hr.department">
+            <field name="name">Management</field>
+        </record>
+
+        <record id="demo_job_developer" model="hr.job">
+            <field name="name">Software Developer</field>
+            <field name="department_id" ref="demo_dep_rd"/>
+        </record>
+        <record id="demo_job_consultant" model="hr.job">
+            <field name="name">Consultant</field>
+            <field name="department_id" ref="demo_dep_ps"/>
+        </record>
+        <record id="demo_job_marketing" model="hr.job">
+            <field name="name">Marketing Executive</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+        </record>
+        <record id="demo_job_hrm" model="hr.job">
+            <field name="name">HR Officer</field>
+            <field name="department_id" ref="demo_dep_admin"/>
+        </record>
+        <record id="demo_job_trainee" model="hr.job">
+            <field name="name">Trainee</field>
+            <field name="department_id" ref="demo_dep_rd"/>
+        </record>
+        <record id="demo_job_cto" model="hr.job">
+            <field name="name">CTO</field>
+            <field name="department_id" ref="demo_dep_mgmt"/>
+        </record>
+
+        <record id="demo_emp_qdp" model="hr.employee">
+            <field name="name">Quentin Deprez</field>
+            <field name="department_id" ref="demo_dep_rd"/>
+        </record>
+        <record id="demo_emp_al" model="hr.employee">
+            <field name="name">Aline Lemoine</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+        </record>
+        <record id="demo_emp_vad" model="hr.employee">
+            <field name="name">Vidhi Adhikari</field>
+            <field name="department_id" ref="demo_dep_admin"/>
+        </record>
+        <record id="demo_emp_hne" model="hr.employee">
+            <field name="name">Harish Nair</field>
+            <field name="department_id" ref="demo_dep_ps"/>
+        </record>
+        <record id="demo_emp_cto" model="hr.employee">
+            <field name="name">Ankita Garg</field>
+            <field name="department_id" ref="demo_dep_mgmt"/>
+        </record>
+
+        <!-- Onboarding pipeline records -->
+
+        <record id="eo_priyanka" model="hr.onboarding">
+            <field name="first_name">Priyanka</field>
+            <field name="last_name">Sharma</field>
+            <field name="email">priyanka.sharma@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_lead"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=25)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_sachin" model="hr.onboarding">
+            <field name="first_name">Sachin</field>
+            <field name="last_name">Verma</field>
+            <field name="email">sachin.verma@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_interview"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_consultant"/>
+            <field name="manager_id" ref="demo_emp_al"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=20)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_niraj" model="hr.onboarding">
+            <field name="first_name">Niraj</field>
+            <field name="last_name">Patel</field>
+            <field name="email">niraj.patel@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_interview"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_trainee"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">0</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=18)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_neha" model="hr.onboarding">
+            <field name="first_name">Neha</field>
+            <field name="last_name">Iyer</field>
+            <field name="email">neha.iyer@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_offer_created"/>
+            <field name="department_id" ref="demo_dep_admin"/>
+            <field name="job_id" ref="demo_job_hrm"/>
+            <field name="manager_id" ref="demo_emp_vad"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">2</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=15)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_neetu" model="hr.onboarding">
+            <field name="first_name">Neetu</field>
+            <field name="last_name">Kapoor</field>
+            <field name="email">neetu.kapoor@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_offer_sent"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_marketing"/>
+            <field name="manager_id" ref="demo_emp_al"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">3</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=14)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_prince" model="hr.onboarding">
+            <field name="first_name">Prince</field>
+            <field name="last_name">Yadav</field>
+            <field name="email">prince.yadav@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_offer_sent"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=12)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_atul" model="hr.onboarding">
+            <field name="first_name">Atul</field>
+            <field name="last_name">Mehta</field>
+            <field name="email">atul.mehta@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_offer_accepted"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">2</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=10)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_ravi" model="hr.onboarding">
+            <field name="first_name">Ravi</field>
+            <field name="last_name">Kumar</field>
+            <field name="email">ravi.kumar@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_documents_pending"/>
+            <field name="department_id" ref="demo_dep_ps"/>
+            <field name="job_id" ref="demo_job_consultant"/>
+            <field name="manager_id" ref="demo_emp_hne"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">2</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=7)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_meera" model="hr.onboarding">
+            <field name="first_name">Meera</field>
+            <field name="last_name">Nair</field>
+            <field name="email">meera.nair@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_documents_pending"/>
+            <field name="department_id" ref="demo_dep_admin"/>
+            <field name="job_id" ref="demo_job_hrm"/>
+            <field name="manager_id" ref="demo_emp_vad"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=6)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_karan" model="hr.onboarding">
+            <field name="first_name">Karan</field>
+            <field name="last_name">Malhotra</field>
+            <field name="email">karan.malhotra@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_background_check"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=4)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_divya" model="hr.onboarding">
+            <field name="first_name">Divya</field>
+            <field name="last_name">Reddy</field>
+            <field name="email">divya.reddy@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_hr_approval"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_marketing"/>
+            <field name="manager_id" ref="demo_emp_al"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">2</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_arjun" model="hr.onboarding">
+            <field name="first_name">Arjun</field>
+            <field name="last_name">Singh</field>
+            <field name="email">arjun.singh@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_it_setup"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">3</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=2)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_simran" model="hr.onboarding">
+            <field name="first_name">Simran</field>
+            <field name="last_name">Kaur</field>
+            <field name="email">simran.kaur@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_equipment_ready"/>
+            <field name="department_id" ref="demo_dep_admin"/>
+            <field name="job_id" ref="demo_job_hrm"/>
+            <field name="manager_id" ref="demo_emp_vad"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_rohit" model="hr.onboarding">
+            <field name="first_name">Rohit</field>
+            <field name="last_name">Bansal</field>
+            <field name="email">rohit.bansal@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_training"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="DateTime.today().strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_ananya" model="hr.onboarding">
+            <field name="first_name">Ananya</field>
+            <field name="last_name">Joshi</field>
+            <field name="email">ananya.joshi@example.com</field>
+            <field name="gender">female</field>
+            <field name="stage_id" ref="stage_first_day"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_marketing"/>
+            <field name="manager_id" ref="demo_emp_al"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_vikram" model="hr.onboarding">
+            <field name="first_name">Vikram</field>
+            <field name="last_name">Chauhan</field>
+            <field name="email">vikram.chauhan@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_probation"/>
+            <field name="department_id" ref="demo_dep_rd"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="manager_id" ref="demo_emp_qdp"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">0</field>
+            <field name="joining_date" eval="(DateTime.today() - relativedelta(days=20)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="eo_ishaan" model="hr.onboarding">
+            <field name="first_name">Ishaan</field>
+            <field name="last_name">Bhatt</field>
+            <field name="email">ishaan.bhatt@example.com</field>
+            <field name="gender">male</field>
+            <field name="stage_id" ref="stage_completed"/>
+            <field name="department_id" ref="demo_dep_mgmt"/>
+            <field name="job_id" ref="demo_job_cto"/>
+            <field name="manager_id" ref="demo_emp_cto"/>
+            <field name="hr_user_id" ref="base.user_admin"/>
+            <field name="priority">1</field>
+            <field name="joining_date" eval="(DateTime.today() - relativedelta(days=60)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <!-- Tasks -->
+        <record id="eo_ravi_task_1" model="hr.onboarding.task">
+            <field name="name">Complete NDA</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="stage_id" ref="stage_documents_pending"/>
+            <field name="due_date" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+        <record id="eo_ravi_task_2" model="hr.onboarding.task">
+            <field name="name">Upload Passport</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="stage_id" ref="stage_documents_pending"/>
+            <field name="done">1</field>
+        </record>
+        <record id="eo_ravi_task_3" model="hr.onboarding.task">
+            <field name="name">Schedule Photo</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="stage_id" ref="stage_hr_approval"/>
+            <field name="due_date" eval="(DateTime.today() + relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        </record>
+        <record id="eo_arjun_task_1" model="hr.onboarding.task">
+            <field name="name">Create Microsoft 365 Account</field>
+            <field name="onboarding_id" ref="eo_arjun"/>
+            <field name="stage_id" ref="stage_it_setup"/>
+            <field name="done">1</field>
+        </record>
+        <record id="eo_arjun_task_2" model="hr.onboarding.task">
+            <field name="name">Provision VPN Access</field>
+            <field name="onboarding_id" ref="eo_arjun"/>
+            <field name="stage_id" ref="stage_it_setup"/>
+            <field name="due_date" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <!-- Documents -->
+        <record id="eo_ravi_doc_1" model="hr.onboarding.document">
+            <field name="name">Passport</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="document_type">passport</field>
+            <field name="status">verified</field>
+        </record>
+        <record id="eo_ravi_doc_2" model="hr.onboarding.document">
+            <field name="name">PAN Card</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="document_type">pan</field>
+            <field name="status">uploaded</field>
+        </record>
+        <record id="eo_ravi_doc_3" model="hr.onboarding.document">
+            <field name="name">Offer Letter (Signed)</field>
+            <field name="onboarding_id" ref="eo_ravi"/>
+            <field name="document_type">offer_letter</field>
+            <field name="status">pending</field>
+        </record>
+        <record id="eo_meera_doc_1" model="hr.onboarding.document">
+            <field name="name">Aadhaar Card</field>
+            <field name="onboarding_id" ref="eo_meera"/>
+            <field name="document_type">aadhaar</field>
+            <field name="status">pending</field>
+        </record>
+        <record id="eo_meera_doc_2" model="hr.onboarding.document">
+            <field name="name">Education Certificate</field>
+            <field name="onboarding_id" ref="eo_meera"/>
+            <field name="document_type">education</field>
+            <field name="status">pending</field>
+        </record>
+
+        <!-- Equipment -->
+        <record id="eo_arjun_eq_1" model="hr.onboarding.equipment">
+            <field name="name">MacBook Pro 14"</field>
+            <field name="onboarding_id" ref="eo_arjun"/>
+            <field name="equipment_type">laptop</field>
+            <field name="status">assigned</field>
+            <field name="serial_number">MBP-88213</field>
+        </record>
+        <record id="eo_arjun_eq_2" model="hr.onboarding.equipment">
+            <field name="name">Access Card</field>
+            <field name="onboarding_id" ref="eo_arjun"/>
+            <field name="equipment_type">access_card</field>
+            <field name="status">pending</field>
+        </record>
+        <record id="eo_simran_eq_1" model="hr.onboarding.equipment">
+            <field name="name">Dell Latitude</field>
+            <field name="onboarding_id" ref="eo_simran"/>
+            <field name="equipment_type">laptop</field>
+            <field name="status">delivered</field>
+            <field name="serial_number">DL-44120</field>
+        </record>
+        <record id="eo_simran_eq_2" model="hr.onboarding.equipment">
+            <field name="name">Headset</field>
+            <field name="onboarding_id" ref="eo_simran"/>
+            <field name="equipment_type">headset</field>
+            <field name="status">delivered</field>
+        </record>
+
+    </data>
+</odoo>

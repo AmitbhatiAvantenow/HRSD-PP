@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Inherit the native NavBar template:
+        - Replace the Apps menu (9-dot grid icon) at the far left with our
+          always-visible Back button, so going back is the first, easiest
+          thing on the navbar.
+        - Re-add the Apps menu on the right, just before the systray icons
+          (bell, user menu, ...).
+    -->
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//t[@t-call='web.NavBar.AppsMenu']" position="replace">
+            <button
+                type="button"
+                class="o_navbar_back_btn d-flex align-items-center justify-content-center border-0"
+                t-on-click="onNavbarBackClick"
+                title="Go to Home"
+                aria-label="Go to Home"
+            >
+                <i class="oi oi-arrow-left"/>
+            </button>
+        </xpath>
+        <xpath expr="//div[hasclass('o_menu_systray')]/t[@t-foreach='systrayItems']" position="before">
+            <t t-call="web.NavBar.AppsMenu">
+                <t t-set="apps" t-value="menuService.getApps()" />
+            </t>
+        </xpath>
+    </t>
+
+</templates>

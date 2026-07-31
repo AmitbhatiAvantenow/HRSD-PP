@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mn_hr_plus.Dashboard">
+        <div class="hrp-dashboard">
+
+            <!-- ══ HEADER ══════════════════════════════════ -->
+            <div class="hrp-header">
+                <div>
+                    <div class="hrp-header__eyebrow">
+                        <span class="hrp-live-dot"/>
+                        HR Ops Dashboard · Live
+                    </div>
+                    <h1 class="hrp-header__title">
+                        What needs your <strong>attention</strong> today.
+                    </h1>
+                    <div class="hrp-header__date" t-esc="state.today_label"/>
+                </div>
+                <button class="hrp-refresh-btn" t-on-click="refresh">
+                    ↻ Refresh
+                </button>
+            </div>
+
+            <!-- ══ KPI CARDS ════════════════════════════════ -->
+            <div class="hrp-kpi-grid">
+
+                <div class="hrp-kpi-card c-teal"
+                     t-att-class="(state.kpis.expiring_30d || 0) > 0 ? 'hrp-urgent' : ''">
+                    <span class="hrp-kpi-card__icon">📄</span>
+                    <div class="hrp-kpi-card__label">Expiring Soon</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.expiring_30d or 0"/>
+                    <div class="hrp-kpi-card__sub">within 30 days</div>
+                </div>
+
+                <div class="hrp-kpi-card c-red"
+                     t-att-class="(state.kpis.expired || 0) > 0 ? 'hrp-urgent' : ''">
+                    <span class="hrp-kpi-card__icon">⚠️</span>
+                    <div class="hrp-kpi-card__label">Expired</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.expired or 0"/>
+                    <div class="hrp-kpi-card__sub">action required</div>
+                </div>
+
+                <div class="hrp-kpi-card c-purple">
+                    <span class="hrp-kpi-card__icon">⏳</span>
+                    <div class="hrp-kpi-card__label">Probation Due</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.probation_soon or 0"/>
+                    <div class="hrp-kpi-card__sub">reviews pending</div>
+                </div>
+
+                <div class="hrp-kpi-card c-green">
+                    <span class="hrp-kpi-card__icon">💰</span>
+                    <div class="hrp-kpi-card__label">Active Loans</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.active_loans or 0"/>
+                    <div class="hrp-kpi-card__sub">
+                        $<t t-esc="state.kpis.loan_outstanding or 0"/> outstanding
+                    </div>
+                </div>
+
+                <div class="hrp-kpi-card c-amber">
+                    <span class="hrp-kpi-card__icon">💼</span>
+                    <div class="hrp-kpi-card__label">Assets Out</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.open_assets or 0"/>
+                    <div class="hrp-kpi-card__sub">assigned items</div>
+                </div>
+
+                <div class="hrp-kpi-card c-orange"
+                     t-att-class="(state.kpis.open_disciplinary || 0) > 0 ? 'hrp-urgent' : ''">
+                    <span class="hrp-kpi-card__icon">⚡</span>
+                    <div class="hrp-kpi-card__label">Disciplinary</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.open_disciplinary or 0"/>
+                    <div class="hrp-kpi-card__sub">open cases</div>
+                </div>
+
+                <div class="hrp-kpi-card c-slate">
+                    <span class="hrp-kpi-card__icon">🎂</span>
+                    <div class="hrp-kpi-card__label">Birthdays</div>
+                    <div class="hrp-kpi-card__value" t-esc="state.kpis.birthdays_week or 0"/>
+                    <div class="hrp-kpi-card__sub">this week</div>
+                </div>
+
+            </div>
+
+            <!-- ══ ROW 2 : Expiring docs + Donut chart ═════ -->
+            <div class="hrp-grid-2-1">
+
+                <!-- Expiring Documents -->
+                <div class="hrp-panel hrp-panel-teal">
+                    <div class="hrp-panel__header">
+                        <div class="hrp-panel__accent"/>
+                        <h3 class="hrp-panel__title">Expiring Documents</h3>
+                    </div>
+                    <div t-if="state.expiring.length === 0" class="hrp-panel__empty">
+                        ✓ All clear — no documents expiring in 30 days
+                    </div>
+                    <t t-foreach="state.expiring" t-as="d" t-key="d.id">
+                        <div class="hrp-row clickable" t-on-click="() => this.openDoc(d.id)">
+                            <div class="hrp-row__name">
+                                <t t-esc="d.employee"/> · <t t-esc="d.doc"/>
+                                <span t-if="d.days &lt;= 7"
+                                      class="hrp-badge bd-danger">Critical</span>
+                                <span t-elif="d.days &lt;= 14"
+                                      class="hrp-badge bd-warning">Urgent</span>
+                            </div>
+                            <div class="hrp-row__meta">
+                                Expires <t t-esc="d.expiry"/> · <t t-esc="d.days"/> days remaining
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Alert Overview — animated donut chart -->
+                <div class="hrp-panel hrp-panel-amber">
+                    <div class="hrp-panel__header">
+                        <div class="hrp-panel__accent"/>
+                        <h3 class="hrp-panel__title">Alert Overview</h3>
+                    </div>
+                    <div class="hrp-chart-wrap">
+                        <canvas t-ref="alertChart" width="190" height="190"/>
+                        <div class="hrp-chart-legend">
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot" style="background:#ef4444"/>
+                                <span class="hrp-chart-legend__label">Expired Docs</span>
+                                <span class="hrp-chart-legend__val"
+                                      t-esc="state.kpis.expired or 0"/>
+                            </div>
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot" style="background:#f97316"/>
+                                <span class="hrp-chart-legend__label">Expiring (30d)</span>
+                                <span class="hrp-chart-legend__val"
+                                      t-esc="state.kpis.expiring_30d or 0"/>
+                            </div>
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot" style="background:#a855f7"/>
+                                <span class="hrp-chart-legend__label">Probation Due</span>
+                                <span class="hrp-chart-legend__val"
+                                      t-esc="state.kpis.probation_soon or 0"/>
+                            </div>
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot" style="background:#22d3ee"/>
+                                <span class="hrp-chart-legend__label">Disciplinary</span>
+                                <span class="hrp-chart-legend__val"
+                                      t-esc="state.kpis.open_disciplinary or 0"/>
+                            </div>
+                            <div class="hrp-chart-legend__item">
+                                <div class="hrp-chart-legend__dot" style="background:#4ade80"/>
+                                <span class="hrp-chart-legend__label">Active Loans</span>
+                                <span class="hrp-chart-legend__val"
+                                      t-esc="state.kpis.active_loans or 0"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ══ ROW 3 : Probation + Loans ════════════════ -->
+            <div class="hrp-grid-2-2">
+
+                <div class="hrp-panel hrp-panel-purple">
+                    <div class="hrp-panel__header">
+                        <div class="hrp-panel__accent"/>
+                        <h3 class="hrp-panel__title">Probation Reviews Due</h3>
+                    </div>
+                    <div t-if="state.probation.length === 0" class="hrp-panel__empty">
+                        None due soon
+                    </div>
+                    <t t-foreach="state.probation" t-as="p" t-key="p.id">
+                        <div class="hrp-row">
+                            <div class="hrp-row__name"><t t-esc="p.employee"/></div>
+                            <div class="hrp-row__meta">
+                                Ends <t t-esc="p.end_date"/> · <t t-esc="p.days"/> days remaining
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <div class="hrp-panel hrp-panel-green">
+                    <div class="hrp-panel__header">
+                        <div class="hrp-panel__accent"/>
+                        <h3 class="hrp-panel__title">Active Loans</h3>
+                    </div>
+                    <div t-if="state.loans.length === 0" class="hrp-panel__empty">
+                        No active loans
+                    </div>
+                    <t t-foreach="state.loans" t-as="l" t-key="l.id">
+                        <div class="hrp-row">
+                            <div class="hrp-row__name"><t t-esc="l.employee"/></div>
+                            <div class="hrp-row__meta">
+                                Principal $<t t-esc="l.principal"/> ·
+                                Remaining $<t t-esc="l.remaining"/> ·
+                                <t t-esc="l.months"/> months
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+            </div>
+
+            <!-- ══ ROW 4 : Recent Hires ══════════════════════ -->
+            <div class="hrp-panel hrp-panel-blue" style="animation-delay:0.45s">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Recent Hires — Last 30 Days</h3>
+                </div>
+                <div t-if="state.recent_hires.length === 0" class="hrp-panel__empty">
+                    No recent hires
+                </div>
+                <div class="hrp-hire-grid">
+                    <t t-foreach="state.recent_hires" t-as="h" t-key="h.id">
+                        <div class="hrp-hire-card">
+                            <div class="hrp-hire-card__name" t-esc="h.name"/>
+                            <div class="hrp-hire-card__meta">
+                                <t t-esc="h.job_title"/>
+                                <t t-if="h.job_title and h.department"> · </t>
+                                <t t-esc="h.department"/>
+                            </div>
+                            <div class="hrp-hire-card__meta">Joined <t t-esc="h.hired"/></div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+
+        </div>
+    </t>
+</templates>

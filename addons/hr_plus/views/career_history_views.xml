@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_career" model="ir.actions.act_window"><field name="name">Career History</field>
+<field name="res_model">mn.hr.career.history</field><field name="view_mode">list,form</field></record>
+<record id="view_ch_list" model="ir.ui.view"><field name="name">ch.list</field>
+<field name="model">mn.hr.career.history</field><field name="arch" type="xml">
+<list><field name="employee_id"/><field name="effective_date"/><field name="change_type" widget="badge"/>
+<field name="previous_job_title"/><field name="new_job_title"/>
+<field name="previous_salary" widget="monetary"/><field name="new_salary" widget="monetary"/>
+<field name="increment_pct"/><field name="currency_id" invisible="1"/></list>
+</field></record></data></odoo>

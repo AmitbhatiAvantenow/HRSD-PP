@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_dependent" model="ir.actions.act_window"><field name="name">Dependents</field>
+<field name="res_model">mn.hr.dependent</field><field name="view_mode">list,form</field></record>
+<record id="view_dep_list" model="ir.ui.view"><field name="name">dep.list</field>
+<field name="model">mn.hr.dependent</field><field name="arch" type="xml">
+<list><field name="employee_id"/><field name="name"/><field name="name_ar"/><field name="relation" widget="badge"/>
+<field name="gender"/><field name="date_of_birth"/><field name="nationality_id"/>
+<field name="passport_no" optional="show"/><field name="passport_expiry" optional="show"/>
+<field name="eligible_allowance" widget="boolean_toggle"/></list>
+</field></record></data></odoo>

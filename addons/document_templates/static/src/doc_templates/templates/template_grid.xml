@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.TemplateGrid">
+    <div t-on-click="() => this.closeMenu()">
+        <div class="doc-tpl-toolbar">
+            <div class="doc-tpl-search">
+                <i class="fa fa-search"/>
+                <input type="text" placeholder="Search templates…" t-on-input="onSearchInput"/>
+            </div>
+            <div style="width:180px;"><ModernSelect options="categoryOptions" value="state.categoryFilter" onSelect="(v) => this.onCategoryFilterSelect(v)" searchable="false" placeholder="'All Categories'"/></div>
+            <div style="width:170px;"><ModernSelect options="sortOptions" value="state.sort" onSelect="(v) => this.onSortSelect(v)" searchable="false"/></div>
+            <div class="doc-tpl-view-toggle">
+                <button t-attf-class="doc-tpl-view-btn {{ state.viewMode === 'grid' ? 'active' : '' }}" t-on-click="() => this.setViewMode('grid')" title="Grid view"><i class="fa fa-th-large"/></button>
+                <button t-attf-class="doc-tpl-view-btn {{ state.viewMode === 'list' ? 'active' : '' }}" t-on-click="() => this.setViewMode('list')" title="List view"><i class="fa fa-list"/></button>
+            </div>
+        </div>
+
+        <t t-if="state.templates.length">
+            <div class="doc-tpl-grid" t-if="state.viewMode === 'grid'">
+                <div class="doc-tpl-card-v2" t-foreach="state.templates" t-as="t_" t-key="t_.id">
+                    <div class="doc-tpl-thumb" t-attf-style="border-top-color: var({{ accentColor(t_) }});" t-on-click="() => this.openBuilder(t_)">
+                        <div class="doc-tpl-thumb-badges">
+                            <span class="doc-chip doc-c-info" t-if="t_.source_format === 'docx'">DOCX</span>
+                            <span class="doc-chip doc-c-muted"><t t-esc="t_.thumbnail.page_count"/> <t t-esc="t_.thumbnail.page_count === 1 ? 'Page' : 'Pages'"/></span>
+                        </div>
+                        <i class="fa fa-ellipsis-v doc-tpl-kebab" t-on-click="(ev) => this.toggleMenu(t_, ev)"/>
+                        <div class="doc-tpl-thumb-header">
+                            <div class="doc-tpl-thumb-icon" t-attf-style="background: var({{ accentColor(t_) }});"><i t-attf-class="fa {{ t_.category_icon || 'fa-file-text-o' }}"/></div>
+                            <span class="doc-tpl-thumb-category"><t t-esc="t_.category_name"/></span>
+                        </div>
+                        <div class="doc-tpl-thumb-body">
+                            <t t-if="t_.thumbnail.blocks.length">
+                                <t t-foreach="t_.thumbnail.blocks" t-as="tb" t-key="tb_index">
+                                    <div t-if="tb.type === 'heading'" class="doc-tpl-thumb-heading"><t t-esc="tb.text"/></div>
+                                    <div t-elif="tb.type === 'text'" class="doc-tpl-thumb-text"><t t-esc="tb.text"/></div>
+                                    <table t-elif="tb.type === 'table'" class="doc-tpl-thumb-table">
+                                        <tr t-if="tb.headers.length">
+                                            <th t-foreach="tb.headers" t-as="h" t-key="h_index"><t t-esc="h"/></th>
+                                        </tr>
+                                        <tr t-foreach="tb.rows" t-as="row" t-key="row_index">
+                                            <td t-foreach="row" t-as="cell" t-key="cell_index"><t t-esc="cell"/></td>
+                                        </tr>
+                                    </table>
+                                </t>
+                            </t>
+                            <div class="doc-tpl-thumb-empty" t-else="">
+                                <i class="fa fa-file-o"/>
+                                <span>Empty template</span>
+                            </div>
+                        </div>
+                        <div class="doc-tpl-thumb-fade"/>
+                    </div>
+
+                    <div class="doc-tpl-card-body">
+                        <span class="doc-tpl-name" t-on-click="() => this.openBuilder(t_)"><t t-esc="t_.name"/></span>
+                        <div class="doc-tpl-meta">
+                            <span class="doc-chip" t-attf-class="{{ t_.status === 'published' ? 'doc-c-success' : 'doc-c-muted' }}"><t t-esc="t_.status"/></span>
+                            <span class="doc-chip doc-c-info" t-if="t_.is_popular">Popular</span>
+                        </div>
+                        <div class="doc-tpl-stars">
+                            <i t-foreach="stars(t_.rating)" t-as="filled" t-key="filled_index"
+                               t-attf-class="fa {{ filled ? 'fa-star' : 'fa-star-o' }}"
+                               t-on-click="() => this.setRating(t_, filled_index + 1)"/>
+                            <span class="doc-tpl-rating-value">(<t t-esc="t_.rating.toFixed(1)"/>)</span>
+                            <span class="doc-tpl-usage" t-if="t_.usage_count">· <t t-esc="t_.usage_count"/> uses</span>
+                        </div>
+
+                        <div class="doc-tpl-actions" t-if="props.showApprovalActions and t_.approval_state === 'pending'">
+                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.previewTemplate(t_)"><i class="fa fa-eye"/> Preview</button>
+                            <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.approveTemplate(t_)"><i class="fa fa-check"/> Approve</button>
+                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.rejectTemplate(t_)"><i class="fa fa-times"/> Reject</button>
+                        </div>
+                        <div class="doc-tpl-actions" t-else="">
+                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.previewTemplate(t_)"><i class="fa fa-eye"/> Preview</button>
+                            <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.useTemplate(t_)"><i class="fa fa-magic"/> Use</button>
+                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.openBuilder(t_)" title="Edit"><i class="fa fa-pencil"/></button>
+                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.toggleFavorite(t_)" title="Favourite">
+                                <i t-attf-class="fa {{ t_.is_favorite ? 'fa-star' : 'fa-star-o' }}"/>
+                            </button>
+                        </div>
+
+                        <div class="doc-tpl-footer">
+                            <span class="doc-tpl-updated"><i class="fa fa-clock-o"/> Updated <t t-esc="relativeTime(t_.write_date)"/></span>
+                            <span class="doc-tpl-avatar" t-attf-style="background: {{ avatarColor(t_.updated_by) }};" t-att-title="t_.updated_by"><t t-esc="avatarInitials(t_.updated_by)"/></span>
+                        </div>
+                    </div>
+
+                    <div class="doc-tpl-kebab-menu" t-if="state.openMenuId === t_.id" t-on-click.stop="">
+                        <div class="doc-tpl-kebab-item" t-on-click="() => this.duplicateTemplate(t_)"><i class="fa fa-copy"/> Duplicate</div>
+                        <div class="doc-tpl-kebab-item" t-on-click="() => this.shareTemplate(t_)"><i class="fa fa-share-alt"/> Share</div>
+                        <div class="doc-tpl-kebab-item" t-if="t_.approval_state === 'none'" t-on-click="() => this.submitForApproval(t_)"><i class="fa fa-check-square-o"/> Submit for Approval</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-tpl-list" t-else="">
+                <div class="doc-tpl-list-row" t-foreach="state.templates" t-as="t_" t-key="t_.id">
+                    <div class="doc-tpl-list-icon" t-attf-style="background: var({{ accentColor(t_) }});"><i t-attf-class="fa {{ t_.category_icon || 'fa-file-text-o' }}"/></div>
+                    <div class="doc-tpl-list-main">
+                        <span class="doc-tpl-name" t-on-click="() => this.openBuilder(t_)"><t t-esc="t_.name"/></span>
+                        <div class="doc-tpl-meta">
+                            <span class="doc-chip doc-c-muted"><t t-esc="t_.category_name"/></span>
+                            <span class="doc-chip" t-attf-class="{{ t_.status === 'published' ? 'doc-c-success' : 'doc-c-muted' }}"><t t-esc="t_.status"/></span>
+                        </div>
+                    </div>
+                    <div class="doc-tpl-stars">
+                        <i t-foreach="stars(t_.rating)" t-as="filled" t-key="filled_index" t-attf-class="fa {{ filled ? 'fa-star' : 'fa-star-o' }}"/>
+                        <span class="doc-tpl-usage" t-if="t_.usage_count">· <t t-esc="t_.usage_count"/> uses</span>
+                    </div>
+                    <div class="doc-tpl-actions">
+                        <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.previewTemplate(t_)" title="Preview"><i class="fa fa-eye"/></button>
+                        <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.useTemplate(t_)"><i class="fa fa-magic"/> Use</button>
+                        <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.openBuilder(t_)" title="Edit"><i class="fa fa-pencil"/></button>
+                    </div>
+                </div>
+            </div>
+        </t>
+        <div class="doc-empty" t-else=""><t t-esc="props.emptyLabel"/></div>
+    </div>
+</t>
+
+</templates>

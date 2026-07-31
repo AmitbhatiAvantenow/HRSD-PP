@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_onboarding_stage_user,hr.onboarding.stage.user,model_hr_onboarding_stage,base.group_user,1,0,0,0
+access_hr_onboarding_stage_hr,hr.onboarding.stage.hr,model_hr_onboarding_stage,hr.group_hr_user,1,1,1,1
+access_hr_onboarding_user,hr.onboarding.user,model_hr_onboarding,base.group_user,1,1,1,0
+access_hr_onboarding_hr,hr.onboarding.hr,model_hr_onboarding,hr.group_hr_user,1,1,1,1
+access_hr_onboarding_stage_log_user,hr.onboarding.stage.log.user,model_hr_onboarding_stage_log,base.group_user,1,1,1,0
+access_hr_onboarding_task_user,hr.onboarding.task.user,model_hr_onboarding_task,base.group_user,1,1,1,1
+access_hr_onboarding_document_user,hr.onboarding.document.user,model_hr_onboarding_document,base.group_user,1,1,1,1
+access_hr_onboarding_equipment_user,hr.onboarding.equipment.user,model_hr_onboarding_equipment,base.group_user,1,1,1,1

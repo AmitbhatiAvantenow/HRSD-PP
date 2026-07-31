@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="hrsd.HrEsignCreateWizard">
+    <div t-attf-class="o_hr_esign_wizard {{ currentStep === 'fields' ? 'ohw-wide' : '' }}"
+         t-attf-style="--ohw-sig-font: {{state.signatureFont}}">
+
+      <!-- Progress stepper -->
+      <div class="ohw-stepper">
+        <div t-foreach="steps" t-as="step" t-key="step.key"
+             t-attf-class="ohw-step {{ step_index === state.stepIndex ? 'is-active' : '' }} {{ step_index &lt; state.stepIndex ? 'is-done' : '' }}"
+             t-on-click="() => this.goToStep(step_index)">
+          <div class="ohw-step-dot">
+            <i t-if="step_index &lt; state.stepIndex" class="fa fa-check"/>
+            <t t-else="" t-esc="step_index + 1"/>
+          </div>
+          <span class="ohw-step-label" t-esc="step.label"/>
+        </div>
+        <div class="ohw-stepper-track"><div class="ohw-stepper-fill" t-attf-style="width: {{progressPct}}%"/></div>
+      </div>
+
+      <div class="ohw-body">
+
+        <!-- Step 1 : Document (template or upload) -->
+        <div t-if="currentStep === 'document'" class="ohw-step-panel">
+          <div class="ohw-step-header">
+            <div class="ohw-step-header-icon"><i class="fa fa-file-text-o"/></div>
+            <div>
+              <h3 class="ohw-step-title">Choose a template or upload a document</h3>
+              <p class="ohw-step-sub">We'll auto-detect the category and check for duplicates.</p>
+            </div>
+          </div>
+          <div class="ohw-toggle-row">
+            <button type="button" t-attf-class="ohw-toggle-btn {{ !state.useTemplate ? 'is-active' : '' }}" t-on-click="() => this.setUseTemplate(false)">Upload PDF</button>
+            <button type="button" t-attf-class="ohw-toggle-btn {{ state.useTemplate ? 'is-active' : '' }}" t-on-click="() => this.setUseTemplate(true)">Use Template</button>
+          </div>
+
+          <div t-if="!state.useTemplate" class="ohw-upload-area">
+            <label class="ohw-upload-drop">
+              <input type="file" accept=".pdf,.doc,.docx" t-on-change="onFileChange"/>
+              <i class="fa fa-cloud-upload"/>
+              <span t-esc="state.fileName || 'Click to upload a document'"/>
+            </label>
+            <div t-if="state.analyzing" class="ohw-ai-status"><i class="fa fa-spinner fa-spin"/> Analyzing document…</div>
+            <div t-if="state.aiSuggestion and !state.analyzing" class="ohw-ai-card">
+              <div class="ohw-ai-title"><i class="fa fa-magic"/> AI Suggestions</div>
+              <div>Category: <strong t-esc="categoryLabel(state.aiSuggestion.suggested_category)"/></div>
+              <div t-if="state.aiSuggestion.is_duplicate" class="ohw-ai-warning">
+                <i class="fa fa-exclamation-triangle"/> This looks similar to an existing document:
+                <strong t-esc="state.aiSuggestion.duplicate_document.name"/>
+              </div>
+            </div>
+          </div>
+
+          <div t-else="" class="ohw-template-grid">
+            <div t-foreach="state.templates" t-as="tmpl" t-key="tmpl.id"
+                 t-attf-class="ohw-template-card {{ state.templateId === tmpl.id ? 'is-selected' : '' }}"
+                 t-on-click="() => this.selectTemplate(tmpl.id)">
+              <i class="fa fa-file-text-o"/>
+              <div class="ohw-template-name" t-esc="tmpl.name"/>
+              <div class="ohw-template-cat" t-esc="categoryLabel(tmpl.category)"/>
+            </div>
+            <div t-if="!state.templates.length" class="ohw-widget-empty">No templates yet — switch to "Upload PDF" instead.</div>
+          </div>
+
+          <div class="ohw-form-grid">
+            <div class="ohw-field">
+              <label>Document Title</label>
+              <input type="text" t-model="state.title" placeholder="e.g. Offer Letter — Jane Doe"/>
+            </div>
+            <div class="ohw-field">
+              <label>Category</label>
+              <select t-model="state.category">
+                <option t-foreach="categories" t-as="c" t-key="c[0]" t-att-value="c[0]" t-esc="c[1]"/>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 : Customer -->
+        <div t-if="currentStep === 'customer'" class="ohw-step-panel">
+          <div class="ohw-step-header">
+            <div class="ohw-step-header-icon"><i class="fa fa-user"/></div>
+            <div>
+              <h3 class="ohw-step-title">Who is this document for?</h3>
+              <p class="ohw-step-sub">Search for an existing customer, or create a new one. They'll be added as the first signer.</p>
+            </div>
+          </div>
+          <div class="ohw-partner-picker">
+            <Many2One t-props="customerPickerProps"/>
+          </div>
+          <div t-if="state.partnerId" class="ohw-partner-card">
+            <div t-attf-class="ohw-employee-avatar ohw-color-{{avatarColor(state.partnerId)}}" t-esc="(state.partnerName || '?')[0].toUpperCase()"/>
+            <div>
+              <div class="ohw-employee-name" t-esc="state.partnerName"/>
+              <div class="ohw-employee-email" t-esc="state.partnerEmail || ''"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 : Signers / workflow -->
+        <div t-if="currentStep === 'signers'" class="ohw-step-panel">
+          <div class="ohw-step-header">
+            <div class="ohw-step-header-icon"><i class="fa fa-sitemap"/></div>
+            <div>
+              <h3 class="ohw-step-title">Configure the signing workflow</h3>
+              <p class="ohw-step-sub">Choose who signs, in what order, and by when.</p>
+            </div>
+          </div>
+          <div class="ohw-toggle-row">
+            <button type="button" t-attf-class="ohw-toggle-btn {{ state.workflowType === 'parallel' ? 'is-active' : '' }}" t-on-click="() => this.state.workflowType = 'parallel'">Parallel</button>
+            <button type="button" t-attf-class="ohw-toggle-btn {{ state.workflowType === 'sequential' ? 'is-active' : '' }}" t-on-click="() => this.state.workflowType = 'sequential'">Sequential</button>
+          </div>
+
+          <div class="ohw-signers-list">
+            <div t-foreach="state.signers" t-as="signer" t-key="signer_index" class="ohw-signer-row">
+              <span class="ohw-signer-index" t-esc="signer_index + 1"/>
+              <div class="ohw-signer-partner-picker">
+                <Many2One t-props="signerPartnerPickerProps(signer_index, signer)"/>
+              </div>
+              <input type="text" placeholder="Name" t-model="signer.name"/>
+              <input type="email" placeholder="Email" t-model="signer.email"/>
+              <button type="button" class="ohw-icon-btn" t-on-click="() => this.removeSigner(signer_index)"><i class="fa fa-trash"/></button>
+            </div>
+          </div>
+          <button type="button" class="ohw-btn-ghost" t-on-click="addSigner"><i class="fa fa-plus"/> Add Signer</button>
+
+          <div class="ohw-form-grid" style="margin-top:20px;">
+            <div class="ohw-field">
+              <label>Due Date</label>
+              <input type="date" t-model="state.dueDate"/>
+            </div>
+            <div class="ohw-field">
+              <label>Priority</label>
+              <select t-model="state.priority">
+                <option value="0">Normal</option>
+                <option value="1">High</option>
+                <option value="2">Urgent</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 : Place Fields (drag &amp; drop) -->
+        <div t-if="currentStep === 'fields'" class="ohw-step-panel ohw-fields-panel">
+          <div class="ohw-step-header">
+            <div class="ohw-step-header-icon"><i class="fa fa-object-group"/></div>
+            <div>
+              <h3 class="ohw-step-title">Place the signature &amp; other fields</h3>
+              <p class="ohw-step-sub">Pick a signer tab, then drag a field from the palette onto the document. Drag a placed field to move it, or use its corner handle to resize.</p>
+            </div>
+          </div>
+
+          <div class="ohw-signer-tabs">
+            <button type="button" t-foreach="state.signers" t-as="signer" t-key="signer_index"
+                    t-attf-class="ohw-signer-tab {{ state.activeSignerIndex === signer_index ? 'is-active' : '' }}"
+                    t-attf-style="--tab-color: var(--ohw-{{signerColor(signer_index)}})"
+                    t-on-click="() => this.setActiveSigner(signer_index)">
+              <span class="ohw-signer-tab-dot"/>
+              <span t-esc="signer.name || ('Signer ' + (signer_index + 1))"/>
+              <span class="ohw-signer-tab-count" t-esc="state.fields.filter((f) => f.signerIndex === signer_index).length"/>
+            </button>
+          </div>
+
+          <div class="ohw-fields-layout">
+            <div class="ohw-fields-palette">
+              <div class="ohw-palette-label">Drag onto the document</div>
+              <div class="ohw-palette-grid">
+                <div t-foreach="fieldTypes" t-as="ft" t-key="ft.key"
+                     class="ohw-palette-btn" draggable="true"
+                     t-on-dragstart="(ev) => this.onPaletteDragStart(ev, ft.key)">
+                  <i t-attf-class="fa {{ft.icon}}"/>
+                  <span t-esc="ft.label"/>
+                </div>
+              </div>
+
+              <div class="ohw-palette-label" style="margin-top:18px;">Signature style</div>
+              <div class="ohw-signature-style">
+                <button type="button" t-foreach="signatureFonts" t-as="sf" t-key="sf.key"
+                        t-attf-class="ohw-font-swatch {{ state.signatureFont === sf.value ? 'is-active' : '' }}"
+                        t-attf-style="font-family: {{sf.value}}"
+                        t-on-click="() => this.setSignatureFont(sf.value)">Aa</button>
+              </div>
+              <p class="ohw-palette-hint">Live preview only — the signer's own mark is used when they sign.</p>
+            </div>
+
+            <div class="ohw-fields-canvas">
+              <div t-if="state.pdfLoading" class="ohw-ai-status"><i class="fa fa-spinner fa-spin"/> Rendering document…</div>
+              <div t-if="state.pdfError and !state.pdfLoading" class="ohw-widget-empty" t-esc="state.pdfError"/>
+              <div t-foreach="state.pdfPages" t-as="page" t-key="page_index" class="ohw-pdf-page"
+                   t-on-dragover="(ev) => ev.preventDefault()"
+                   t-on-drop="(ev) => this.onPageDrop(ev, page_index + 1)">
+                <img t-att-src="page.url" class="ohw-pdf-page-img"/>
+                <div t-foreach="fieldsOnPage(page_index + 1)" t-as="field" t-key="field.id"
+                     t-attf-class="ohw-placed-field {{ isSignatureType(field.field_type) ? 'ohw-placed-field-signer' : '' }}"
+                     t-attf-style="left: {{field.x}}%; top: {{field.y}}%; width: {{field.w}}%; height: {{field.h}}%; --field-color: var(--ohw-{{signerColor(field.signerIndex)}})"
+                     t-on-mousedown="(ev) => this.onFieldMouseDown(ev, field)">
+                  <t t-if="isSignatureType(field.field_type)">
+                    <span class="ohw-placed-field-signer-label" t-esc="signerLabel(field.signerIndex) + (field.field_type === 'initial' ? ' · Initial' : '')"/>
+                  </t>
+                  <t t-else="">
+                    <i t-attf-class="fa {{fieldTypeMeta(field.field_type).icon}}"/>
+                    <span t-esc="fieldTypeMeta(field.field_type).label"/>
+                  </t>
+                  <span class="ohw-field-delete" t-on-mousedown="(ev) => { ev.stopPropagation(); this.removeField(field.id); }"><i class="fa fa-times"/></span>
+                  <span class="ohw-field-resize" t-on-mousedown="(ev) => this.onFieldResizeStart(ev, field)"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 : Review -->
+        <div t-if="currentStep === 'review'" class="ohw-step-panel">
+          <div class="ohw-step-header">
+            <div class="ohw-step-header-icon"><i class="fa fa-check"/></div>
+            <div>
+              <h3 class="ohw-step-title">Review &amp; Send</h3>
+              <p class="ohw-step-sub">Double-check everything, then send it out.</p>
+            </div>
+          </div>
+          <div class="ohw-review-grid">
+            <div class="ohw-review-item"><label>Customer</label><span t-esc="state.partnerName"/></div>
+            <div class="ohw-review-item"><label>Document</label><span t-esc="state.title"/></div>
+            <div class="ohw-review-item"><label>Category</label><span t-esc="categoryLabel(state.category)"/></div>
+            <div class="ohw-review-item"><label>Source</label><span t-esc="state.useTemplate ? ('Template: ' + (selectedTemplate ? selectedTemplate.name : '')) : ('Upload: ' + state.fileName)"/></div>
+            <div class="ohw-review-item"><label>Workflow</label><span t-esc="state.workflowType === 'sequential' ? 'Sequential' : 'Parallel'"/></div>
+            <div class="ohw-review-item"><label>Signers</label><span t-esc="state.signers.length"/></div>
+            <div class="ohw-review-item"><label>Fields Placed</label><span t-esc="state.fields.length"/></div>
+          </div>
+          <div class="ohw-review-signers">
+            <div t-foreach="state.signers" t-as="signer" t-key="signer_index" class="ohw-review-signer">
+              <span t-esc="signer_index + 1"/> <strong t-esc="signer.name"/> — <span t-esc="signer.email"/>
+            </div>
+          </div>
+
+          <div class="ohw-email-setup">
+            <div class="ohw-palette-label">Signing request email</div>
+            <div class="ohw-form-grid">
+              <div class="ohw-field">
+                <label>Subject</label>
+                <input type="text" t-model="state.emailSubject" placeholder="Signature Request - ..."/>
+              </div>
+              <div class="ohw-field">
+                <label>CC <span class="ohw-field-hint">(comma-separated)</span></label>
+                <input type="text" t-model="state.ccEmails" placeholder="cc1@example.com, cc2@example.com"/>
+              </div>
+            </div>
+            <div class="ohw-field" style="margin-top:14px;">
+              <label>Message <span class="ohw-field-hint">(optional note for the signer(s))</span></label>
+              <textarea t-model="state.emailMessage" rows="3" placeholder="e.g. Please sign as soon as possible."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div t-if="state.error" class="ohw-error" t-esc="state.error"/>
+      </div>
+
+      <div class="ohw-footer">
+        <button type="button" class="ohw-btn-ghost" t-on-click="onCancel">Cancel</button>
+        <div class="ohw-footer-right">
+          <button type="button" class="ohw-btn-ghost" t-if="!isFirstStep" t-on-click="goBack">Back</button>
+          <button type="button" class="ohw-btn-ghost" t-if="isLastStep" t-att-disabled="state.submitting" t-on-click="() => this.onSubmit(false)">Save Draft</button>
+          <button type="button" class="ohw-btn-primary" t-if="!isLastStep" t-on-click="goNext">Next</button>
+          <button type="button" class="ohw-btn-primary" t-if="isLastStep" t-att-disabled="state.submitting" t-on-click="() => this.onSubmit(true)">
+            <i t-if="state.submitting" class="fa fa-spinner fa-spin"/> Send for Signature
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </t>
+</templates>

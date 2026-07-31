@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_offboarding_stage_user,hr.offboarding.stage.user,model_hr_offboarding_stage,base.group_user,1,0,0,0
+access_hr_offboarding_stage_hr,hr.offboarding.stage.hr,model_hr_offboarding_stage,hr.group_hr_user,1,1,1,1
+access_hr_offboarding_request_user,hr.offboarding.request.user,model_hr_offboarding_request,base.group_user,1,1,1,0
+access_hr_offboarding_request_hr,hr.offboarding.request.hr,model_hr_offboarding_request,hr.group_hr_user,1,1,1,1
+access_hr_offboarding_stage_log_user,hr.offboarding.stage.log.user,model_hr_offboarding_stage_log,base.group_user,1,1,1,0
+access_hr_offboarding_task_user,hr.offboarding.task.user,model_hr_offboarding_task,base.group_user,1,1,1,1
+access_hr_offboarding_asset_user,hr.offboarding.asset.user,model_hr_offboarding_asset,base.group_user,1,1,1,1
+access_hr_offboarding_clearance_user,hr.offboarding.clearance.user,model_hr_offboarding_clearance,base.group_user,1,1,1,1
+access_hr_offboarding_document_user,hr.offboarding.document.user,model_hr_offboarding_document,base.group_user,1,1,1,1
+access_hr_offboarding_payroll_user,hr.offboarding.payroll.user,model_hr_offboarding_payroll,base.group_user,1,1,1,1
+access_hr_offboarding_interview_user,hr.offboarding.interview.user,model_hr_offboarding_interview,base.group_user,1,1,1,1

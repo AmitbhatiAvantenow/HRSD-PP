@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="portal_assets" name="HR Portal Assets">
+    <style>
+        /* ── HR Portal shared styles ─────────────────────────────────────── */
+        :root {
+            --hr-brand:      #714B67;
+            --hr-brand-dk:   #5c3a53;
+            --hr-brand-lt:   #f5eef3;
+            --hr-accent:     #00a09d;
+            --hr-success:    #198754;
+            --hr-warning:    #f59e0b;
+            --hr-danger:     #dc3545;
+            --hr-gray-50:    #f8f9fc;
+            --hr-gray-100:   #f1f3f8;
+            --hr-gray-200:   #e4e7f0;
+            --hr-gray-500:   #6b7280;
+            --hr-gray-700:   #374151;
+            --hr-shadow:     0 1px 3px rgba(0,0,0,.08), 0 8px 24px -8px rgba(0,0,0,.12);
+            --hr-radius:     12px;
+        }
+
+        /* Catalog / dashboard */
+        .hr-catalog-hero {
+            background: linear-gradient(135deg, var(--hr-brand) 0%, #4a2f40 100%);
+            border-radius: var(--hr-radius);
+            padding: 2.5rem 2rem;
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+        .hr-catalog-hero h2 { font-weight: 700; font-size: 1.75rem; margin: 0 0 .4rem; }
+        .hr-catalog-hero p  { margin: 0; opacity: .85; font-size: .95rem; }
+
+        .hr-producer-card {
+            border: none;
+            border-radius: var(--hr-radius);
+            box-shadow: var(--hr-shadow);
+            transition: transform .18s ease, box-shadow .18s ease;
+            height: 100%;
+            overflow: hidden;
+        }
+        .hr-producer-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,.10), 0 16px 32px -12px rgba(0,0,0,.18);
+        }
+        .hr-producer-icon {
+            width: 54px; height: 54px; border-radius: 12px;
+            background: var(--hr-brand); display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .hr-producer-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+        .hr-producer-card .card-footer {
+            background: var(--hr-gray-50);
+            border-top: 1px solid var(--hr-gray-200);
+            padding: .75rem 1.25rem;
+        }
+        .hr-badge-service {
+            background: var(--hr-brand-lt);
+            color: var(--hr-brand-dk);
+            font-size: .72rem;
+            font-weight: 600;
+            padding: .2rem .55rem;
+            border-radius: 20px;
+        }
+        .hr-url-box {
+            background: var(--hr-gray-100);
+            border: 1px solid var(--hr-gray-200);
+            border-radius: 8px;
+            padding: .3rem .65rem;
+            font-size: .78rem;
+            color: var(--hr-gray-500);
+            font-family: monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .hr-url-box:hover { background: var(--hr-gray-200); }
+
+        /* Form page */
+        .hr-form-card { border: none; border-radius: var(--hr-radius); box-shadow: var(--hr-shadow); }
+        .hr-form-header {
+            background: linear-gradient(135deg, var(--hr-brand) 0%, #4a2f40 100%);
+            color: #fff;
+            padding: 1.75rem 1.75rem 1.5rem;
+            border-radius: var(--hr-radius) var(--hr-radius) 0 0;
+        }
+        .hr-form-header .form-icon {
+            width: 60px; height: 60px; border-radius: 14px;
+            background: rgba(255,255,255,.18);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hr-form-header h4 { font-weight: 700; margin: 0 0 .2rem; font-size: 1.25rem; }
+        .hr-form-header .desc { opacity: .88; font-size: .88rem; }
+        .hr-field-label { font-weight: 600; font-size: .85rem; color: var(--hr-gray-700); margin-bottom: .35rem; }
+        .hr-required { color: #dc3545; }
+        .hr-submit-btn {
+            background: var(--hr-brand); border: none; color: #fff;
+            padding: .65rem 2.25rem; font-weight: 600; border-radius: 8px;
+            transition: background .18s, transform .12s;
+        }
+        .hr-submit-btn:hover { background: var(--hr-brand-dk); transform: translateY(-1px); color:#fff; }
+
+        /* Confirmation page */
+        .hr-confirm-icon {
+            width: 84px; height: 84px; border-radius: 50%;
+            background: linear-gradient(135deg, #198754 0%, #157347 100%);
+            display: flex; align-items: center; justify-content: center; margin: 0 auto;
+        }
+        .hr-detail-table th { width: 42%; font-weight: 500; color: var(--hr-gray-500); padding: .6rem 1.25rem; }
+        .hr-detail-table td { padding: .6rem 1.25rem; font-weight: 500; }
+        .hr-detail-table tr + tr { border-top: 1px solid var(--hr-gray-200); }
+
+        /* My Requests */
+        .hr-requests-header { margin-bottom: 1.75rem; }
+        .hr-search-wrap {
+            background: #fff;
+            border: 1px solid var(--hr-gray-200);
+            border-radius: 8px;
+            padding: .45rem .85rem;
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .hr-search-wrap input { border: none; outline: none; flex: 1; font-size: .9rem; background: transparent; }
+        .hr-filter-group .form-check { cursor: pointer; }
+        .hr-filter-group .form-check-label { cursor: pointer; font-size: .88rem; }
+
+        .hr-req-row {
+            background: #fff;
+            border: 1px solid var(--hr-gray-200);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: .65rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            gap: 1rem;
+            transition: box-shadow .16s;
+            text-decoration: none; color: inherit;
+        }
+        .hr-req-row:hover { box-shadow: 0 2px 12px rgba(113,75,103,.12); text-decoration: none; color: inherit; }
+        .hr-req-num { font-weight: 700; color: var(--hr-brand); font-size: .95rem; }
+        .hr-req-desc { color: var(--hr-gray-500); font-size: .82rem; margin-top: .15rem; }
+        .hr-req-assignee { font-size: .82rem; color: var(--hr-gray-700); text-align: right; }
+        .hr-req-date { font-size: .78rem; color: var(--hr-gray-500); text-align: right; min-width: 120px; }
+        .hr-req-date .ago { color: var(--hr-brand); font-weight: 600; }
+
+        /* Case detail */
+        .hr-case-hero {
+            background: #fff;
+            border: 1px solid var(--hr-gray-200);
+            border-radius: var(--hr-radius);
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--hr-shadow);
+        }
+        .hr-case-num { font-size: 1.35rem; font-weight: 700; color: var(--hr-brand); }
+        .hr-info-block {
+            background: #fff;
+            border: 1px solid var(--hr-gray-200);
+            border-radius: var(--hr-radius);
+            box-shadow: var(--hr-shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .hr-info-block .block-title {
+            font-weight: 700; font-size: .82rem; letter-spacing: .06em;
+            text-transform: uppercase; color: var(--hr-gray-500);
+            padding: .85rem 1.25rem; border-bottom: 1px solid var(--hr-gray-200);
+            background: var(--hr-gray-50);
+        }
+        .hr-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+        .hr-info-cell {
+            padding: 1rem 1.25rem;
+            border-right: 1px solid var(--hr-gray-200);
+            border-bottom: 1px solid var(--hr-gray-200);
+        }
+        .hr-info-cell:nth-child(3n) { border-right: none; }
+        .hr-info-cell .lbl { font-size: .75rem; color: var(--hr-gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+        .hr-info-cell .val { font-size: .9rem; font-weight: 600; color: var(--hr-gray-700); }
+        .hr-info-cell .val.muted { font-weight: 400; color: var(--hr-gray-500); }
+
+        /* Activity tab */
+        .hr-activity-timeline { padding: 1.25rem; }
+        .hr-activity-item {
+            display: flex; gap: .85rem;
+            padding-bottom: 1.25rem;
+            position: relative;
+        }
+        .hr-activity-item + .hr-activity-item::before {
+            content: '';
+            position: absolute;
+            left: 16px; top: -1.25rem;
+            width: 2px; height: 1.25rem;
+            background: var(--hr-gray-200);
+        }
+        .hr-activity-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--hr-brand-lt); color: var(--hr-brand-dk);
+            font-weight: 700; font-size: .8rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .hr-activity-bubble {
+            background: var(--hr-gray-50);
+            border: 1px solid var(--hr-gray-200);
+            border-radius: 10px;
+            padding: .65rem .9rem;
+            flex: 1;
+        }
+        .hr-activity-meta { font-size: .78rem; color: var(--hr-gray-500); margin-bottom: .25rem; }
+        .hr-activity-meta strong { color: var(--hr-gray-700); }
+        .hr-activity-body { font-size: .88rem; color: var(--hr-gray-700); }
+
+        /* Tabs */
+        .hr-tab-nav .nav-link { color: var(--hr-gray-500); font-weight: 600; font-size: .9rem; border: none; padding: .75rem 1.25rem; border-bottom: 3px solid transparent; }
+        .hr-tab-nav .nav-link.active { color: var(--hr-brand); border-bottom-color: var(--hr-brand); background: transparent; }
+        .hr-tab-nav { border-bottom: 2px solid var(--hr-gray-200); }
+        .hr-tab-content { padding-top: 1rem; }
+
+        /* Answers table */
+        .hr-answers-table th { font-size: .82rem; color: var(--hr-gray-500); font-weight: 600; padding: .6rem 1rem; }
+        .hr-answers-table td { font-size: .88rem; padding: .6rem 1rem; }
+
+        /* Status badge override */
+        .hr-status-badge { font-size: .8rem; padding: .3rem .75rem; border-radius: 20px; font-weight: 600; }
+
+        /* Back / action bar */
+        .hr-action-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+        .hr-back-btn {
+            display: inline-flex; align-items: center; gap: .4rem;
+            background: #fff; border: 1px solid var(--hr-gray-200);
+            border-radius: 8px; padding: .4rem .9rem;
+            font-size: .88rem; font-weight: 600; color: var(--hr-gray-700);
+            text-decoration: none; transition: background .15s;
+        }
+        .hr-back-btn:hover { background: var(--hr-gray-100); color: var(--hr-gray-700); text-decoration: none; }
+        .hr-view-btn {
+            background: var(--hr-brand); color: #fff;
+            border: none; border-radius: 8px;
+            padding: .4rem .9rem; font-size: .88rem; font-weight: 600;
+            text-decoration: none; transition: background .15s;
+        }
+        .hr-view-btn:hover { background: var(--hr-brand-dk); color: #fff; text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .hr-info-grid { grid-template-columns: repeat(2, 1fr); }
+            .hr-info-cell:nth-child(2n) { border-right: none; }
+            .hr-info-cell:nth-child(3n) { border-right: 1px solid var(--hr-gray-200); }
+            .hr-req-row { grid-template-columns: 1fr; gap: .5rem; }
+        }
+        @media (max-width: 576px) {
+            .hr-info-grid { grid-template-columns: 1fr; }
+            .hr-info-cell { border-right: none !important; }
+        }
+    </style>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ BASE LAYOUT
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_base_layout" name="HR Portal Base Layout">
+    <t t-call="portal.portal_layout">
+        <t t-out="0"/>
+    </t>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ /hr/service-request  –  Service Catalog Dashboard
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_catalog" name="HR Service Catalog">
+    <t t-call="hr_case_management.portal_base_layout">
+        <t t-set="portal_breadcrumbs">
+            <li class="breadcrumb-item active">Service Catalog</li>
+        </t>
+
+        <div class="container-xl my-4">
+
+            <!-- Hero banner -->
+            <div class="hr-catalog-hero d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h2>HR Service Catalog</h2>
+                    <p>Select a service below to submit a request to the HR team.</p>
+                </div>
+                <a href="/hr/my-requests" class="btn btn-light fw-semibold px-4">
+                    <i class="fa fa-list me-2"/>My Requests
+                </a>
+            </div>
+
+            <!-- Cards grid -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                <t t-foreach="producers" t-as="prod">
+                    <div class="col">
+                        <div class="hr-producer-card card">
+                            <div class="card-body d-flex gap-3 p-4">
+                                <!-- Icon -->
+                                <div class="hr-producer-icon">
+                                    <img t-if="prod.image"
+                                         t-attf-src="/web/image/hr.case.producer/#{prod.id}/image/54x54"
+                                         alt="icon"/>
+                                    <i t-else="" class="fa fa-wpforms fa-lg text-white"/>
+                                </div>
+                                <!-- Info -->
+                                <div class="flex-fill overflow-hidden">
+                                    <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+                                        <h6 class="fw-bold mb-0 text-truncate">
+                                            <t t-esc="prod.name"/>
+                                        </h6>
+                                        <span class="hr-badge-service flex-shrink-0">
+                                            <t t-esc="prod.service_id.name"/>
+                                        </span>
+                                    </div>
+                                    <div t-if="descriptions.get(prod.id)"
+                                         class="text-muted small mb-2"
+                                         style="-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;"
+                                         t-out="descriptions[prod.id]"/>
+                                    <!-- Copyable direct link -->
+                                    <div class="hr-url-box mt-2"
+                                         t-attf-data-url="#{base_url}/hr/service-request/#{prod.id}"
+                                         onclick="navigator.clipboard.writeText(this.dataset.url).then(function(){ var el=event.currentTarget,t=el.textContent; el.textContent='Copied!'; setTimeout(function(){el.textContent=t},1500); })"
+                                         title="Click to copy link">
+                                        <i class="fa fa-link"/>&#160;/hr/service-request/<t t-esc="prod.id"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <small class="text-muted">
+                                    <i class="fa fa-file-text-o me-1"/>
+                                    <t t-esc="prod.submission_count"/> submission<t t-if="prod.submission_count != 1">s</t>
+                                </small>
+                                <a t-attf-href="/hr/service-request/#{prod.id}"
+                                   class="btn btn-sm fw-semibold"
+                                   style="background:var(--hr-brand);color:#fff;">
+                                    <i class="fa fa-paper-plane me-1"/>Submit Request
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <t t-if="not producers">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle me-2"/>
+                            No service request forms are currently available. Please contact HR.
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+        </div>
+    </t>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ /hr/service-request/<id>  –  Submit Form
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_form" name="HR Service Request Form">
+    <t t-call="hr_case_management.portal_base_layout">
+        <t t-set="portal_breadcrumbs">
+            <li class="breadcrumb-item">
+                <a href="/hr/service-request">Service Catalog</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <t t-esc="producer.name"/>
+            </li>
+        </t>
+
+        <div class="container my-4" style="max-width:800px;">
+
+            <!-- Error banner -->
+            <div t-if="error" class="alert alert-danger alert-dismissible mb-4" role="alert">
+                <i class="fa fa-exclamation-circle me-2"/>
+                <t t-esc="error"/>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"/>
+            </div>
+
+            <div class="hr-form-card card overflow-hidden">
+
+                <!-- Gradient header -->
+                <div class="hr-form-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="form-icon">
+                            <img t-if="producer.image"
+                                 t-attf-src="/web/image/hr.case.producer/#{producer.id}/image/60x60"
+                                 class="rounded-2" style="width:44px;height:44px;object-fit:cover;"/>
+                            <i t-else="" class="fa fa-wpforms fa-2x text-white"/>
+                        </div>
+                        <div>
+                            <h4><t t-esc="producer.name"/></h4>
+                            <div t-if="producer_description" class="desc" t-out="producer_description"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form body -->
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">
+                        <span class="hr-required fw-bold">*</span> Indicates required field
+                    </p>
+
+                    <form t-attf-action="/hr/service-request/#{producer.id}/submit"
+                          method="POST"
+                          id="hr_service_request_form">
+                        <input type="hidden" name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+
+                        <!-- Fixed fields -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="hr-field-label">Inquiry Raised By</label>
+                                <input type="text" class="form-control bg-light"
+                                       t-att-value="employee.name if employee else ''"
+                                       readonly="readonly"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="hr-field-label">
+                                    <span class="hr-required">*</span> Subject / Summary
+                                </label>
+                                <input type="text" class="form-control"
+                                       name="short_description"
+                                       placeholder="Briefly describe your request…"
+                                       required="required"/>
+                            </div>
+                        </div>
+
+                        <t t-if="producer.question_ids">
+                            <hr class="my-4"/>
+                            <div class="row g-3">
+                                <t t-foreach="producer.question_ids.sorted('sequence')" t-as="q">
+                                    <div t-attf-class="col-12#{ '' if q.field_type in ('textarea', 'employee') else ' col-md-6'}">
+
+                                        <label t-attf-for="q_#{q.id}" class="hr-field-label">
+                                            <span t-if="q.required" class="hr-required">*</span>
+                                            <t t-esc="q.label"/>
+                                        </label>
+
+                                        <t t-if="q.field_type == 'text'">
+                                            <input type="text" class="form-control"
+                                                   t-attf-id="q_#{q.id}" t-attf-name="q_#{q.id}"
+                                                   t-att-placeholder="q.placeholder or ''"
+                                                   t-att-required="'required' if q.required else None"/>
+                                        </t>
+                                        <t t-if="q.field_type == 'textarea'">
+                                            <textarea class="form-control" rows="4"
+                                                      t-attf-id="q_#{q.id}" t-attf-name="q_#{q.id}"
+                                                      t-att-placeholder="q.placeholder or ''"
+                                                      t-att-required="'required' if q.required else None"/>
+                                        </t>
+                                        <t t-if="q.field_type == 'selection'">
+                                            <select class="form-select"
+                                                    t-attf-id="q_#{q.id}" t-attf-name="q_#{q.id}"
+                                                    t-att-required="'required' if q.required else None">
+                                                <option value="">-- None --</option>
+                                                <t t-foreach="(q.selection_values or '').strip().split('\n')" t-as="opt">
+                                                    <t t-if="opt.strip()">
+                                                        <option t-att-value="opt.strip()"><t t-esc="opt.strip()"/></option>
+                                                    </t>
+                                                </t>
+                                            </select>
+                                        </t>
+                                        <t t-if="q.field_type == 'boolean'">
+                                            <div class="d-flex gap-4 mt-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                           t-attf-name="q_#{q.id}" t-attf-id="q_#{q.id}_yes" value="1"/>
+                                                    <label class="form-check-label" t-attf-for="q_#{q.id}_yes">Yes</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio"
+                                                           t-attf-name="q_#{q.id}" t-attf-id="q_#{q.id}_no"
+                                                           value="" checked="checked"/>
+                                                    <label class="form-check-label" t-attf-for="q_#{q.id}_no">No</label>
+                                                </div>
+                                            </div>
+                                        </t>
+                                        <t t-if="q.field_type == 'date'">
+                                            <input type="date" class="form-control"
+                                                   t-attf-id="q_#{q.id}" t-attf-name="q_#{q.id}"
+                                                   t-att-required="'required' if q.required else None"/>
+                                        </t>
+                                        <t t-if="q.field_type == 'employee'">
+                                            <select class="form-select"
+                                                    t-attf-id="q_#{q.id}" t-attf-name="q_#{q.id}"
+                                                    t-att-required="'required' if q.required else None">
+                                                <option value="">-- Select Employee --</option>
+                                                <t t-foreach="all_employees" t-as="emp">
+                                                    <option t-att-value="emp.id"><t t-esc="emp.name"/></option>
+                                                </t>
+                                            </select>
+                                        </t>
+                                        <div t-if="q.help_text" class="form-text text-muted">
+                                            <i class="fa fa-info-circle me-1"/>
+                                            <t t-esc="q.help_text"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                            <hr class="mt-4 mb-0"/>
+                        </t>
+
+                        <!-- Submit bar -->
+                        <div class="d-flex align-items-center gap-3 mt-4">
+                            <button type="submit" class="hr-submit-btn btn">
+                                <i class="fa fa-paper-plane me-2"/>Submit Request
+                            </button>
+                            <a href="/hr/service-request" class="btn btn-outline-secondary px-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ /hr/service-request/done/<id>  –  Confirmation / Thank-you page
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_confirmation" name="HR Service Request Confirmation">
+    <t t-call="hr_case_management.portal_base_layout">
+        <t t-set="portal_breadcrumbs">
+            <li class="breadcrumb-item">
+                <a href="/hr/service-request">Service Catalog</a>
+            </li>
+            <li class="breadcrumb-item active">Request Submitted</li>
+        </t>
+
+        <div class="container my-4" style="max-width:700px;">
+
+            <!-- Success banner -->
+            <div class="text-center mb-4">
+                <div class="hr-confirm-icon mb-3">
+                    <i class="fa fa-check fa-2x text-white"/>
+                </div>
+                <h3 class="fw-bold mb-1">Request Submitted Successfully!</h3>
+                <p class="text-muted">The HR team has been notified and will follow up shortly.</p>
+            </div>
+
+            <!-- Case details card -->
+            <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+                <div class="card-header py-3 px-4 fw-bold" style="background:var(--hr-brand);color:#fff;">
+                    <i class="fa fa-ticket me-2"/>Request Summary
+                </div>
+                <div class="card-body p-0">
+                    <table class="table mb-0 hr-detail-table">
+                        <tbody>
+                            <tr>
+                                <th>Request Number</th>
+                                <td>
+                                    <span class="badge bg-primary fs-6 fw-semibold">
+                                        <t t-esc="case.name if case else '—'"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Form</th>
+                                <td><t t-esc="submission.producer_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>Subject</th>
+                                <td><t t-esc="submission.short_description"/></td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span t-if="case"
+                                          t-attf-class="hr-status-badge badge #{ state_info.get('badge','bg-secondary') }">
+                                        <t t-esc="state_info.get('label', '—')"/>
+                                    </span>
+                                    <t t-else="">—</t>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Submitted By</th>
+                                <td><t t-esc="submission.employee_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>Submitted On</th>
+                                <td>
+                                    <t t-if="submission.date_submitted">
+                                        <t t-esc="submission.date_submitted.strftime('%d %b %Y, %H:%M')"/>
+                                    </t>
+                                    <t t-else="">—</t>
+                                </td>
+                            </tr>
+                            <tr t-if="case and case.user_id">
+                                <th>Assigned To</th>
+                                <td>
+                                    <t t-esc="case.user_id.name"/>
+                                    <div t-if="case.user_id.employee_id.job_title" class="text-muted small">
+                                        <t t-esc="case.user_id.employee_id.job_title"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr t-if="case and case.team_id">
+                                <th>Assignment Group</th>
+                                <td><t t-esc="case.team_id.name"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a t-if="case" t-attf-href="/hr/my-requests/#{case.id}"
+                   class="btn fw-semibold px-4"
+                   style="background:var(--hr-brand);color:#fff;">
+                    <i class="fa fa-eye me-2"/>Track This Request
+                </a>
+                <a href="/hr/my-requests" class="btn btn-outline-secondary px-4">
+                    <i class="fa fa-list me-2"/>My Requests
+                </a>
+                <a href="/hr/service-request" class="btn btn-outline-secondary px-4">
+                    <i class="fa fa-th-large me-2"/>Service Catalog
+                </a>
+            </div>
+
+        </div>
+    </t>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ /hr/my-requests  –  My Requests Dashboard
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_my_requests" name="HR My Requests">
+    <t t-call="hr_case_management.portal_base_layout">
+        <t t-set="portal_breadcrumbs">
+            <li class="breadcrumb-item active">My Requests</li>
+        </t>
+
+        <div class="container my-4" style="max-width:960px;">
+
+            <!-- Header -->
+            <div class="hr-requests-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1">My Requests</h3>
+                    <p class="text-muted mb-0 small">View / Manage your submitted requests</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/hr/service-request"
+                       class="btn btn-sm fw-semibold"
+                       style="background:var(--hr-brand);color:#fff;">
+                        <i class="fa fa-plus me-1"/>New Request
+                    </a>
+                    <a href="/hrsd/dashboard" class="btn btn-sm btn-outline-secondary">
+                        <i class="fa fa-arrow-left me-1"/>Back
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search + filters -->
+            <div class="card border-0 shadow-sm p-3 mb-4">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <!-- Search box -->
+                    <form method="GET" action="/hr/my-requests" class="flex-fill" style="min-width:220px;">
+                        <input type="hidden" name="filter" t-att-value="filter"/>
+                        <div class="hr-search-wrap">
+                            <i class="fa fa-search text-muted"/>
+                            <input type="text" name="search"
+                                   t-att-value="search"
+                                   placeholder="Search requests…"/>
+                            <button type="submit" class="btn btn-sm" style="background:var(--hr-brand);color:#fff;border-radius:6px;padding:.2rem .65rem;">Go</button>
+                        </div>
+                    </form>
+                    <!-- Filter radio -->
+                    <div class="hr-filter-group d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter_radio" id="fr_all"
+                                   t-att-checked="'checked' if filter == 'all' else None"
+                                   onclick="window.location='/hr/my-requests?filter=all&amp;search=' + encodeURIComponent(document.querySelector('[name=search]').value)"/>
+                            <label class="form-check-label" for="fr_all">All Requests</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter_radio" id="fr_open"
+                                   t-att-checked="'checked' if filter == 'open' else None"
+                                   onclick="window.location='/hr/my-requests?filter=open&amp;search=' + encodeURIComponent(document.querySelector('[name=search]').value)"/>
+                            <label class="form-check-label" for="fr_open">Open Requests</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="filter_radio" id="fr_closed"
+                                   t-att-checked="'checked' if filter == 'closed' else None"
+                                   onclick="window.location='/hr/my-requests?filter=closed&amp;search=' + encodeURIComponent(document.querySelector('[name=search]').value)"/>
+                            <label class="form-check-label" for="fr_closed">Closed Requests</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests list -->
+            <div t-if="cases">
+                <!-- Column headers -->
+                <div class="d-flex px-3 mb-2" style="font-size:.78rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">
+                    <div style="flex:1">Request</div>
+                    <div style="min-width:180px;text-align:center">Status</div>
+                    <div style="min-width:160px;text-align:right">Assigned To</div>
+                    <div style="min-width:130px;text-align:right">Updated On</div>
+                </div>
+
+                <t t-foreach="cases" t-as="case">
+                    <a t-attf-href="/hr/my-requests/#{case.id}" class="hr-req-row d-flex align-items-center"
+                       style="text-decoration:none;">
+                        <!-- Request info -->
+                        <div style="flex:1; min-width:0;">
+                            <div class="hr-req-num"><t t-esc="case.name"/></div>
+                            <div class="hr-req-desc text-truncate">
+                                <t t-esc="case.short_description"/>
+                            </div>
+                        </div>
+                        <!-- Status badge -->
+                        <div style="min-width:180px;text-align:center;">
+                            <span t-attf-class="hr-status-badge badge #{ state_meta.get(case.state, {}).get('badge', 'bg-secondary') }">
+                                <t t-esc="state_meta.get(case.state, {}).get('label', case.state)"/>
+                            </span>
+                        </div>
+                        <!-- Assigned to -->
+                        <div class="hr-req-assignee" style="min-width:160px;">
+                            <t t-if="case.user_id">
+                                <div class="fw-semibold" style="font-size:.85rem;"><t t-esc="case.user_id.name"/></div>
+                                <div class="text-muted" style="font-size:.75rem;"><t t-esc="case.user_id.employee_id.job_title or 'No Title'"/></div>
+                            </t>
+                            <t t-else=""><span class="text-muted">—</span></t>
+                        </div>
+                        <!-- Updated on -->
+                        <div class="hr-req-date" style="min-width:130px;">
+                            <div><t t-esc="case.write_date.strftime('%Y-%m-%d')"/></div>
+                            <div><t t-esc="case.write_date.strftime('%H:%M:%S')"/></div>
+                        </div>
+                    </a>
+                </t>
+            </div>
+
+            <div t-else="" class="text-center py-5">
+                <i class="fa fa-inbox fa-3x text-muted mb-3" style="display:block;"/>
+                <h5 class="text-muted">No requests found</h5>
+                <p class="text-muted small">Submit a new request from the Service Catalog.</p>
+                <a href="/hr/service-request"
+                   class="btn fw-semibold mt-2"
+                   style="background:var(--hr-brand);color:#fff;">
+                    Browse Service Catalog
+                </a>
+            </div>
+
+        </div>
+    </t>
+</template>
+
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+ /hr/my-requests/<id>  –  Request Detail Page
+══════════════════════════════════════════════════════════════════════════
+-->
+<template id="portal_case_detail" name="HR Request Detail">
+    <t t-call="hr_case_management.portal_base_layout">
+        <t t-set="portal_breadcrumbs">
+            <li class="breadcrumb-item"><a href="/hr/my-requests">My Requests</a></li>
+            <li class="breadcrumb-item active">
+                My Request - <t t-esc="case.name"/>
+            </li>
+        </t>
+
+        <div class="container my-4" style="max-width:960px;">
+
+            <!-- Action bar -->
+            <div class="hr-action-bar">
+                <div>
+                    <h4 class="fw-bold mb-1">Request Details</h4>
+                    <p class="text-muted small mb-0">View the request current status and its progress</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/hr/my-requests" class="hr-back-btn">
+                        <i class="fa fa-chevron-left"/> Back
+                    </a>
+                    <!-- Actions dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            Actions
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="/hr/service-request">
+                                    <i class="fa fa-plus me-2"/>New Request
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/hr/my-requests">
+                                    <i class="fa fa-list me-2"/>All My Requests
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info grid -->
+            <div class="hr-info-block">
+                <div class="block-title">Case Information</div>
+                <div class="hr-info-grid">
+                    <div class="hr-info-cell">
+                        <div class="lbl">Request Number</div>
+                        <div class="val" style="color:var(--hr-brand);font-size:1rem;">
+                            <t t-esc="case.name"/>
+                        </div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Request Created On</div>
+                        <div class="val">
+                            <t t-esc="case.date_opened.strftime('%Y-%m-%d %H:%M:%S') if case.date_opened else '—'"/>
+                        </div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Request Status</div>
+                        <div class="val">
+                            <span t-attf-class="hr-status-badge badge #{ state_info.get('badge', 'bg-secondary') }">
+                                <t t-esc="state_info.get('label', case.state)"/>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="hr-info-cell">
+                        <div class="lbl">Opened For</div>
+                        <div class="val"><t t-esc="case.employee_id.name or '—'"/></div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Subject Person</div>
+                        <div class="val muted"><t t-esc="case.subject_person_id.name or '—'"/></div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Assigned To</div>
+                        <div class="val">
+                            <t t-if="case.user_id">
+                                <div><t t-esc="case.user_id.name"/></div>
+                                <div class="text-muted" style="font-size:.78rem;">
+                                    <t t-esc="case.user_id.employee_id.job_title or ''"/>
+                                    <t t-if="case.employee_id.department_id">
+                                        · <t t-esc="case.employee_id.department_id.name"/>
+                                    </t>
+                                </div>
+                            </t>
+                            <t t-else=""><span class="muted">—</span></t>
+                        </div>
+                    </div>
+
+                    <div class="hr-info-cell">
+                        <div class="lbl">Short Description</div>
+                        <div class="val"><t t-esc="case.short_description or '—'"/></div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Service</div>
+                        <div class="val muted"><t t-esc="case.service_id.name or '—'"/></div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Assignment Group</div>
+                        <div class="val muted"><t t-esc="case.team_id.name or '—'"/></div>
+                    </div>
+
+                    <div class="hr-info-cell">
+                        <div class="lbl">Priority</div>
+                        <div class="val muted"><t t-esc="priority_label"/></div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Due Date</div>
+                        <div class="val muted">
+                            <t t-esc="case.due_date.strftime('%Y-%m-%d') if case.due_date else '—'"/>
+                        </div>
+                    </div>
+                    <div class="hr-info-cell">
+                        <div class="lbl">Actual Time Left</div>
+                        <div class="val d-flex align-items-center gap-1">
+                            <i class="fa fa-clock-o text-muted"/>
+                            <t t-esc="time_left"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approvals section -->
+            <div class="hr-info-block">
+                <div class="block-title d-flex align-items-center justify-content-between">
+                    <span>Approvals</span>
+                    <a t-attf-href="/odoo/hr-case/#{case.id}"
+                       class="hr-view-btn btn btn-sm" target="_blank">
+                        <i class="fa fa-external-link me-1"/>View Full Request
+                    </a>
+                </div>
+                <div class="p-4">
+                    <t t-if="case.approval_state != 'no'">
+                        <div class="d-flex align-items-center gap-3">
+                            <div>
+                                <div class="fw-semibold small">Approval Status</div>
+                                <span class="badge text-bg-info mt-1">
+                                    <t t-esc="approval_label"/>
+                                </span>
+                            </div>
+                            <t t-if="case.approver_id">
+                                <div class="vr"/>
+                                <div>
+                                    <div class="fw-semibold small">Approver</div>
+                                    <div class="text-muted small mt-1"><t t-esc="case.approver_id.name"/></div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <p class="text-muted small mb-0">No approval required for this request.</p>
+                    </t>
+                </div>
+            </div>
+
+            <!-- Tabs: Activity / Additional Details / Attachments -->
+            <div class="hr-info-block">
+                <ul class="hr-tab-nav nav nav-tabs px-3" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-activity" type="button">
+                            Activity
+                        </button>
+                    </li>
+                    <li class="nav-item" t-if="submission and submission.answer_ids">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-details" type="button">
+                            Additional Details
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attachments" type="button">
+                            Attachments
+                            <span class="badge bg-secondary ms-1 small" id="attach-count">0</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="hr-tab-content tab-content px-3 pb-3">
+
+                    <!-- Activity tab -->
+                    <div class="tab-pane fade show active" id="tab-activity" role="tabpanel">
+                        <div class="hr-activity-timeline">
+                            <t t-if="messages">
+                                <t t-foreach="messages" t-as="msg">
+                                    <div class="hr-activity-item">
+                                        <div class="hr-activity-avatar">
+                                            <t t-esc="(msg.author_id.name or 'U')[:2].upper()"/>
+                                        </div>
+                                        <div class="hr-activity-bubble">
+                                            <div class="hr-activity-meta">
+                                                <strong><t t-esc="msg.author_id.name or 'System'"/></strong>
+                                                <span class="ms-2"><t t-esc="msg.date.strftime('%Y-%m-%d %H:%M:%S') if msg.date else ''"/></span>
+                                            </div>
+                                            <div class="hr-activity-body" t-out="msg.body"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="text-center text-muted py-4 small">
+                                    <i class="fa fa-comment-o fa-2x mb-2" style="display:block;"/>
+                                    No activity recorded yet.
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Additional Details tab -->
+                    <div class="tab-pane fade" id="tab-details" role="tabpanel">
+                        <t t-if="submission and submission.answer_ids">
+                            <table class="table hr-answers-table mt-3">
+                                <thead>
+                                    <tr class="border-bottom">
+                                        <th>Question</th>
+                                        <th>Answer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="submission.answer_ids" t-as="ans">
+                                        <tr class="border-bottom">
+                                            <td class="text-muted"><t t-esc="ans.question_label"/></td>
+                                            <td><t t-esc="ans.answer_summary or '—'"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                        <t t-else="">
+                            <p class="text-muted small text-center py-4">No additional details available.</p>
+                        </t>
+                    </div>
+
+                    <!-- Attachments tab -->
+                    <div class="tab-pane fade" id="tab-attachments" role="tabpanel">
+                        <p class="text-muted small text-center py-4">
+                            <i class="fa fa-paperclip fa-2x mb-2" style="display:block;"/>
+                            No attachments for this request.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </t>
+</template>
+
+</odoo>

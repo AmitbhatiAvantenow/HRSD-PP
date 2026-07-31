@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="portal_documents_page" name="Onboarding · Submit Documents">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Submit Documents · <t t-esc="onboarding.display_name"/></title>
+  <link rel="stylesheet" href="/hr_onboarding/static/src/css/document_portal.css"/>
+</head>
+<body>
+  <div class="dp-shell">
+    <div class="dp-header">
+      <div class="dp-brand">HR Onboarding</div>
+      <h1>Submit Your Documents</h1>
+      <p>Hi <t t-esc="onboarding.first_name"/>, please upload the documents below for verification.</p>
+    </div>
+
+    <div t-if="submitted" class="dp-banner">
+      Thanks! Your documents have been submitted and are pending verification.
+    </div>
+
+    <div class="dp-card">
+      <form t-att-action="'/onboarding/documents/%s/submit' % token" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" t-att-value="csrf_token"/>
+
+        <div t-if="not onboarding.document_ids" class="dp-doc-row">
+          <p>No documents have been requested yet. Please check back later.</p>
+        </div>
+
+        <div t-foreach="onboarding.document_ids" t-as="doc" class="dp-doc-row">
+          <div class="dp-doc-head">
+            <span class="dp-doc-name" t-esc="doc.name"/>
+            <span t-attf-class="dp-badge dp-badge-#{doc.status}" t-esc="doc.status"/>
+          </div>
+
+          <div t-if="doc.status in ('pending', 'rejected')" class="dp-dropzone">
+            <p>Click or drag a file here</p>
+            <label t-attf-for="file_input_#{doc.id}" class="dp-file-label">Choose File</label>
+            <input t-attf-id="file_input_#{doc.id}" t-attf-name="file_#{doc.id}"
+                   type="file" class="dp-file-input"/>
+            <div class="dp-file-name"></div>
+          </div>
+          <div t-else="">
+            <p style="margin: 0; color: var(--dp-success); font-size: 13px; font-weight: 600;">
+              ✓ Received — awaiting HR verification
+            </p>
+          </div>
+        </div>
+
+        <label class="dp-declaration">
+          <input type="checkbox" name="declaration" value="1" required="required"/>
+          <span>I hereby declare that all submitted documents are true and legally valid.</span>
+        </label>
+
+        <button type="submit" class="dp-submit-btn">Submit Documents</button>
+      </form>
+    </div>
+  </div>
+  <script src="/hr_onboarding/static/src/js/document_portal.js"></script>
+</body>
+</html>
+</template>
+
+<template id="portal_invalid_link_page" name="Onboarding · Invalid Link">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Invalid Link</title>
+  <link rel="stylesheet" href="/hr_onboarding/static/src/css/document_portal.css"/>
+</head>
+<body>
+  <div class="dp-shell">
+    <div class="dp-invalid">
+      <h1>This link is no longer valid</h1>
+      <p>Please contact HR for a new document submission link.</p>
+    </div>
+  </div>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

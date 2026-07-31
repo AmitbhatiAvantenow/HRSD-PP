@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!--
+    Mail address for inbound recruitment submissions.
+    Any email sent here creates/updates hr.recruitment records — see
+    HrRecruitment.message_new() for the "RCHR" subject-tag handling.
+    An Incoming Mail Server (Settings > Technical > Email > Incoming Mail
+    Servers) still needs to be configured to actually deliver mail here.
+  -->
+  <record id="mail_alias_hr_recruitment" model="mail.alias">
+    <field name="alias_name">recruitment</field>
+    <field name="alias_model_id" ref="model_hr_recruitment"/>
+    <field name="alias_contact">everyone</field>
+  </record>
+</odoo>

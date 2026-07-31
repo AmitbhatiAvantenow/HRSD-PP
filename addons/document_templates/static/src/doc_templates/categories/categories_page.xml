@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.CategoriesPage">
+    <DocShell activeKey="'categories'" eyebrow="'Document Templates'" title="'Categories'"
+              subtitle="'Templates organised by department.'">
+        <t t-set-slot="headerActions">
+            <button class="doc-btn-primary" t-on-click="() => this.toggleAdd()"><i class="fa fa-plus"/> Add Category</button>
+        </t>
+
+        <div class="doc-card" style="margin-bottom:18px;" t-if="state.adding">
+            <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end;">
+                <div class="doc-field" style="margin-bottom:0;">
+                    <label>Name</label>
+                    <input type="text" t-model="state.newName" placeholder="e.g. Employment Contracts"/>
+                </div>
+                <div class="doc-field" style="margin-bottom:0;">
+                    <label>Department</label>
+                    <ModernSelect options="departmentOptions" value="state.newDepartment" onSelect="(v) => this.onDepartmentSelect(v)" searchable="false"/>
+                </div>
+                <button class="doc-btn-primary" t-on-click="() => this.createCategory()">Save</button>
+            </div>
+        </div>
+
+        <t t-foreach="groupedCategories" t-as="grp" t-key="grp.key">
+            <div class="doc-card-title" style="margin: 18px 0 8px;"><t t-esc="grp.label"/></div>
+            <div class="doc-cat-grid" t-if="grp.items.length">
+                <div class="doc-card doc-cat-card" t-foreach="grp.items" t-as="cat" t-key="cat.id">
+                    <i t-attf-class="fa {{ cat.icon || 'fa-file-text-o' }} doc-cat-icon"/>
+                    <div>
+                        <div style="font-weight:700;"><t t-esc="cat.name"/></div>
+                        <div style="font-size:12px;color:var(--doc-ink-faint);"><t t-esc="cat.template_count"/> templates</div>
+                    </div>
+                </div>
+            </div>
+            <div class="doc-empty" t-else="" style="padding:8px 0;">No categories in this department yet.</div>
+        </t>
+    </DocShell>
+</t>
+
+</templates>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="seq_document_generated" model="ir.sequence">
+        <field name="name">Generated Document</field>
+        <field name="code">document.generated</field>
+        <field name="prefix">DOC-</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

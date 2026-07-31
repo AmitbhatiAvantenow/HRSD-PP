@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="hrsd.HrEsignDashboard">
+    <div class="o_hr_esign_dashboard">
+
+      <!-- Hero -->
+      <section class="ohe-hero">
+        <div class="ohe-hero-bg"/>
+        <div class="ohe-hero-row">
+          <div class="ohe-hero-content">
+            <div class="ohe-hero-badge"><i class="fa fa-pencil-square-o"/> HR E-Signature</div>
+            <h1 class="ohe-hero-title">
+              Secure Employee Documents.<br/>
+              Fast Digital Approvals. Enterprise Workflows.
+            </h1>
+            <p class="ohe-hero-sub">
+              Send, track and complete signature requests without leaving your HR workspace —
+              audited, fast, and paperless.
+            </p>
+            <button class="ohe-hero-cta" t-on-click="() => this.onQuickAction('create')">
+              <i class="fa fa-plus"/> Create Document
+            </button>
+          </div>
+
+          <div class="ohe-illustration" aria-hidden="true">
+            <div class="ohe-illu-glow"/>
+            <div class="ohe-illu-chip ohe-illu-pdf"><i class="fa fa-file-pdf-o"/><span>PDF</span></div>
+            <div class="ohe-illu-chip ohe-illu-person"><i class="fa fa-user"/></div>
+            <div class="ohe-illu-chip ohe-illu-lock"><i class="fa fa-lock"/></div>
+            <div class="ohe-illu-chip ohe-illu-doc"><i class="fa fa-file-word-o"/><span>DOC</span></div>
+            <div class="ohe-illu-chip ohe-illu-file"><i class="fa fa-file-text-o"/></div>
+            <div class="ohe-illu-check"><i class="fa fa-check"/></div>
+            <div class="ohe-illu-shield"><i class="fa fa-shield"/><i class="fa fa-check ohe-illu-shield-check"/></div>
+            <div class="ohe-illu-doc-card">
+              <div class="ohe-illu-line" style="width:70%"/>
+              <div class="ohe-illu-line" style="width:90%"/>
+              <div class="ohe-illu-line" style="width:60%"/>
+              <div class="ohe-illu-line" style="width:80%"/>
+              <div class="ohe-illu-signature">
+                <svg viewBox="0 0 120 40" class="ohe-illu-sig-svg">
+                  <path d="M4 30 Q 14 8, 24 24 T 44 22 Q 54 10, 64 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <i class="fa fa-pencil ohe-illu-pen"/>
+              </div>
+            </div>
+            <div class="ohe-illu-dot ohe-illu-dot-1"/>
+            <div class="ohe-illu-dot ohe-illu-dot-2"/>
+            <div class="ohe-illu-dot ohe-illu-dot-3"/>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI cards -->
+      <section class="ohe-kpi-grid">
+        <div t-foreach="kpiCards" t-as="card" t-key="card.key"
+             t-attf-class="ohe-kpi-card ohe-color-{{card.color}} {{ state.animate ? 'is-in' : '' }}"
+             t-attf-style="transition-delay: {{card_index * 0.04}}s">
+          <div class="ohe-kpi-icon"><i t-attf-class="fa {{card.icon}}"/></div>
+          <div class="ohe-kpi-value">
+            <t t-if="state.loading">…</t>
+            <t t-else="" t-esc="state.kpis[card.key] ?? 0"/>
+          </div>
+          <div class="ohe-kpi-label" t-esc="card.label"/>
+          <svg t-if="!state.loading" class="ohe-kpi-spark" viewBox="0 0 96 26" preserveAspectRatio="none">
+            <polyline t-att-points="sparklinePoints(card.key)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div t-attf-class="ohe-kpi-card ohe-color-teal {{ state.animate ? 'is-in' : '' }}" style="transition-delay: 0.32s">
+          <div class="ohe-kpi-icon"><i class="fa fa-clock-o"/></div>
+          <div class="ohe-kpi-value">
+            <t t-if="state.loading">…</t>
+            <t t-else="" t-esc="formatDuration(state.kpis.avg_sign_seconds)"/>
+          </div>
+          <div class="ohe-kpi-label">Avg. Signing Time</div>
+          <svg t-if="!state.loading" class="ohe-kpi-spark" viewBox="0 0 96 26" preserveAspectRatio="none">
+            <polyline t-att-points="sparklinePoints('avg_sign_seconds')" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Quick action cards -->
+      <section class="ohe-section">
+        <div class="ohe-section-header">
+          <h2 class="ohe-section-title">Quick Actions</h2>
+          <button class="ohe-customize-btn" t-on-click="onCustomize"><i class="fa fa-sliders"/> Customize</button>
+        </div>
+        <div class="ohe-action-grid">
+          <div t-foreach="quickActions" t-as="qa" t-key="qa.key"
+               t-attf-class="ohe-action-card ohe-color-{{qa.color}}"
+               t-on-click="() => this.onQuickAction(qa.key)">
+            <div class="ohe-action-icon"><i t-attf-class="fa {{qa.icon}}"/></div>
+            <div class="ohe-action-title" t-esc="qa.title"/>
+            <div class="ohe-action-desc" t-esc="qa.desc"/>
+            <div class="ohe-action-arrow"><i class="fa fa-arrow-right"/></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Widgets -->
+      <section class="ohe-widgets">
+        <div class="ohe-widget">
+          <div class="ohe-widget-header">
+            <h3 class="ohe-widget-title">Recent Documents</h3>
+            <a href="#" class="ohe-view-all" t-on-click.prevent="onViewAllDocuments">View all</a>
+          </div>
+          <div t-if="!state.loading and !state.recentDocuments.length" class="ohe-widget-empty">
+            No documents yet — create your first one above.
+          </div>
+          <div t-foreach="state.recentDocuments" t-as="doc" t-key="doc.id"
+               class="ohe-doc-row" t-on-click="() => this.onOpenDocument(doc.id)">
+            <div t-attf-class="ohe-doc-file-icon ohe-color-{{fileMeta(doc.file_name).color}}">
+              <i t-attf-class="fa {{fileMeta(doc.file_name).icon}}"/>
+            </div>
+            <div class="ohe-doc-main">
+              <div class="ohe-doc-name" t-esc="doc.name"/>
+              <div class="ohe-doc-sub" t-esc="doc.code + ' · ' + (doc.employee_name || '')"/>
+            </div>
+            <div class="ohe-doc-progress">
+              <div class="ohe-progress-track">
+                <div class="ohe-progress-fill" t-attf-style="width: {{doc.progress}}%"/>
+              </div>
+              <span t-esc="doc.signed_count + '/' + doc.signer_count"/>
+            </div>
+            <span t-attf-class="ohe-badge ohe-state-{{doc.state}}" t-esc="stateLabels[doc.state] || doc.state"/>
+            <button class="ohe-doc-menu-btn" t-on-click.stop="() => this.onOpenDocument(doc.id)"><i class="fa fa-ellipsis-v"/></button>
+          </div>
+        </div>
+
+        <div class="ohe-widget">
+          <div class="ohe-widget-header">
+            <h3 class="ohe-widget-title">Recent Activity</h3>
+            <a href="#" class="ohe-view-all" t-on-click.prevent="onViewAllActivity">View all</a>
+          </div>
+          <div t-if="!state.loading and !state.recentActivity.length" class="ohe-widget-empty">
+            Activity will show up here as documents move through their workflow.
+          </div>
+          <div class="ohe-activity-list">
+            <div t-foreach="state.recentActivity" t-as="ev" t-key="ev.id" class="ohe-activity-row">
+              <div t-attf-class="ohe-activity-icon ohe-color-{{eventMeta(ev.event_type).color}}">
+                <i t-attf-class="fa {{eventMeta(ev.event_type).icon}}"/>
+              </div>
+              <div class="ohe-activity-content">
+                <div class="ohe-activity-desc">
+                  <strong t-esc="ev.actor_name"/> — <t t-esc="ev.description"/>
+                </div>
+                <div class="ohe-activity-doc" t-esc="ev.document_name"/>
+              </div>
+              <div class="ohe-activity-time" t-esc="timeAgo(ev.create_date)"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </t>
+</templates>

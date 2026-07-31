@@ -1,0 +1,350 @@
+/* Employee Services Inquiry Dashboard
+   Layout/styling matches the reference "Employee Services Inquiry" form. */
+
+.o_hr_case_inquiry_page {
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px;
+    background-color: #f5f6f8;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.hcid-card {
+    width: 100%;
+    max-width: 980px;
+    background: #ffffff;
+    background: #ffffff;
+    border: 1px solid #e3e5e8;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+/* Two-column layout for the card: left info and right form */
+.hcid-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+}
+
+.hcid-left-panel {
+    border-right: 1px solid #e9eaee;
+    background-color: #fbfbfd;
+    padding: 20px;
+}
+
+.hcid-left-content h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: #2b2d33;
+}
+
+.hcid-left-content p {
+    font-size: 13px;
+    color: #6b6f76;
+    margin: 8px 0;
+}
+
+.hcid-right-panel {
+    padding: 24px 24px 0;
+}
+
+.hcid-form-header {
+    margin-bottom: 18px;
+}
+
+.hcid-form-header .hcid-title {
+    font-size: 22px;
+    margin: 0 0 10px;
+}
+
+.hcid-form-header .hcid-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: #5f6371;
+    line-height: 1.6;
+}
+
+/* ---------------- Header ---------------- */
+.hcid-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid #e3e5e8;
+}
+
+.hcid-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: #2b2d33;
+}
+
+.hcid-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #6b6f76;
+}
+
+.hcid-fav-btn {
+    background: none;
+    border: none;
+    color: #6c5fc7;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+/* ---------------- Body ---------------- */
+.hcid-body {
+    padding: 20px 24px 4px;
+}
+
+.hcid-required-note {
+    font-size: 12px;
+    color: #2b2d33;
+    margin: 0 0 16px;
+}
+
+.hcid-required-star {
+    color: #c0392b;
+    margin-right: 2px;
+}
+
+.hcid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    margin-bottom: 14px;
+}
+
+.hcid-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.hcid-field-full {
+    grid-column: 1 / -1;
+    margin-bottom: 18px;
+}
+
+.hcid-label {
+    font-size: 13px;
+    color: #2b2d33;
+    margin-bottom: 6px;
+    font-weight: 400;
+}
+
+.hcid-input-disabled {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #eef0f5;
+    border: 1px solid #d8dae0;
+    border-radius: 3px;
+    padding: 7px 10px;
+    font-size: 13px;
+    color: #3c3e44;
+    min-height: 34px;
+    box-sizing: border-box;
+}
+
+.hcid-input-empty {
+    color: transparent;
+}
+
+.hcid-info-icon {
+    color: #6c5fc7;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.hcid-helper-text {
+    font-size: 12px;
+    color: #555861;
+    line-height: 1.5;
+    margin: 0 0 20px;
+}
+
+.hcid-select,
+.hcid-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #c7c9ce;
+    border-radius: 3px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #2b2d33;
+    background-color: #ffffff;
+    font-family: inherit;
+}
+
+.hcid-select {
+    height: 36px;
+    appearance: auto;
+}
+
+.hcid-textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.hcid-select:focus,
+.hcid-textarea:focus {
+    outline: none;
+    border-color: #6c5fc7;
+    box-shadow: 0 0 0 2px rgba(108, 95, 199, 0.15);
+}
+
+.hcid-input-error {
+    border-color: #c0392b !important;
+}
+
+.hcid-error-text {
+    color: #c0392b;
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+/* ---------------- Attachments ---------------- */
+.hcid-attachments-section {
+    border-top: 1px solid #e3e5e8;
+    padding: 18px 24px;
+}
+
+.hcid-attachments-label {
+    font-size: 13px;
+    color: #2b2d33;
+    margin: 0 0 10px;
+}
+
+.hcid-dropzone {
+    border: 1px dashed #9b93d8;
+    border-radius: 3px;
+    background-color: #fbfbfd;
+    text-align: center;
+    padding: 28px 16px;
+}
+
+.hcid-dropzone-icon {
+    font-size: 28px;
+    color: #b9bcc3;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.hcid-dropzone-text {
+    margin: 0;
+    font-size: 13px;
+    color: #4a4d54;
+}
+
+.hcid-dropzone-link {
+    color: #4d6bd6;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.hcid-dropzone-subtext {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #8a8d94;
+}
+
+/* ---------------- Footer / Submit ---------------- */
+.hcid-footer {
+    border-top: 1px solid #e3e5e8;
+    padding: 18px 24px;
+}
+
+.hcid-submit-error {
+    color: #c0392b;
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+.hcid-submit-btn {
+    background-color: #d9342b;
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.hcid-submit-btn:hover:not(:disabled) {
+    background-color: #c02b23;
+}
+
+.hcid-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ---------------- Success state ---------------- */
+.hcid-success {
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.hcid-success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #e4f6ea;
+    color: #2f9e52;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 18px;
+}
+
+.hcid-success-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #2b2d33;
+    font-weight: 500;
+}
+
+.hcid-success-text {
+    margin: 0 0 24px;
+    font-size: 13px;
+    color: #6b6f76;
+}
+
+.hcid-secondary-btn {
+    background-color: #ffffff;
+    color: #2b2d33;
+    border: 1px solid #c7c9ce;
+    border-radius: 3px;
+    padding: 9px 22px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.hcid-secondary-btn:hover {
+    background-color: #f2f3f5;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 900px) {
+    .hcid-layout {
+        grid-template-columns: 1fr;
+    }
+    .hcid-left-panel {
+        border-right: none;
+        border-bottom: 1px solid #e9eaee;
+        padding: 18px 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .hcid-grid {
+        grid-template-columns: 1fr;
+    }
+}

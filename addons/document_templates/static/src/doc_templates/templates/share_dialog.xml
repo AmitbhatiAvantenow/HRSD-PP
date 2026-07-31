@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.ShareDialog">
+    <Dialog title="'Share: ' + (props.templateName or '')" size="'md'" contentClass="'doc-wizard-dialog'">
+        <div class="doc-shell doc-dialog-scope">
+            <div class="doc-wizard-error" t-if="state.error"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/></div>
+            <div class="doc-field">
+                <label>Share With</label>
+                <ModernSelect options="userOptions" value="''" onSelect="(v) => this.addUser(v)" placeholder="'Search a user…'"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;" t-if="sharedUsers.length">
+                <div t-foreach="sharedUsers" t-as="u" t-key="u.id"
+                     style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--doc-line);border-radius:8px;">
+                    <span><t t-esc="u.name"/> <span style="color:var(--doc-ink-faint);font-size:12px;">(<t t-esc="u.login"/>)</span></span>
+                    <i class="fa fa-times" style="cursor:pointer;color:var(--doc-ink-faint);" t-on-click="() => this.removeUser(u.id)"/>
+                </div>
+            </div>
+            <div class="doc-empty" t-else="">Not shared with anyone yet.</div>
+        </div>
+        <t t-set-slot="footer">
+            <button class="doc-btn-outline" t-on-click="() => this.cancel()">Cancel</button>
+            <button class="doc-btn-primary" t-on-click="() => this.save()" t-att-disabled="state.saving">
+                <i class="fa fa-check"/> Save
+            </button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="hr_timesheet_pro.FillWizard">
+    <div class="o_htp_wizard">
+
+      <!-- Progress stepper (hidden on the success screen) -->
+      <div class="htw-stepper" t-if="!state.success">
+        <div t-foreach="steps" t-as="step" t-key="step.key"
+             t-attf-class="htw-step {{ step_index === state.step ? 'is-active' : '' }} {{ step_index &lt; state.step ? 'is-done' : '' }}"
+             t-on-click="() => this.goToStep(step_index)">
+          <div class="htw-step-dot">
+            <i t-if="step_index &lt; state.step" class="fa fa-check"/>
+            <t t-else="" t-esc="step_index + 1"/>
+          </div>
+          <span class="htw-step-label" t-esc="step.label"/>
+        </div>
+        <div class="htw-stepper-track"><div class="htw-stepper-fill" t-attf-style="width: {{progressPct}}%"/></div>
+      </div>
+
+      <div class="htw-body">
+
+        <!-- Loading -->
+        <div t-if="state.loadingEmployee" class="htw-loading">
+          <i class="fa fa-spinner fa-spin"/> Loading…
+        </div>
+
+        <!-- No employee linked -->
+        <div t-elif="!state.employeeId" class="htw-error" t-esc="state.error"/>
+
+        <!-- Success screen -->
+        <div t-elif="state.success" class="htw-success">
+          <div class="htw-success-burst"><i class="fa fa-check"/></div>
+          <h2 class="htw-success-title">Timesheet Submitted!</h2>
+          <p class="htw-success-sub">
+            <t t-esc="state.sheetName"/> for the week of <t t-esc="weekLabel"/> has been sent for approval.
+          </p>
+          <div class="htw-success-stats">
+            <div class="htw-success-stat">
+              <span class="htw-success-stat-value"><t t-esc="totalHours"/>h</span>
+              <span class="htw-success-stat-label">Total Hours</span>
+            </div>
+            <div class="htw-success-stat">
+              <span class="htw-success-stat-value"><t t-esc="billableHours"/>h</span>
+              <span class="htw-success-stat-label">Billable</span>
+            </div>
+          </div>
+          <div class="htw-success-actions">
+            <button type="button" class="htw-btn-ghost" t-on-click="onClose">Close</button>
+            <button type="button" class="htw-btn-primary" t-on-click="viewTimesheet">
+              <i class="fa fa-external-link me-1"/> View Timesheet
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 1: Week & Project -->
+        <div t-elif="currentStep === 'setup'" class="htw-step-panel">
+          <div class="htw-step-header">
+            <div class="htw-step-header-icon"><i class="fa fa-calendar"/></div>
+            <div>
+              <h3 class="htw-step-title">Which week are you filling in?</h3>
+              <p class="htw-step-sub">Weekly timesheets always run Monday through Sunday.</p>
+            </div>
+          </div>
+
+          <div class="htw-employee-card">
+            <img class="htw-avatar" t-att-src="avatarUrl" alt=""/>
+            <div>
+              <div class="htw-employee-name" t-esc="state.employeeName"/>
+              <div class="htw-employee-sub">Employee</div>
+            </div>
+          </div>
+
+          <div class="htw-week-nav">
+            <button type="button" class="htw-icon-btn" t-on-click="goPrevWeek" t-att-disabled="state.loadingWeek"><i class="fa fa-chevron-left"/></button>
+            <div class="htw-week-label">
+              <div class="htw-week-range" t-esc="weekLabel"/>
+              <div class="htw-week-year" t-esc="weekStartYear"/>
+            </div>
+            <button type="button" class="htw-icon-btn" t-on-click="goNextWeek" t-att-disabled="state.loadingWeek"><i class="fa fa-chevron-right"/></button>
+          </div>
+
+          <div t-if="state.loadingWeek" class="htw-loading"><i class="fa fa-spinner fa-spin"/> Checking this week…</div>
+
+          <t t-else="">
+            <div t-if="state.sheetId and state.locked" class="htw-banner htw-banner-info">
+              <i class="fa fa-info-circle"/>
+              <div>
+                <strong>This one is already filled — no need again.</strong>
+                <div>Your timesheet for this week (<t t-esc="state.sheetName"/>) is <t t-esc="state.sheetState"/>.</div>
+              </div>
+              <button type="button" class="htw-btn-ghost" t-on-click="viewTimesheet">View</button>
+            </div>
+            <div t-elif="state.sheetId" class="htw-banner htw-banner-success">
+              <i class="fa fa-pencil"/>
+              <div>
+                <strong>Continuing your draft <t t-esc="state.sheetName"/>.</strong>
+                <div>Pick up where you left off — nothing is lost.</div>
+              </div>
+            </div>
+
+            <div class="htw-field htw-project-field">
+              <label>Project <span class="htw-field-hint">(optional)</span></label>
+              <div class="htw-project-picker">
+                <Many2One t-props="projectPickerProps"/>
+              </div>
+            </div>
+          </t>
+
+          <div t-if="state.error" class="htw-error" t-esc="state.error"/>
+        </div>
+
+        <!-- Step 2: Daily Log -->
+        <div t-elif="currentStep === 'log'" class="htw-step-panel">
+          <div class="htw-step-header">
+            <div class="htw-step-header-icon"><i class="fa fa-clock-o"/></div>
+            <div>
+              <h3 class="htw-step-title">Log your hours</h3>
+              <p class="htw-step-sub">Comments are required for any billable day with logged hours.</p>
+            </div>
+            <button type="button" class="htw-btn-ghost htw-copy-btn" t-on-click="copyLastWeek" t-att-disabled="state.copying">
+              <i t-if="state.copying" class="fa fa-spinner fa-spin"/>
+              <i t-else="" class="fa fa-copy"/> Copy Last Week
+            </button>
+          </div>
+
+          <div class="htw-day-list">
+            <div t-foreach="state.days" t-as="day" t-key="day.date"
+                 t-attf-class="htw-day-card {{ day.isWeekend ? 'is-weekend' : '' }} {{ day.isToday ? 'is-today' : '' }} {{ isCommentMissing(day) ? 'has-error' : '' }}">
+              <div class="htw-day-head">
+                <div class="htw-day-name">
+                  <span t-esc="day.dayName"/>
+                  <span t-if="day.isToday" class="htw-today-badge">Today</span>
+                </div>
+                <div class="htw-day-date" t-esc="day.date"/>
+              </div>
+              <div class="htw-day-grid">
+                <div class="htw-day-field">
+                  <label>Start</label>
+                  <input type="time" t-att-value="toTimeInput(day.start)" t-on-change="(ev) => this.onStartChange(day, ev)"/>
+                </div>
+                <div class="htw-day-field">
+                  <label>End</label>
+                  <input type="time" t-att-value="toTimeInput(day.end)" t-on-change="(ev) => this.onEndChange(day, ev)"/>
+                </div>
+                <div class="htw-day-field htw-day-hours">
+                  <label>Hours</label>
+                  <div class="htw-hours-value" t-esc="day.hours"/>
+                </div>
+                <div class="htw-day-field htw-day-billable">
+                  <label>Billable</label>
+                  <button type="button"
+                          t-attf-class="htw-toggle {{ day.billable ? 'is-on' : '' }}"
+                          t-on-click="() => this.toggleBillable(day)">
+                    <span class="htw-toggle-knob"/>
+                  </button>
+                </div>
+              </div>
+              <div class="htw-day-comments" t-if="day.hours or day.billable">
+                <input type="text" placeholder="What did you work on? (required for billable days)"
+                       t-att-value="day.comments"
+                       t-on-change="(ev) => this.onCommentsChange(day, ev)"/>
+                <div t-if="isCommentMissing(day)" class="htw-field-error">
+                  <i class="fa fa-exclamation-triangle"/> Comment required for this billable day
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div t-if="state.error" class="htw-error" t-esc="state.error"/>
+        </div>
+
+        <!-- Step 3: Review & Submit -->
+        <div t-elif="currentStep === 'review'" class="htw-step-panel">
+          <div class="htw-step-header">
+            <div class="htw-step-header-icon"><i class="fa fa-check"/></div>
+            <div>
+              <h3 class="htw-step-title">Review before you submit</h3>
+              <p class="htw-step-sub">Your manager will be notified for approval once submitted.</p>
+            </div>
+          </div>
+
+          <div class="htw-review-summary">
+            <div class="htw-review-ring" t-attf-style="--htw-pct: {{progressHoursPct}}">
+              <div class="htw-review-ring-inner">
+                <span class="htw-review-ring-value" t-esc="totalHours"/>
+                <span class="htw-review-ring-label">/ <t t-esc="state.targetHours"/>h</span>
+              </div>
+            </div>
+            <div class="htw-review-stats">
+              <div class="htw-review-stat"><span t-esc="totalHours"/>h <label>Total</label></div>
+              <div class="htw-review-stat"><span t-esc="billableHours"/>h <label>Billable</label></div>
+              <div class="htw-review-stat"><span t-esc="state.projectName || '—'"/><label>Project</label></div>
+            </div>
+          </div>
+
+          <table class="htw-review-table">
+            <thead>
+              <tr><th>Day</th><th>Date</th><th>Hours</th><th>Billable</th><th>Comments</th></tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="state.days" t-as="day" t-key="day.date" t-attf-class="{{ isCommentMissing(day) ? 'has-error' : '' }}">
+                <td t-esc="day.dayName"/>
+                <td t-esc="day.date"/>
+                <td t-esc="day.hours"/>
+                <td><i t-attf-class="fa {{ day.billable ? 'fa-check-circle htw-yes' : 'fa-minus-circle htw-no' }}"/></td>
+                <td t-esc="day.comments || '—'"/>
+              </tr>
+            </tbody>
+          </table>
+
+          <div t-if="missingCommentDays.length" class="htw-banner htw-banner-warning">
+            <i class="fa fa-exclamation-triangle"/>
+            <div>
+              <strong>Missing comments</strong>
+              <div>Add comments for: <t t-esc="missingCommentDays.map((d) => d.dayName).join(', ')"/></div>
+            </div>
+            <button type="button" class="htw-btn-ghost" t-on-click="() => this.state.step = 1">Fix</button>
+          </div>
+
+          <div t-if="state.error" class="htw-error" t-esc="state.error"/>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="htw-footer" t-if="!state.success and !state.loadingEmployee and state.employeeId">
+        <button type="button" class="htw-btn-ghost" t-on-click="onCancel">Cancel</button>
+        <div class="htw-footer-right">
+          <button type="button" class="htw-btn-ghost" t-if="!isFirstStep" t-on-click="goBack">Back</button>
+          <button type="button" class="htw-btn-ghost" t-if="isLastStep and !state.locked" t-att-disabled="state.savingDraft or state.submitting" t-on-click="onSaveDraft">
+            <i t-if="state.savingDraft" class="fa fa-spinner fa-spin"/> Save Draft
+          </button>
+          <button type="button" class="htw-btn-primary" t-if="!isLastStep and !(state.step === 0 and state.locked)" t-on-click="goNext">Next</button>
+          <button type="button" class="htw-btn-primary" t-if="isLastStep and !state.locked" t-att-disabled="state.submitting or state.savingDraft" t-on-click="onSubmit">
+            <i t-if="state.submitting" class="fa fa-spinner fa-spin"/> Submit Timesheet
+          </button>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

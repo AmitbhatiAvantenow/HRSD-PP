@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Seed data for the configurable HR Portal dashboard menus/submenus.
+         Mirrors what used to be hardcoded in dashboard.js / hrsd_dashboard.py
+         so the dashboard looks identical after switching to the DB-driven
+         version. Admins can add/edit/reorder everything from HR Portal >
+         Dashboard Menus without touching code.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- 1. Core HR Operations -->
+    <record id="dashboard_menu_core_hr" model="hrsd.dashboard.menu">
+      <field name="name">Core HR Operations</field>
+      <field name="description">Open the main HR suite for employees, attendance, leave, payroll, department, and recruitment.</field>
+      <field name="icon">users</field>
+      <field name="color">blue</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_employees" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Employees</field>
+      <field name="description">Manage employee records and profiles.</field>
+      <field name="icon">users</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/employees</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_attendance" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Attendance</field>
+      <field name="description">Track attendance and working hours.</field>
+      <field name="icon">calendarCheck</field>
+      <field name="color">green</field>
+      <field name="url">/odoo/attendances</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_leave" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Leave Management</field>
+      <field name="description">Handle leave requests and approvals.</field>
+      <field name="icon">fileText</field>
+      <field name="color">purple</field>
+      <field name="url">/odoo/time-off</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_payroll" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Payroll</field>
+      <field name="description">Process payroll and manage salaries.</field>
+      <field name="icon">briefcase</field>
+      <field name="color">orange</field>
+      <field name="url">/odoo/payroll</field>
+      <field name="sequence">40</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_department" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Department</field>
+      <field name="description">Manage departments and teams.</field>
+      <field name="icon">users</field>
+      <field name="color">indigo</field>
+      <field name="url">/odoo/departments</field>
+      <field name="sequence">50</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_recruitment" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Recruitment</field>
+      <field name="description">Manage job openings and applications.</field>
+      <field name="icon">briefcase</field>
+      <field name="color">pink</field>
+      <field name="url">/hrsd/recruitment</field>
+      <field name="sequence">60</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_sign" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">HR Sign</field>
+      <field name="description">Create and manage secure HR document signing requests.</field>
+      <field name="icon">fileText</field>
+      <field name="color">green</field>
+      <field name="url">/hrsign</field>
+      <field name="sequence">70</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_timesheet" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">Timesheet</field>
+      <field name="description">Track work hours, submit timesheets, and manage approvals efficiently.</field>
+      <field name="icon">clock</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/timesheet</field>
+      <field name="sequence">80</field>
+    </record>
+    <record id="dashboard_submenu_core_hr_crm" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_core_hr"/>
+      <field name="name">CRM</field>
+      <field name="description">Manage leads, track opportunities, nurture customer relationships, and close deals faster.</field>
+      <field name="icon">briefcase</field>
+      <field name="color">green</field>
+      <field name="url">/odoo/crm</field>
+      <field name="sequence">90</field>
+    </record>
+
+    <!-- 2. Employee Lifecycle -->
+    <record id="dashboard_menu_lifecycle" model="hrsd.dashboard.menu">
+      <field name="name">Employee Lifecycle</field>
+      <field name="description">Manage the complete employee journey from joining to exit</field>
+      <field name="icon">user</field>
+      <field name="color">green</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_lifecycle_onboarding" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_lifecycle"/>
+      <field name="name">Onboarding</field>
+      <field name="description">Streamline employee onboarding with tasks, documents, and welcome workflows.</field>
+      <field name="icon">userPlus</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/onboarding</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_lifecycle_offboarding" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_lifecycle"/>
+      <field name="name">Offboarding</field>
+      <field name="description">Manage employee exits, asset returns, clearances, and exit formalities efficiently.</field>
+      <field name="icon">userMinus</field>
+      <field name="color">red</field>
+      <field name="url">/odoo/offboarding</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_lifecycle_hrplus" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_lifecycle"/>
+      <field name="name">HR Plus</field>
+      <field name="description">An all-in-one HR workspace for employee operations, workflows, and workforce management.</field>
+      <field name="icon">briefcase</field>
+      <field name="color">purple</field>
+      <field name="url">/hr_plus</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_submenu_lifecycle_probation" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_lifecycle"/>
+      <field name="name">Probation</field>
+      <field name="description">Track probation periods, reviews, and confirmation status.</field>
+      <field name="icon">shieldCheck</field>
+      <field name="color">green</field>
+      <field name="url">/odoo/probation</field>
+      <field name="sequence">40</field>
+    </record>
+
+    <!-- 3. Performance & Development -->
+    <record id="dashboard_menu_performance" model="hrsd.dashboard.menu">
+      <field name="name">Performance &amp; Development</field>
+      <field name="description">Track performance, reviews, and growth plans</field>
+      <field name="icon">trendingUp</field>
+      <field name="color">purple</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_submenu_performance_training" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_performance"/>
+      <field name="name">Training &amp; Certifications</field>
+      <field name="description">Access training materials and track progress.</field>
+      <field name="icon">target</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/training</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_performance_appraisal" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_performance"/>
+      <field name="name">Performance Appraisal</field>
+      <field name="description">Run appraisal cycles, track goals, competencies and manager reviews.</field>
+      <field name="icon">trendingUp</field>
+      <field name="color">green</field>
+      <field name="url">/hrsd/appraisal</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_performance_feedback360" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_performance"/>
+      <field name="name">360&#176; Feedback</field>
+      <field name="description">Collect peer and cross-functional feedback.</field>
+      <field name="icon">users</field>
+      <field name="color">orange</field>
+      <field name="url">/odoo/feedback-360</field>
+      <field name="sequence">30</field>
+    </record>
+
+    <!-- 4. Employee Services -->
+    <record id="dashboard_menu_services" model="hrsd.dashboard.menu">
+      <field name="name">Employee Services</field>
+      <field name="description">Handle leaves, requests, and employee support</field>
+      <field name="icon">briefcase</field>
+      <field name="color">orange</field>
+      <field name="sequence">40</field>
+    </record>
+    <record id="dashboard_submenu_services_letters" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_services"/>
+      <field name="name">HR Letters</field>
+      <field name="description">Letters</field>
+      <field name="icon">calendarCheck</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/hr-letters</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_services_visa" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_services"/>
+      <field name="name">Visa Renewals</field>
+      <field name="description">Visa renewals</field>
+      <field name="icon">fileText</field>
+      <field name="color">purple</field>
+      <field name="url">/odoo/visa-renewals</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_services_cases" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_services"/>
+      <field name="name">HR Cases</field>
+      <field name="description">Review and manage HR cases.</field>
+      <field name="icon">shield</field>
+      <field name="color">orange</field>
+      <field name="url">/odoo/hr-cases</field>
+      <field name="sequence">30</field>
+    </record>
+
+    <!-- 5. Rewards & Engagement -->
+    <record id="dashboard_menu_rewards" model="hrsd.dashboard.menu">
+      <field name="name">Rewards &amp; Engagement</field>
+      <field name="description">Manage rewards, recognition, and engagement programs</field>
+      <field name="icon">award</field>
+      <field name="color">pink</field>
+      <field name="sequence">50</field>
+    </record>
+    <record id="dashboard_submenu_rewards_recognition" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_rewards"/>
+      <field name="name">Recognition Awards</field>
+      <field name="description">Nominate and celebrate outstanding contributions.</field>
+      <field name="icon">award</field>
+      <field name="color">blue</field>
+      <field name="url">/odoo/recognition-awards</field>
+      <field name="sequence">10</field>
+    </record>
+
+    <!-- 6. AI & Automation -->
+    <record id="dashboard_menu_ai" model="hrsd.dashboard.menu">
+      <field name="name">AI &amp; Automation</field>
+      <field name="description">Leverage AI to automate HR tasks, predict attrition, generate interview questions and scan documents</field>
+      <field name="icon">bot</field>
+      <field name="color">indigo</field>
+      <field name="sequence">60</field>
+    </record>
+    <record id="dashboard_submenu_ai_resume" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_ai"/>
+      <field name="name">AI Resume Screening</field>
+      <field name="description">Automatically screen and rank candidates using AI-powered resume analysis.</field>
+      <field name="icon">users</field>
+      <field name="color">blue</field>
+      <field name="url">/hrsd/resume</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_submenu_ai_attrition" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_ai"/>
+      <field name="name">Predictive Attrition</field>
+      <field name="description">Predict employee attrition risk with ML analytics and get actionable retention recommendations before it's too late.</field>
+      <field name="icon">chartBar</field>
+      <field name="color">purple</field>
+      <field name="url">/hrsd/attrition</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_submenu_ai_interview" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_ai"/>
+      <field name="name">Interview Questions</field>
+      <field name="description">Generate role-specific, competency-based interview questions instantly using AI. Free tier available via open-source LLMs.</field>
+      <field name="icon">messageCircle</field>
+      <field name="color">green</field>
+      <field name="url">/hrsd/interview</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_submenu_ai_ocr" model="hrsd.dashboard.submenu">
+      <field name="menu_id" ref="dashboard_menu_ai"/>
+      <field name="name">OCR Document Scan</field>
+      <field name="description">Extract and digitize text from HR documents, contracts and forms using optical character recognition (OCR).</field>
+      <field name="icon">scan</field>
+      <field name="color">orange</field>
+      <field name="url">/hrsd/ocr</field>
+      <field name="sequence">40</field>
+    </record>
+
+  </data>
+</odoo>

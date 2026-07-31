@@ -1,0 +1,30 @@
+{
+  "include": [
+    "addons",
+    "odoo"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    "**/.git",
+    "**/.*",
+    "venv",
+    "addons/hrsd/payroll"
+  ],
+  "extraPaths": [
+    ".",
+    "addons",
+    "odoo/addons"
+  ],
+  "venvPath": ".",
+  "venv": "venv",
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false,
+  "reportAttributeAccessIssue": false,
+  "reportArgumentType": false,
+  "reportCallIssue": false,
+  "reportOperatorIssue": false,
+  "reportUnusedExpression": false
+}

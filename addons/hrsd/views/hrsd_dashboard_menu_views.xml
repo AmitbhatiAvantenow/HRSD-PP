@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hrsd.dashboard.menu / hrsd.dashboard.submenu — configurable
+         HR Portal dashboard tiles + the cards inside each tile.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="hrsd_dashboard_menu_list_view" model="ir.ui.view">
+      <field name="name">hrsd.dashboard.menu.list</field>
+      <field name="model">hrsd.dashboard.menu</field>
+      <field name="arch" type="xml">
+        <list string="Dashboard Menus" default_order="sequence, id">
+          <field name="sequence" widget="handle"/>
+          <field name="name"/>
+          <field name="icon"/>
+          <field name="color"/>
+          <field name="url" string="Direct Link" widget="url" optional="hide"/>
+          <field name="group_ids" string="Visible to Groups" widget="many2many_tags" optional="hide"/>
+          <field name="submenu_count" string="Submenu Items"/>
+          <field name="active" widget="boolean_toggle"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hrsd_dashboard_menu_form_view" model="ir.ui.view">
+      <field name="name">hrsd.dashboard.menu.form</field>
+      <field name="model">hrsd.dashboard.menu</field>
+      <field name="arch" type="xml">
+        <form string="Dashboard Menu">
+          <sheet>
+            <div class="oe_title">
+              <label for="name"/>
+              <h1><field name="name" placeholder="e.g. Core HR Operations"/></h1>
+            </div>
+            <group>
+              <group>
+                <field name="icon"/>
+                <field name="color"/>
+                <field name="url" widget="url" placeholder="e.g. /odoo/crm — leave blank to use Submenu Items below"/>
+              </group>
+              <group>
+                <field name="sequence"/>
+                <field name="active"/>
+              </group>
+            </group>
+            <group string="Description">
+              <field name="description" nolabel="1" placeholder="Shown under the tile title on the dashboard…"/>
+            </group>
+            <group string="Visibility">
+              <field name="group_ids" nolabel="1" colspan="2" widget="many2many_tags"
+                     placeholder="Visible to everyone — add groups to restrict (administrators always see everything)"/>
+            </group>
+            <notebook>
+              <page string="Submenu Items" name="submenu_items">
+                <div class="alert alert-info" role="alert" invisible="not url">
+                  A Direct Link is set above, so this tile will open that link directly and any
+                  Submenu Items below will be ignored.
+                </div>
+                <field name="submenu_ids">
+                  <list editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="description" placeholder="Shown under the card title on the dashboard…"/>
+                    <field name="icon"/>
+                    <field name="color"/>
+                    <field name="url" widget="url" placeholder="/odoo/employees"/>
+                    <field name="group_ids" widget="many2many_tags" optional="show"
+                           placeholder="Everyone"/>
+                    <field name="active" widget="boolean_toggle"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_hrsd_dashboard_menu" model="ir.actions.act_window">
+      <field name="name">Dashboard Menus</field>
+      <field name="res_model">hrsd.dashboard.menu</field>
+      <field name="view_mode">list,form</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">
+          Create a new dashboard tile
+        </p>
+        <p>
+          Each tile shown on the HR Portal home page is a record here. Open a
+          tile to add, edit, reorder or remove the cards (and their links)
+          shown when it's clicked — no code changes needed.
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="menu_hrsd_dashboard_config"
+              name="Dashboard Menus"
+              parent="menu_hrsd_root"
+              action="action_hrsd_dashboard_menu"
+              groups="base.group_system"
+              sequence="100"/>
+
+  </data>
+</odoo>

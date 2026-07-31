@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.SharedTemplatesPage">
+    <DocShell activeKey="'shared_templates'" eyebrow="'Document Templates'" title="'Shared Templates'"
+              subtitle="'Templates shared company-wide, with your team, or directly with you.'">
+        <TemplateGrid domainExtra="domainExtra" emptyLabel="'Nothing has been shared yet.'"/>
+    </DocShell>
+</t>
+
+</templates>

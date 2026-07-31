@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_case_inquiry_dashboard.InquiryDashboard">
+        <div class="hcid-card">
+
+            <!-- ===================== HEADER ===================== -->
+            <div class="hcid-header">
+                <div class="hcid-header-text">
+                    <h2 class="hcid-title">Employee Services Inquiry</h2>
+                    <p class="hcid-subtitle">Submit Your Employee Service Inquiry.</p>
+                </div>
+                <button class="hcid-fav-btn" type="button" aria-label="Favorite">
+                    <i class="fa fa-heart-o"/>
+                </button>
+            </div>
+
+            <!-- ===================== FORM STATE ===================== -->
+            <t t-if="state.view === 'form'">
+                <div class="hcid-body">
+
+                    <p class="hcid-required-note">
+                        <span class="hcid-required-star">*</span> Indicates required
+                    </p>
+
+                    <div class="hcid-grid">
+                        <!-- Inquiry Raised By -->
+                        <div class="hcid-field">
+                            <label class="hcid-label">
+                                <span class="hcid-required-star">*</span> Inquiry Raised By
+                            </label>
+                            <div class="hcid-input-disabled">
+                                <i class="fa fa-info-circle hcid-info-icon"/>
+                                <span t-esc="state.employeeName"/>
+                            </div>
+                        </div>
+
+                        <!-- Badge Number (not tracked on hr.case - shown disabled for layout parity) -->
+                        <div class="hcid-field">
+                            <label class="hcid-label">Badge Number</label>
+                            <div class="hcid-input-disabled hcid-input-empty"/>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="hcid-field">
+                            <label class="hcid-label">Email Address</label>
+                            <div class="hcid-input-disabled">
+                                <i class="fa fa-info-circle hcid-info-icon"/>
+                                <span t-esc="state.email"/>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="hcid-field">
+                            <label class="hcid-label">Phone Number</label>
+                            <div class="hcid-input-disabled">
+                                <span t-esc="state.phone"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="hcid-helper-text">
+                        <span class="hcid-required-star">*</span>
+                        This is the phone number and email we will use to contact you. If the
+                        information is incorrect, please update it in your profile to ensure
+                        you receive all updates related to your request.
+                    </p>
+
+                    <!-- Type of Inquiry -->
+                    <div class="hcid-field hcid-field-full">
+                        <label class="hcid-label">
+                            <span class="hcid-required-star">*</span> Type of Inquiry
+                        </label>
+                        <select class="hcid-select"
+                                t-on-change="onChangeCategory"
+                                t-att-class="state.errors.category_id ? 'hcid-select hcid-input-error' : 'hcid-select'">
+                            <option value="">-- None --</option>
+                            <t t-foreach="state.inquiryTypes" t-as="opt" t-key="opt.id">
+                                <option t-att-value="opt.id"
+                                        t-att-selected="state.categoryId === String(opt.id)">
+                                    <t t-esc="opt.name"/>
+                                </option>
+                            </t>
+                        </select>
+                        <p t-if="state.errors.category_id" class="hcid-error-text">
+                            <t t-esc="state.errors.category_id"/>
+                        </p>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="hcid-field hcid-field-full">
+                        <label class="hcid-label">
+                            <span class="hcid-required-star">*</span>
+                            Please provide the details of your Inquiry in the box below.
+                        </label>
+                        <textarea class="hcid-textarea"
+                                  rows="5"
+                                  t-on-input="onChangeDescription"
+                                  t-att-class="state.errors.description ? 'hcid-textarea hcid-input-error' : 'hcid-textarea'"
+                                  t-att-value="state.description"/>
+                        <p t-if="state.errors.description" class="hcid-error-text">
+                            <t t-esc="state.errors.description"/>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="hcid-attachments-section">
+                    <p class="hcid-attachments-label">Add attachments</p>
+                    <div class="hcid-dropzone">
+                        <i class="fa fa-cloud-upload hcid-dropzone-icon"/>
+                        <p class="hcid-dropzone-text">
+                            <span class="hcid-dropzone-link">Choose a file</span> or drag it here.
+                        </p>
+                        <p class="hcid-dropzone-subtext">Copy and paste clipboard files here.</p>
+                    </div>
+                </div>
+
+                <div class="hcid-footer">
+                    <p t-if="state.submitError" class="hcid-submit-error">
+                        <t t-esc="state.submitError"/>
+                    </p>
+                    <button class="hcid-submit-btn"
+                            type="button"
+                            t-on-click="onSubmit"
+                            t-att-disabled="state.submitting">
+                        <t t-if="state.submitting">
+                            <i class="fa fa-circle-o-notch fa-spin"/> Submitting...
+                        </t>
+                        <t t-else="">Submit</t>
+                    </button>
+                </div>
+            </t>
+
+            <!-- ===================== SUCCESS STATE ===================== -->
+            <t t-if="state.view === 'success'">
+                <div class="hcid-success">
+                    <div class="hcid-success-icon">
+                        <i class="fa fa-check"/>
+                    </div>
+                    <h3 class="hcid-success-title">Your request has been submitted</h3>
+                    <p class="hcid-success-text">
+                        Case <strong t-esc="state.caseName"/> has been created. Our HR Services
+                        team will follow up with you shortly.
+                    </p>
+                    <button class="hcid-secondary-btn" type="button" t-on-click="onNewRequest">
+                        Submit Another Inquiry
+                    </button>
+                </div>
+            </t>
+
+        </div>
+    </t>
+
+</templates>

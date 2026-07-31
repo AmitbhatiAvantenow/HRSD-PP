@@ -1,0 +1,49 @@
+<svg width="1920" height="500" viewBox="0 0 1920 500" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="meshLA" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="meshLB" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="meshLC" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c4b5fd" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#c4b5fd" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softBlurL" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softBlurL)">
+    <ellipse cx="260" cy="100" rx="360" ry="240" fill="url(#meshLA)"/>
+    <ellipse cx="1650" cy="70" rx="320" ry="220" fill="url(#meshLB)"/>
+    <ellipse cx="1400" cy="430" rx="380" ry="220" fill="url(#meshLC)"/>
+    <ellipse cx="600" cy="440" rx="260" ry="150" fill="url(#meshLA)"/>
+  </g>
+
+  <g opacity="0.35" stroke="#8b5cf6" stroke-width="1.2" fill="none" stroke-linecap="round">
+    <path d="M -40 90 C 260 40, 540 130, 880 70 S 1460 10, 1960 80"/>
+    <path d="M -40 300 C 320 260, 600 350, 940 280 S 1520 190, 1960 260"/>
+  </g>
+
+  <g fill="#7c3aed">
+    <circle cx="120" cy="55" r="2.5" opacity="0.45"/>
+    <circle cx="260" cy="150" r="1.8" opacity="0.35"/>
+    <circle cx="420" cy="60" r="2.2" opacity="0.4"/>
+    <circle cx="620" cy="130" r="1.8" opacity="0.3"/>
+    <circle cx="820" cy="45" r="2.5" opacity="0.4"/>
+    <circle cx="1020" cy="170" r="2" opacity="0.35"/>
+    <circle cx="1220" cy="70" r="1.8" opacity="0.4"/>
+    <circle cx="1420" cy="150" r="2.5" opacity="0.35"/>
+    <circle cx="1620" cy="55" r="2" opacity="0.4"/>
+    <circle cx="1800" cy="180" r="1.8" opacity="0.3"/>
+    <circle cx="90" cy="330" r="1.8" opacity="0.3"/>
+    <circle cx="520" cy="410" r="2.2" opacity="0.35"/>
+    <circle cx="1040" cy="430" r="1.8" opacity="0.3"/>
+    <circle cx="1380" cy="390" r="2.2" opacity="0.35"/>
+    <circle cx="1780" cy="410" r="1.8" opacity="0.3"/>
+  </g>
+</svg>

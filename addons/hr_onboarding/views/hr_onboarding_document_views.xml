@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_onboarding_document_list" model="ir.ui.view">
+        <field name="name">hr.onboarding.document.list</field>
+        <field name="model">hr.onboarding.document</field>
+        <field name="arch" type="xml">
+            <list string="Onboarding Documents">
+                <field name="onboarding_id"/>
+                <field name="name"/>
+                <field name="document_type"/>
+                <field name="status" widget="badge" decoration-success="status == 'verified'"
+                       decoration-warning="status == 'uploaded'" decoration-danger="status == 'rejected'"
+                       decoration-muted="status == 'pending'"/>
+                <field name="expiry_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_document_kanban" model="ir.ui.view">
+        <field name="name">hr.onboarding.document.kanban</field>
+        <field name="model">hr.onboarding.document</field>
+        <field name="arch" type="xml">
+            <kanban class="hro_doc_kanban">
+                <field name="name"/>
+                <field name="document_type"/>
+                <field name="status"/>
+                <field name="onboarding_id"/>
+                <field name="expiry_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="hro-card hro-doc-card hro-doc-#{record.status.raw_value}">
+                            <div class="hro-doc-icon">
+                                <i class="fa fa-file-text-o" title="Document"/>
+                            </div>
+                            <div class="hro-doc-body">
+                                <div class="hro-doc-name"><field name="name"/></div>
+                                <div class="hro-doc-owner"><field name="onboarding_id"/></div>
+                                <span t-attf-class="hro-badge hro-badge-#{record.status.raw_value}">
+                                    <field name="status"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_onboarding_document_form" model="ir.ui.view">
+        <field name="name">hr.onboarding.document.form</field>
+        <field name="model">hr.onboarding.document</field>
+        <field name="arch" type="xml">
+            <form string="Onboarding Document">
+                <sheet>
+                    <group>
+                        <field name="onboarding_id"/>
+                        <field name="name"/>
+                        <field name="document_type"/>
+                        <field name="status"/>
+                        <field name="datas" filename="datas_fname"/>
+                        <field name="datas_fname" invisible="1"/>
+                        <field name="upload_date"/>
+                        <field name="expiry_date"/>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_onboarding_document" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">hr.onboarding.document</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+</odoo>

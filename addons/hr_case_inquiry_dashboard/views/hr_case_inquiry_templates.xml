@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Self-contained page: does not depend on the Website app's frontend_layout,
+         so this module works on a bare Odoo install. Assets are pulled in via the
+         web.assets_frontend bundle declared in the manifest. -->
+    <template id="inquiry_dashboard_page" name="Employee Services Inquiry Dashboard">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <title>Employee Services Inquiry</title>
+                <t t-call-assets="web.assets_frontend" t-js="false"/>
+                <t t-call-assets="web.assets_frontend" t-css="false"/>
+            </head>
+            <body>
+                <div id="hr_case_inquiry_dashboard_root"
+                     class="o_hr_case_inquiry_page"
+                     t-att-data-employee-name="employee_name">
+                    <div class="hcid-card hcid-layout">
+                        <div class="hcid-left-panel">
+                            <div class="hcid-left-content">
+                                <h3>Employee Services</h3>
+                                <p>Use this form to submit an inquiry to HR Services. Select the most
+                                appropriate Type of Inquiry — this will route your request to the
+                                correct HR team.</p>
+                                <p>If you cannot find the correct Type of Inquiry, contact HR administration.</p>
+                            </div>
+                        </div>
+                        <div class="hcid-right-panel">
+                            <!-- Containers expected by the frontend JS -->
+                            <div id="hcid-form-container"></div>
+                            <div id="hcid-success-container" style="display:none;">
+                                <div class="hcid-success">
+                                    <p>Case <strong id="hcid-case-name"></strong> has been created.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>
+    </template>
+
+</odoo>

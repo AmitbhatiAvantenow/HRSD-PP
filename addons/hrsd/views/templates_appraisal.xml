@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="appraisal_page" name="Performance Appraisal">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Performance Appraisal · <t t-esc="brand['name']"/> HR</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+  <link rel="stylesheet" href="/hrsd/static/src/css/appraisal.css?v=1"/>
+  <style>
+    html,body{background:#f3f4f8!important;color:#111827!important;}
+    .pa-shell{background:#f3f4f8!important;}
+    .pa-sidebar{background:#ffffff!important;border-right:1px solid #e2e6ee!important;}
+    .pa-main{background:#f3f4f8!important;}
+    .pa-kpi-card,.pa-chart-card,.pa-table-section,.pa-modal{background:#ffffff!important;}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"/>
+</head>
+<body>
+
+<div class="pa-shell">
+
+  <!-- ═══════════════════════════════ SIDEBAR ══════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-brand">
+      <t t-if="brand['logo_url']">
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="pa-brand-mark" style="object-fit: cover;"/>
+      </t>
+      <t t-else="">
+        <div class="pa-brand-mark"><t t-esc="brand['initial']"/></div>
+      </t>
+      <div>
+        <div class="pa-brand-name"><t t-esc="brand['name']"/></div>
+        <div class="pa-brand-sub">HR PORTAL</div>
+      </div>
+    </div>
+
+    <nav class="pa-nav">
+      <a href="/hrsd/dashboard" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/odoo/employees" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Employees
+      </a>
+      <a href="/odoo/departments" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Departments
+      </a>
+      <a href="/hrsd/attrition" class="pa-nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+        Attrition AI
+      </a>
+      <a href="/hrsd/appraisal" class="pa-nav-item is-active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        Appraisals
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-footer">
+      <a href="/hrsd/dashboard" class="pa-back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Portal
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════ MAIN ═════════════════════════════════ -->
+  <main class="pa-main">
+
+    <!-- Header -->
+    <header class="pa-header">
+      <div class="pa-header-left">
+        <div class="pa-page-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <h1 class="pa-page-title">Performance Appraisal</h1>
+          <p class="pa-page-sub">Goals, competencies &amp; 360° review intelligence · Cycle snapshot <strong><t t-esc="computed_at"/></strong></p>
+        </div>
+      </div>
+      <div class="pa-header-right">
+        <button class="pa-btn pa-btn-ghost" id="pa-export-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <a t-att-href="manage_url" class="pa-btn pa-btn-primary" id="pa-manage-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Manage Appraisals
+        </a>
+      </div>
+    </header>
+
+    <!-- KPI Row -->
+    <section class="pa-kpi-row" id="pa-kpis">
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-total">—</div>
+          <div class="pa-kpi-label">Total Appraisals</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-completed">—</div>
+          <div class="pa-kpi-label">Completed</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7.3V12l3.4 2"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-in-progress">—</div>
+          <div class="pa-kpi-label">In Progress</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-overdue">—</div>
+          <div class="pa-kpi-label">Overdue</div>
+        </div>
+      </div>
+      <div class="pa-kpi-card">
+        <div class="pa-kpi-icon is-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg>
+        </div>
+        <div class="pa-kpi-body">
+          <div class="pa-kpi-value" id="kpi-avg-score">—</div>
+          <div class="pa-kpi-label">Avg. Final Score</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Row -->
+    <section class="pa-charts-row">
+
+      <!-- Distribution donut -->
+      <div class="pa-chart-card pa-chart-donut-wrap">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">Performance Bands</span>
+          <span class="pa-chart-sub">distribution</span>
+        </div>
+        <div class="pa-donut-container">
+          <canvas id="chart-donut"/>
+          <div class="pa-donut-center" id="donut-center-label">
+            <div class="pa-donut-big" id="donut-big">—</div>
+            <div class="pa-donut-small">Total</div>
+          </div>
+        </div>
+        <div class="pa-legend" id="donut-legend"></div>
+      </div>
+
+      <!-- 9-box talent grid -->
+      <div class="pa-chart-card">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">9-Box Talent Grid</span>
+          <span class="pa-chart-sub">performance × potential</span>
+        </div>
+        <div class="pa-ninebox-wrap">
+          <div class="pa-ninebox-axis-y">Performance →</div>
+          <div class="pa-ninebox-grid" id="ninebox-grid"></div>
+          <div></div>
+          <div class="pa-ninebox-axis-x">Potential →</div>
+        </div>
+      </div>
+
+      <!-- Dept bar chart -->
+      <div class="pa-chart-card pa-chart-bar-wrap">
+        <div class="pa-chart-header">
+          <span class="pa-chart-title">Avg. Score by Department</span>
+          <span class="pa-chart-sub">top 10</span>
+        </div>
+        <div class="pa-bar-container">
+          <canvas id="chart-bar"/>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Appraisal Table -->
+    <section class="pa-table-section">
+      <div class="pa-table-header">
+        <div class="pa-table-title-area">
+          <h2 class="pa-table-title">Appraisal Register</h2>
+          <span class="pa-badge-count" id="table-count">0 appraisals</span>
+        </div>
+        <div class="pa-table-controls">
+          <div class="pa-search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="pa-search" placeholder="Search employees, departments…"/>
+          </div>
+          <div class="pa-filter-group" id="pa-filter-group">
+            <button class="pa-filter-btn is-active" data-filter="all">All</button>
+            <button class="pa-filter-btn" data-filter="self_assessment">To Self-Assess</button>
+            <button class="pa-filter-btn" data-filter="manager_review">Manager Review</button>
+            <button class="pa-filter-btn" data-filter="completed">Completed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pa-table-wrap">
+        <table class="pa-table">
+          <thead>
+            <tr>
+              <th class="pa-th-emp">Employee</th>
+              <th class="pa-th-dept">Department</th>
+              <th>Cycle</th>
+              <th>Status</th>
+              <th class="pa-sortable pa-sort-active pa-sort-desc" data-col="overall_score">Final Score</th>
+              <th>Band</th>
+              <th class="pa-th-action"></th>
+            </tr>
+          </thead>
+          <tbody id="pa-table-body">
+            <tr class="pa-skeleton-row"><td colspan="7"><div class="pa-skeleton"/></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pa-table-footer">
+        <span id="pa-showing-label" class="pa-showing-label">Showing all results</span>
+        <div class="pa-pagination" id="pa-pagination"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════ SELF-ASSESSMENT MODAL ═══════════════════════ -->
+<div class="pa-modal-overlay" id="pa-self-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="pa-assess-dialog">
+    <button class="pa-modal-close" id="pa-self-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="pa-assess-header">
+      <div class="pa-assess-emp-info">
+        <div class="pa-assess-avatar" id="self-avatar"></div>
+        <div>
+          <div class="pa-assess-emp-name" id="self-emp-name">—</div>
+          <div class="pa-assess-emp-job" id="self-emp-job">—</div>
+        </div>
+      </div>
+      <div class="pa-assess-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Self-Assessment
+      </div>
+    </div>
+
+    <form id="pa-self-form" class="pa-assess-body">
+      <input type="hidden" id="self-appraisal-id" value=""/>
+
+      <p class="pa-assess-intro">Rate your progress on each goal and competency honestly. Your manager will review and finalize these ratings.</p>
+
+      <div class="pa-assess-section-title">Goals &amp; OKRs</div>
+      <div id="self-goals-container"></div>
+
+      <div class="pa-assess-section-title" style="margin-top:16px">Competencies</div>
+      <div id="self-comps-container"></div>
+
+      <div class="pa-assess-notes-wrap" style="margin-top:16px">
+        <label class="pa-assess-notes-label">Your Comments (optional)</label>
+        <textarea id="self-comments" class="pa-assess-notes" rows="3"
+                  placeholder="Highlights, challenges, or context for this review period…"/>
+      </div>
+
+      <div class="pa-assess-actions">
+        <button type="button" class="pa-btn pa-btn-ghost" id="pa-self-cancel">Cancel</button>
+        <button type="submit" class="pa-btn pa-btn-primary" id="pa-self-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+          Submit Self-Assessment
+        </button>
+      </div>
+    </form>
+
+    <div class="pa-assess-saving" id="pa-self-saving" style="display:none">
+      <div class="pa-assess-spinner"></div>
+      <span>Saving…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MANAGER REVIEW MODAL ════════════════════════ -->
+<div class="pa-modal-overlay" id="pa-mgr-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="pa-assess-dialog">
+    <button class="pa-modal-close" id="pa-mgr-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="pa-assess-header">
+      <div class="pa-assess-emp-info">
+        <div class="pa-assess-avatar" id="mgr-avatar"></div>
+        <div>
+          <div class="pa-assess-emp-name" id="mgr-emp-name">—</div>
+          <div class="pa-assess-emp-job" id="mgr-emp-job">—</div>
+        </div>
+      </div>
+      <div class="pa-assess-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+        Manager Review
+      </div>
+    </div>
+
+    <form id="pa-mgr-form" class="pa-assess-body">
+      <input type="hidden" id="mgr-appraisal-id" value=""/>
+
+      <p class="pa-assess-intro">Confirm actual progress against each goal, rate competencies, and set growth potential to complete the review.</p>
+
+      <div class="pa-assess-section-title">Goals &amp; OKRs</div>
+      <div id="mgr-goals-container"></div>
+
+      <div class="pa-assess-section-title" style="margin-top:16px">Competencies</div>
+      <div id="mgr-comps-container"></div>
+
+      <div class="pa-assess-section-title" style="margin-top:16px">Growth Potential</div>
+      <div class="pa-yn-wrap" id="mgr-potential-group" style="width:100%;display:flex">
+        <button type="button" class="pa-yn-btn" data-potential="low" style="flex:1">Low</button>
+        <button type="button" class="pa-yn-btn is-active" data-potential="medium" style="flex:1">Medium</button>
+        <button type="button" class="pa-yn-btn" data-potential="high" style="flex:1">High</button>
+      </div>
+      <input type="hidden" id="mgr-potential" value="medium"/>
+
+      <div class="pa-assess-notes-wrap" style="margin-top:16px">
+        <label class="pa-assess-notes-label">Strengths</label>
+        <textarea id="mgr-strengths" class="pa-assess-notes" rows="2" placeholder="Key strengths observed…"/>
+      </div>
+      <div class="pa-assess-notes-wrap">
+        <label class="pa-assess-notes-label">Areas of Improvement</label>
+        <textarea id="mgr-areas" class="pa-assess-notes" rows="2" placeholder="Where the employee can grow…"/>
+      </div>
+      <div class="pa-assess-notes-wrap">
+        <label class="pa-assess-notes-label">Development Plan</label>
+        <textarea id="mgr-devplan" class="pa-assess-notes" rows="2" placeholder="Agreed actions, training, mentoring…"/>
+      </div>
+      <div class="pa-assess-notes-wrap">
+        <label class="pa-assess-notes-label">Manager Comments</label>
+        <textarea id="mgr-comments" class="pa-assess-notes" rows="2" placeholder="Overall summary for this review…"/>
+      </div>
+
+      <div class="pa-assess-actions">
+        <button type="button" class="pa-btn pa-btn-ghost" id="pa-mgr-cancel">Cancel</button>
+        <button type="submit" class="pa-btn pa-btn-primary" id="pa-mgr-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+          Complete Review
+        </button>
+      </div>
+    </form>
+
+    <div class="pa-assess-saving" id="pa-mgr-saving" style="display:none">
+      <div class="pa-assess-spinner"></div>
+      <span>Saving…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ APPRAISAL DETAIL MODAL ═══════════════════════ -->
+<div class="pa-modal-overlay" id="pa-modal" style="display:none" role="dialog" aria-modal="true">
+  <div class="pa-modal">
+    <button class="pa-modal-close" id="pa-modal-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="pa-modal-body">
+      <!-- Left: Profile + score -->
+      <div class="pa-modal-left">
+        <div class="pa-modal-avatar" id="modal-avatar-wrap"></div>
+        <div class="pa-modal-name" id="modal-name">—</div>
+        <div class="pa-modal-job" id="modal-job">—</div>
+        <div class="pa-modal-dept" id="modal-dept">—</div>
+        <div class="pa-modal-score-ring">
+          <svg viewBox="0 0 120 120" class="pa-ring-svg" id="modal-ring-svg">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e6ee" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke-width="10" stroke-linecap="round"
+                    stroke-dasharray="314" stroke-dashoffset="314"
+                    transform="rotate(-90 60 60)"
+                    id="modal-ring-arc" class="pa-ring-arc"/>
+          </svg>
+          <div class="pa-ring-center">
+            <div class="pa-ring-score" id="modal-score-val">0</div>
+            <div class="pa-ring-label">Final Score</div>
+          </div>
+        </div>
+        <div class="pa-modal-level-badge" id="modal-band-badge">—</div>
+
+        <div class="pa-modal-meta">
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">Cycle</span>
+            <span class="pa-meta-val" id="modal-cycle">—</span>
+          </div>
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">Status</span>
+            <span class="pa-meta-val" id="modal-state">—</span>
+          </div>
+          <div class="pa-meta-row">
+            <span class="pa-meta-key">9-Box</span>
+            <span class="pa-meta-val" id="modal-ninebox">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Goals / competencies / feedback -->
+      <div class="pa-modal-right">
+        <div class="pa-dual-section-title" style="margin-top:0">Goals &amp; OKRs</div>
+        <div id="modal-goals"></div>
+
+        <div class="pa-dual-section-title">Competencies</div>
+        <div id="modal-comps"></div>
+
+        <div class="pa-modal-divider"></div>
+
+        <div class="pa-modal-section-title">360° Feedback</div>
+        <div class="pa-recs-list" id="modal-feedback"></div>
+
+        <div class="pa-modal-actions">
+          <a id="modal-emp-link" href="#" class="pa-btn pa-btn-primary" target="_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Employee Profile
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Embedded data — raw JSON in element, parsed immediately into global var -->
+<script id="pa-data" type="application/json"><t t-out="page_data_json"/></script>
+<script>
+(function(){
+  try {
+    var el = document.getElementById('pa-data');
+    window.PA_DATA = el ? JSON.parse(el.textContent || el.innerHTML || '{}') : {};
+  } catch(e) { window.PA_DATA = {}; }
+})();
+</script>
+<script src="/hrsd/static/src/js/appraisal.js?v=1"/>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_asset" model="ir.sequence">
+            <field name="name">HR Asset Assignment</field>
+            <field name="code">mn.hr.asset.assignment</field>
+            <field name="prefix">AST/%(year)s/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_disc" model="ir.sequence">
+            <field name="name">Disciplinary action</field>
+            <field name="code">mn.hr.disciplinary.action</field>
+            <field name="prefix">DIS/%(year)s/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_loan" model="ir.sequence">
+            <field name="name">HR Loan</field>
+            <field name="code">mn.hr.loan</field>
+            <field name="prefix">LOAN/%(year)s/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_eosb" model="ir.sequence">
+            <field name="name">EOSB</field>
+            <field name="code">mn.hr.eosb</field>
+            <field name="prefix">EOSB/%(year)s/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_trip" model="ir.sequence">
+            <field name="name">Business Trip</field>
+            <field name="code">mn.hr.business.trip</field>
+            <field name="prefix">TRIP/%(year)s/</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="seq_training" model="ir.sequence">
+            <field name="name">Training record</field>
+            <field name="code">mn.hr.training</field>
+            <field name="prefix">TRN/%(year)s/</field><field name="padding">5</field>
+        </record>
+        <record id="seq_referral" model="ir.sequence">
+            <field name="name">Referral</field>
+            <field name="code">mn.hr.referral</field>
+            <field name="prefix">REF/%(year)s/</field><field name="padding">5</field>
+        </record>
+        <record id="seq_letter" model="ir.sequence">
+            <field name="name">HR letter</field>
+            <field name="code">mn.hr.letter</field>
+            <field name="prefix">LET/%(year)s/</field><field name="padding">5</field>
+        </record>
+        <record id="seq_suggestion" model="ir.sequence">
+            <field name="name">Suggestion</field>
+            <field name="code">mn.hr.suggestion</field>
+            <field name="prefix">SUG/%(year)s/</field><field name="padding">5</field>
+        </record>
+        <record id="seq_visa" model="ir.sequence">
+            <field name="name">Visa renewal</field>
+            <field name="code">mn.hr.visa.renewal</field>
+            <field name="prefix">VR/%(year)s/</field><field name="padding">5</field>
+        </record>
+    </data>
+</odoo>

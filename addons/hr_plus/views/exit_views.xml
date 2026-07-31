@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_exit" model="ir.actions.act_window"><field name="name">Exit Interviews</field>
+<field name="res_model">mn.hr.exit.interview</field><field name="view_mode">list,form</field></record>
+<record id="view_exit_list" model="ir.ui.view"><field name="name">exit.list</field>
+<field name="model">mn.hr.exit.interview</field><field name="arch" type="xml">
+<list><field name="employee_id"/><field name="interview_date"/><field name="last_day"/>
+<field name="leaving_reason" widget="badge"/><field name="recommend_score"/>
+<field name="rehire_eligible" widget="boolean_toggle"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_exit_form" model="ir.ui.view"><field name="name">exit.form</field>
+<field name="model">mn.hr.exit.interview</field><field name="arch" type="xml">
+<form><sheet>
+<group><group><field name="employee_id"/><field name="interview_date"/><field name="interviewer_id"/><field name="last_day"/></group>
+<group><field name="leaving_reason"/><field name="recommend_score"/><field name="rehire_eligible" widget="boolean_toggle"/></group></group>
+<separator string="Structured ratings (1-5)"/>
+<group><group><field name="work_satisfaction"/><field name="management_rating"/></group>
+<group><field name="compensation_rating"/><field name="culture_rating"/></group></group>
+<group><field name="what_went_well"/><field name="what_could_improve"/><field name="suggestions"/></group>
+<field name="notes"/></sheet><chatter/></form>
+</field></record></data></odoo>

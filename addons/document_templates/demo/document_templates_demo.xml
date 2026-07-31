@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ==================== Categories (one per department) ==================== -->
+    <record id="cat_lease_agreements" model="document.template.category">
+        <field name="name">Lease Agreements</field>
+        <field name="department">real_estate</field>
+        <field name="icon">fa-file-text-o</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="cat_employment_contracts" model="document.template.category">
+        <field name="name">Employment Contracts</field>
+        <field name="department">hr</field>
+        <field name="icon">fa-id-card-o</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="cat_purchase_agreements" model="document.template.category">
+        <field name="name">Purchase Agreements</field>
+        <field name="department">procurement</field>
+        <field name="icon">fa-shopping-cart</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="cat_invoices" model="document.template.category">
+        <field name="name">Invoices</field>
+        <field name="department">finance</field>
+        <field name="icon">fa-money</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="cat_ndas" model="document.template.category">
+        <field name="name">NDAs</field>
+        <field name="department">legal</field>
+        <field name="icon">fa-gavel</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="cat_quotations" model="document.template.category">
+        <field name="name">Quotations</field>
+        <field name="department">sales</field>
+        <field name="icon">fa-file-text</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="cat_work_orders" model="document.template.category">
+        <field name="name">Work Orders</field>
+        <field name="department">maintenance</field>
+        <field name="icon">fa-wrench</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="cat_amc_contracts" model="document.template.category">
+        <field name="name">AMC Contracts</field>
+        <field name="department">operations</field>
+        <field name="icon">fa-handshake-o</field>
+        <field name="sequence">80</field>
+    </record>
+    <record id="cat_approval_forms" model="document.template.category">
+        <field name="name">Approval Forms</field>
+        <field name="department">administration</field>
+        <field name="icon">fa-check-square-o</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="cat_company_policies" model="document.template.category">
+        <field name="name">Company Policies</field>
+        <field name="department">marketing</field>
+        <field name="icon">fa-book</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- ==================== Tags ==================== -->
+    <record id="tag_contract" model="document.template.tag"><field name="name">Contract</field></record>
+    <record id="tag_financial" model="document.template.tag"><field name="name">Financial</field></record>
+    <record id="tag_hr" model="document.template.tag"><field name="name">HR</field></record>
+    <record id="tag_compliance" model="document.template.tag"><field name="name">Compliance</field></record>
+    <record id="tag_internal" model="document.template.tag"><field name="name">Internal</field></record>
+
+    <!-- ==================== Demo contacts (own, not relying on base demo data) ==================== -->
+    <record id="partner_demo_1" model="res.partner">
+        <field name="name">Acme Industries</field>
+        <field name="is_company">True</field>
+    </record>
+    <record id="partner_demo_2" model="res.partner">
+        <field name="name">Nova Consulting LLC</field>
+        <field name="is_company">True</field>
+    </record>
+    <record id="partner_demo_3" model="res.partner">
+        <field name="name">Beacon Realty Partners</field>
+        <field name="is_company">True</field>
+    </record>
+
+    <!-- ==================== Templates ==================== -->
+
+    <record id="tpl_lease_agreement" model="document.template">
+        <field name="name">Lease Agreement</field>
+        <field name="category_id" ref="cat_lease_agreements"/>
+        <field name="description">Standard residential/commercial lease agreement.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"header_text": "{{ property }}", "footer_text": "Confidential -- Lease Agreement"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Lease Agreement", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Tenant: {{ tenant_name }}\nProperty / Unit: {{ property }} - {{ unit }}"}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 30, "z": 1, "props": {"text": "Lease Term: {{ lease_start }} to {{ lease_end }}"}},
+                {"id": "b4", "type": "table", "x": 40, "y": 180, "w": 320, "h": 60, "z": 1, "props": {"headers": ["Item", "Amount"], "rows": [["Monthly Rent", "{{ monthly_rent }}"], ["Security Deposit", "{{ deposit }}"]]}},
+                {"id": "b5", "type": "divider", "x": 40, "y": 250, "w": 420, "h": 2, "z": 1, "props": {"color": "#cccccc"}},
+                {"id": "b6", "type": "signature", "x": 40, "y": 270, "w": 200, "h": 60, "z": 1, "props": {"label": "Tenant Signature"}},
+                {"id": "b7", "type": "signature", "x": 260, "y": 270, "w": 200, "h": 60, "z": 1, "props": {"label": "Landlord Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_lease_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Tenant Name</field><field name="key">tenant_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_lease_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Property</field><field name="key">property</field><field name="sequence">20</field>
+    </record>
+    <record id="var_lease_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Unit</field><field name="key">unit</field><field name="sequence">30</field>
+    </record>
+    <record id="var_lease_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Lease Start</field><field name="key">lease_start</field><field name="variable_type">date</field><field name="sequence">40</field>
+    </record>
+    <record id="var_lease_5" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Lease End</field><field name="key">lease_end</field><field name="variable_type">date</field><field name="sequence">50</field>
+    </record>
+    <record id="var_lease_6" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Monthly Rent</field><field name="key">monthly_rent</field><field name="variable_type">currency</field><field name="sequence">60</field>
+    </record>
+    <record id="var_lease_7" model="document.template.variable">
+        <field name="template_id" ref="tpl_lease_agreement"/><field name="name">Deposit</field><field name="key">deposit</field><field name="variable_type">currency</field><field name="is_required">False</field><field name="sequence">70</field>
+    </record>
+
+    <record id="tpl_employment_contract" model="document.template">
+        <field name="name">Employment Contract</field>
+        <field name="category_id" ref="cat_employment_contracts"/>
+        <field name="description">Offer/employment contract template.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract'), ref('tag_hr')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"footer_text": "Confidential -- Employment Contract"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Employment Contract", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Employee: {{ employee_name }}\nPosition: {{ position }}"}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 30, "z": 1, "props": {"text": "Start Date: {{ start_date }}\nAnnual Salary: {{ salary }}"}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 200, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b5", "type": "signature", "x": 260, "y": 200, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_emp_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_emp_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Position</field><field name="key">position</field><field name="sequence">20</field>
+    </record>
+    <record id="var_emp_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Start Date</field><field name="key">start_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+    <record id="var_emp_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Salary</field><field name="key">salary</field><field name="variable_type">currency</field><field name="sequence">40</field>
+    </record>
+
+    <record id="tpl_purchase_agreement" model="document.template">
+        <field name="name">Purchase Agreement</field>
+        <field name="category_id" ref="cat_purchase_agreements"/>
+        <field name="description">Simple purchase agreement for goods/services.</field>
+        <field name="status">draft</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract'), ref('tag_financial')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Purchase Agreement", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 30, "z": 1, "props": {"text": "Buyer: {{ buyer_name }}"}},
+                {"id": "b3", "type": "table", "x": 40, "y": 130, "w": 320, "h": 50, "z": 1, "props": {"headers": ["Item", "Price"], "rows": [["{{ item_description }}", "{{ price }}"]]}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_pa_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_purchase_agreement"/><field name="name">Buyer Name</field><field name="key">buyer_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_pa_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_purchase_agreement"/><field name="name">Item Description</field><field name="key">item_description</field><field name="sequence">20</field>
+    </record>
+    <record id="var_pa_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_purchase_agreement"/><field name="name">Price</field><field name="key">price</field><field name="variable_type">currency</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_office_handover" model="document.template">
+        <field name="name">Office Handover</field>
+        <field name="category_id" ref="cat_amc_contracts"/>
+        <field name="description">Asset/office handover checklist.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Office Handover", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 40, "z": 1, "props": {"text": "Employee: {{ employee_name }}\nHandover Date: {{ handover_date }}"}},
+                {"id": "b3", "type": "divider", "x": 40, "y": 140, "w": 420, "h": 2, "z": 1, "props": {}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 160, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_oh_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_office_handover"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_oh_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_office_handover"/><field name="name">Handover Date</field><field name="key">handover_date</field><field name="variable_type">date</field><field name="sequence">20</field>
+    </record>
+
+    <record id="tpl_property_inspection" model="document.template">
+        <field name="name">Property Inspection Report</field>
+        <field name="category_id" ref="cat_work_orders"/>
+        <field name="description">Unit condition inspection report.</field>
+        <field name="status">published</field>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Property Inspection Report", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 40, "z": 1, "props": {"text": "Unit: {{ unit }}\nInspector: {{ inspector_name }}\nDate: {{ inspection_date }}"}},
+                {"id": "b3", "type": "table", "x": 40, "y": 140, "w": 320, "h": 60, "z": 1, "props": {"headers": ["Area", "Condition"], "rows": [["Walls", "Good"], ["Fixtures", "Good"]]}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 210, "w": 200, "h": 60, "z": 1, "props": {"label": "Inspector Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_pi_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_property_inspection"/><field name="name">Unit</field><field name="key">unit</field><field name="sequence">10</field>
+    </record>
+    <record id="var_pi_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_property_inspection"/><field name="name">Inspector Name</field><field name="key">inspector_name</field><field name="sequence">20</field>
+    </record>
+    <record id="var_pi_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_property_inspection"/><field name="name">Inspection Date</field><field name="key">inspection_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_movein_checklist" model="document.template">
+        <field name="name">Move-In Checklist</field>
+        <field name="category_id" ref="cat_lease_agreements"/>
+        <field name="description">Tenant move-in condition checklist.</field>
+        <field name="status">draft</field>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Move-In Checklist", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 40, "z": 1, "props": {"text": "Tenant: {{ tenant_name }}\nUnit: {{ unit }}\nMove-In Date: {{ movein_date }}"}},
+                {"id": "b3", "type": "table", "x": 40, "y": 140, "w": 320, "h": 50, "z": 1, "props": {"headers": ["Item", "Status"], "rows": [["Keys handed over", "Yes"]]}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_mi_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_movein_checklist"/><field name="name">Tenant Name</field><field name="key">tenant_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_mi_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_movein_checklist"/><field name="name">Unit</field><field name="key">unit</field><field name="sequence">20</field>
+    </record>
+    <record id="var_mi_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_movein_checklist"/><field name="name">Move-In Date</field><field name="key">movein_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_nda" model="document.template">
+        <field name="name">NDA</field>
+        <field name="category_id" ref="cat_ndas"/>
+        <field name="description">Mutual non-disclosure agreement.</field>
+        <field name="status">published</field>
+        <field name="access_level">company</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract'), ref('tag_compliance')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"footer_text": "Confidential -- Non-Disclosure Agreement"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Non-Disclosure Agreement", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "This agreement is between {{ party_a }} and {{ party_b }}, effective {{ effective_date }}."}},
+                {"id": "b3", "type": "signature", "x": 40, "y": 150, "w": 200, "h": 60, "z": 1, "props": {"label": "Party A Signature"}},
+                {"id": "b4", "type": "signature", "x": 260, "y": 150, "w": 200, "h": 60, "z": 1, "props": {"label": "Party B Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_nda_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Party A</field><field name="key">party_a</field><field name="sequence">10</field>
+    </record>
+    <record id="var_nda_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Party B</field><field name="key">party_b</field><field name="sequence">20</field>
+    </record>
+    <record id="var_nda_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Effective Date</field><field name="key">effective_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <!-- ==================== Favourites &amp; approval state ==================== -->
+    <record id="tpl_lease_agreement" model="document.template">
+        <field name="favorite_user_ids" eval="[(6, 0, [ref('base.user_admin')])]"/>
+    </record>
+    <record id="tpl_nda" model="document.template">
+        <field name="favorite_user_ids" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+    <record id="tpl_purchase_agreement" model="document.template">
+        <field name="approval_state">pending</field>
+    </record>
+    <record id="tpl_movein_checklist" model="document.template">
+        <field name="approval_state">pending</field>
+    </record>
+
+    <!-- ==================== Generated document history ==================== -->
+    <record id="gen_doc_1" model="document.generated">
+        <field name="template_id" ref="tpl_lease_agreement"/>
+        <field name="partner_id" ref="partner_demo_1"/>
+        <field name="status">signed</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=2)"/>
+    </record>
+    <record id="gen_doc_2" model="document.generated">
+        <field name="template_id" ref="tpl_lease_agreement"/>
+        <field name="partner_id" ref="partner_demo_2"/>
+        <field name="status">sent</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=5)"/>
+    </record>
+    <record id="gen_doc_3" model="document.generated">
+        <field name="template_id" ref="tpl_lease_agreement"/>
+        <field name="partner_id" ref="partner_demo_3"/>
+        <field name="status">draft</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=9)"/>
+    </record>
+    <record id="gen_doc_4" model="document.generated">
+        <field name="template_id" ref="tpl_lease_agreement"/>
+        <field name="status">signed</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=14)"/>
+    </record>
+    <record id="gen_doc_5" model="document.generated">
+        <field name="template_id" ref="tpl_lease_agreement"/>
+        <field name="status">sent</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=20)"/>
+    </record>
+    <record id="gen_doc_6" model="document.generated">
+        <field name="template_id" ref="tpl_employment_contract"/>
+        <field name="partner_id" ref="partner_demo_1"/>
+        <field name="status">signed</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=4)"/>
+    </record>
+    <record id="gen_doc_7" model="document.generated">
+        <field name="template_id" ref="tpl_employment_contract"/>
+        <field name="status">draft</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=35)"/>
+    </record>
+    <record id="gen_doc_8" model="document.generated">
+        <field name="template_id" ref="tpl_office_handover"/>
+        <field name="partner_id" ref="partner_demo_2"/>
+        <field name="status">sent</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=48)"/>
+    </record>
+    <record id="gen_doc_9" model="document.generated">
+        <field name="template_id" ref="tpl_nda"/>
+        <field name="partner_id" ref="partner_demo_3"/>
+        <field name="status">signed</field>
+        <field name="generated_date" eval="datetime.now() - timedelta(days=60)"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,73 @@
+///
+/// HRSD — navy backend chrome, matching the HR dashboard's palette
+///
+
+// Top navigation bar
+// navbar.scss reads its colors from --NavBar-* / --o-navbar-* custom
+// properties (falling back to the purple $o-navbar-* scss variables), so
+// setting those properties here recolors every navbar sub-element - the
+// app menu entries, the brand, the breadcrumbs - without needing to fight
+// the compiled fallback colors with !important.
+.o_main_navbar {
+    --NavBar-entry-color: #{rgba(255, 255, 255, 0.92)};
+    --NavBar-entry-backgroundColor: #{$hrsd-navy-800};
+    --NavBar-entry-backgroundColor--hover: #{rgba(255, 255, 255, 0.12)};
+    --NavBar-entry-backgroundColor--focus: #{rgba(255, 255, 255, 0.12)};
+    --NavBar-entry-backgroundColor--active: #{rgba(255, 255, 255, 0.16)};
+    --NavBar-entry-color--active: #fff;
+    --NavBar-brand-color: #{rgba(255, 255, 255, 0.92)};
+
+    background: $hrsd-navy-800;
+    border-bottom-color: darken($hrsd-navy-800, 6%);
+
+    .o_menu_systray .dropdown-toggle,
+    .o_menu_systray > *,
+    .o_menu_systray button {
+        color: rgba(255, 255, 255, 0.92);
+    }
+}
+
+// Primary buttons
+.btn-primary,
+.btn-fill-primary {
+    background-color: $hrsd-navy-600;
+    border-color: $hrsd-navy-600;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: darken($hrsd-navy-600, 8%);
+        border-color: darken($hrsd-navy-600, 12%);
+    }
+}
+
+// Status bar (Draft / Confirmed)
+.o_statusbar_status .o_arrow_button.btn-primary.disabled,
+.o_statusbar_status .o_arrow_button.btn-primary[disabled] {
+    background-color: $hrsd-navy-600;
+    border-color: $hrsd-navy-600;
+}
+
+// Form controls focus ring
+.form-control:focus,
+.form-select:focus {
+    border-color: $hrsd-navy-600;
+    box-shadow: 0 0 0 0.2rem rgba($hrsd-navy-600, 0.2);
+}
+
+.form-check-input:checked {
+    background-color: $hrsd-navy-600;
+    border-color: $hrsd-navy-600;
+}
+
+// Loading indicator
+.o_loading_indicator {
+    background-color: $hrsd-navy-800;
+}
+
+// Pager / active states
+.o_pager .active,
+.page-item.active .page-link {
+    background-color: $hrsd-navy-600;
+    border-color: $hrsd-navy-600;
+}

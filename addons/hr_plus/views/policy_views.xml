@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_policy" model="ir.actions.act_window"><field name="name">Policies</field>
+<field name="res_model">mn.hr.policy</field><field name="view_mode">list,form</field></record>
+<record id="action_policy_ack" model="ir.actions.act_window"><field name="name">Acknowledgements</field>
+<field name="res_model">mn.hr.policy.acknowledgement</field><field name="view_mode">list,form</field></record>
+<record id="view_pol_list" model="ir.ui.view"><field name="name">pol.list</field>
+<field name="model">mn.hr.policy</field><field name="arch" type="xml">
+<list><field name="sequence" widget="handle"/><field name="name"/><field name="name_ar"/>
+<field name="category" widget="badge"/><field name="version"/><field name="effective_date"/>
+<field name="mandatory_for_all" widget="boolean_toggle"/><field name="active" widget="boolean_toggle"/></list>
+</field></record>
+<record id="view_ack_list" model="ir.ui.view"><field name="name">ack.list</field>
+<field name="model">mn.hr.policy.acknowledgement</field><field name="arch" type="xml">
+<list><field name="acknowledged_on"/><field name="policy_id"/><field name="employee_id"/>
+<field name="version"/><field name="signed_via" widget="badge"/></list>
+</field></record></data></odoo>

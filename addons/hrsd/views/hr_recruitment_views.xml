@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.recruitment — Requirements
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_recruitment_list_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.list</field>
+      <field name="model">hr.recruitment</field>
+      <field name="arch" type="xml">
+        <list string="Requirements" default_order="create_date desc">
+          <field name="code"/>
+          <field name="job_title"/>
+          <field name="client_name"/>
+          <field name="coordinator_id"/>
+          <field name="requestor_id"/>
+          <field name="priority"/>
+          <field name="status" widget="badge"
+                 decoration-success="status == 'deployed'"
+                 decoration-danger="status == 'cancelled'"
+                 decoration-info="status == 'not_started'"/>
+          <field name="candidate_count" string="Candidates"/>
+          <field name="create_date" widget="datetime"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hr_recruitment_form_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.form</field>
+      <field name="model">hr.recruitment</field>
+      <field name="arch" type="xml">
+        <form string="Requirement">
+          <sheet>
+            <div class="oe_title">
+              <label for="job_title"/>
+              <h1><field name="job_title" placeholder="Job Title…"/></h1>
+              <field name="code" readonly="1"/>
+            </div>
+            <group>
+              <group string="Client">
+                <field name="requirement_for"/>
+                <field name="client_name"/>
+                <field name="client_contact_person"/>
+              </group>
+              <group string="People">
+                <field name="coordinator_id"/>
+                <field name="requestor_id"/>
+                <field name="assigned_to_id"/>
+              </group>
+            </group>
+            <group>
+              <group string="Job Details">
+                <field name="skill"/>
+                <field name="priority"/>
+                <field name="status"/>
+              </group>
+              <group string="Counts">
+                <field name="candidate_count" readonly="1"/>
+                <field name="note_count" readonly="1"/>
+              </group>
+            </group>
+            <group string="Job Description">
+              <field name="job_description" nolabel="1"/>
+            </group>
+            <notebook>
+              <page string="Interview Candidates" name="candidates">
+                <field name="candidate_ids">
+                  <list>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="interview_status"/>
+                    <field name="current_salary"/>
+                    <field name="expected_salary"/>
+                    <field name="mobile"/>
+                  </list>
+                </field>
+              </page>
+              <page string="Work Notes" name="notes">
+                <field name="note_ids">
+                  <list>
+                    <field name="author_id"/>
+                    <field name="create_date"/>
+                    <field name="body"/>
+                  </list>
+                </field>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="hr_recruitment_search_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.search</field>
+      <field name="model">hr.recruitment</field>
+      <field name="arch" type="xml">
+        <search string="Search Requirements">
+          <field name="job_title"/>
+          <field name="code"/>
+          <field name="client_name"/>
+          <field name="skill"/>
+          <filter name="not_started" string="Hiring Not Started" domain="[('status','=','not_started')]"/>
+          <filter name="in_progress" string="Hiring In Progress" domain="[('status','=','in_progress')]"/>
+          <group>
+            <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+            <filter name="group_priority" string="Priority" context="{'group_by': 'priority'}"/>
+            <filter name="group_client" string="Client" context="{'group_by': 'client_name'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id="action_hr_recruitment" model="ir.actions.act_window">
+      <field name="name">Requirements</field>
+      <field name="res_model">hr.recruitment</field>
+      <field name="view_mode">list,form</field>
+      <field name="search_view_id" ref="hr_recruitment_search_view"/>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">No requirements yet</p>
+        <p>Go to <a href="/hrsd/recruitment/requirements">Requirements</a> to create one.</p>
+      </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.recruitment.candidate — Interview Candidates
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_recruitment_candidate_list_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.candidate.list</field>
+      <field name="model">hr.recruitment.candidate</field>
+      <field name="arch" type="xml">
+        <list string="Interview Candidates" default_order="create_date desc">
+          <field name="code"/>
+          <field name="name"/>
+          <field name="requirement_id"/>
+          <field name="interview_status" widget="badge"
+                 decoration-success="interview_status in ('selected','placed')"
+                 decoration-danger="interview_status == 'rejected'"/>
+          <field name="current_salary"/>
+          <field name="expected_salary"/>
+          <field name="mobile"/>
+          <field name="email"/>
+          <field name="coordinator_id"/>
+          <field name="deployed"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hr_recruitment_candidate_form_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.candidate.form</field>
+      <field name="model">hr.recruitment.candidate</field>
+      <field name="arch" type="xml">
+        <form string="Interview Candidate">
+          <sheet>
+            <div class="oe_title">
+              <label for="name"/>
+              <h1><field name="name" placeholder="Candidate Name…"/></h1>
+              <field name="code" readonly="1"/>
+            </div>
+            <group>
+              <group string="Requirement">
+                <field name="requirement_id"/>
+                <field name="interview_status"/>
+                <field name="coordinator_id"/>
+                <field name="deployed"/>
+              </group>
+              <group string="Contact">
+                <field name="email"/>
+                <field name="mobile"/>
+                <field name="current_location"/>
+              </group>
+            </group>
+            <group>
+              <group string="Compensation">
+                <field name="current_salary"/>
+                <field name="expected_salary"/>
+                <field name="closing_rate"/>
+              </group>
+              <group string="Profile">
+                <field name="experience_years"/>
+                <field name="notice_period"/>
+                <field name="resume_data" filename="resume_filename"/>
+                <field name="resume_filename" invisible="1"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="hr_recruitment_candidate_search_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.candidate.search</field>
+      <field name="model">hr.recruitment.candidate</field>
+      <field name="arch" type="xml">
+        <search string="Search Interview Candidates">
+          <field name="name"/>
+          <field name="code"/>
+          <field name="requirement_id"/>
+          <field name="email"/>
+          <field name="mobile"/>
+          <filter name="deployed" string="Deployed" domain="[('deployed','=',True)]"/>
+          <group>
+            <filter name="group_requirement" string="Requirement" context="{'group_by': 'requirement_id'}"/>
+            <filter name="group_status" string="Interview Status" context="{'group_by': 'interview_status'}"/>
+          </group>
+        </search>
+      </field>
+    </record>
+
+    <record id="action_hr_recruitment_candidate" model="ir.actions.act_window">
+      <field name="name">Interview Candidates</field>
+      <field name="res_model">hr.recruitment.candidate</field>
+      <field name="view_mode">list,form</field>
+      <field name="search_view_id" ref="hr_recruitment_candidate_search_view"/>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         hr.recruitment.note — Work Notes
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="hr_recruitment_note_list_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.note.list</field>
+      <field name="model">hr.recruitment.note</field>
+      <field name="arch" type="xml">
+        <list string="Work Notes" default_order="create_date desc">
+          <field name="requirement_id"/>
+          <field name="author_id"/>
+          <field name="create_date" widget="datetime"/>
+          <field name="body"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="hr_recruitment_note_form_view" model="ir.ui.view">
+      <field name="name">hr.recruitment.note.form</field>
+      <field name="model">hr.recruitment.note</field>
+      <field name="arch" type="xml">
+        <form string="Work Note">
+          <sheet>
+            <group>
+              <field name="requirement_id"/>
+              <field name="author_id"/>
+            </group>
+            <group string="Comment">
+              <field name="body" nolabel="1"/>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_hr_recruitment_note" model="ir.actions.act_window">
+      <field name="name">Work Notes</field>
+      <field name="res_model">hr.recruitment.note</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Menu: Recruitment (top-level, with a submenu per table)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <menuitem id="menu_hrsd_recruitment"
+              name="Recruitment"
+              parent="menu_hrsd_root"
+              sequence="15"/>
+
+    <menuitem id="menu_hrsd_recruitment_requirements"
+              name="Requirements"
+              parent="menu_hrsd_recruitment"
+              action="action_hr_recruitment"
+              sequence="10"/>
+
+    <menuitem id="menu_hrsd_recruitment_candidates"
+              name="Interview Candidates"
+              parent="menu_hrsd_recruitment"
+              action="action_hr_recruitment_candidate"
+              sequence="20"/>
+
+    <menuitem id="menu_hrsd_recruitment_notes"
+              name="Work Notes"
+              parent="menu_hrsd_recruitment"
+              action="action_hr_recruitment_note"
+              sequence="30"/>
+
+  </data>
+</odoo>

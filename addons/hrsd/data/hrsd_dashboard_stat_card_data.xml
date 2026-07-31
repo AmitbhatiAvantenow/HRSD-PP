@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- Seed data — one record per built-in stat, all visible to everyone
+         by default, preserving current out-of-the-box behavior. -->
+
+    <record id="dashboard_stat_card_total_employees" model="hrsd.dashboard.stat.card">
+      <field name="key">total_employees</field>
+      <field name="sequence">10</field>
+    </record>
+    <record id="dashboard_stat_card_on_leave_today" model="hrsd.dashboard.stat.card">
+      <field name="key">on_leave_today</field>
+      <field name="sequence">20</field>
+    </record>
+    <record id="dashboard_stat_card_pending_requests" model="hrsd.dashboard.stat.card">
+      <field name="key">pending_requests</field>
+      <field name="sequence">30</field>
+    </record>
+    <record id="dashboard_stat_card_payroll_this_month" model="hrsd.dashboard.stat.card">
+      <field name="key">payroll_this_month</field>
+      <field name="sequence">40</field>
+    </record>
+    <record id="dashboard_stat_card_attendance_rate" model="hrsd.dashboard.stat.card">
+      <field name="key">attendance_rate</field>
+      <field name="sequence">50</field>
+    </record>
+
+  </data>
+</odoo>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+<t t-name="mn_hr_plus.People">
+    <div class="hrp-dashboard">
+
+        <!-- ══ HEADER ══════════════════════════════════ -->
+        <div class="hrp-header">
+            <div>
+                <div class="hrp-header__eyebrow">
+                    <span class="hrp-live-dot"/>
+                    People Analytics · Live
+                </div>
+                <h1 class="hrp-header__title">Your <strong>workforce</strong> at a glance.</h1>
+            </div>
+            <button class="hrp-refresh-btn" t-on-click="refresh">↻ Refresh</button>
+        </div>
+
+        <!-- ══ KPI CARDS ════════════════════════════════ -->
+        <div class="hrp-kpi-grid">
+            <div class="hrp-kpi-card c-teal">
+                <span class="hrp-kpi-card__icon">👥</span>
+                <div class="hrp-kpi-card__label">Headcount</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.headcount or 0"/>
+                <div class="hrp-kpi-card__sub">total employees</div>
+            </div>
+            <div class="hrp-kpi-card c-slate">
+                <span class="hrp-kpi-card__icon">🏢</span>
+                <div class="hrp-kpi-card__label">Departments</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.departments or 0"/>
+                <div class="hrp-kpi-card__sub">active units</div>
+            </div>
+            <div class="hrp-kpi-card c-slate">
+                <span class="hrp-kpi-card__icon">🎯</span>
+                <div class="hrp-kpi-card__label">Managers</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.managers or 0"/>
+                <div class="hrp-kpi-card__sub">reporting lines</div>
+            </div>
+            <div class="hrp-kpi-card c-amber">
+                <span class="hrp-kpi-card__icon">📅</span>
+                <div class="hrp-kpi-card__label">Avg Tenure</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.avg_tenure_y or 0"/>
+                <div class="hrp-kpi-card__sub">years average</div>
+            </div>
+            <div class="hrp-kpi-card c-red">
+                <span class="hrp-kpi-card__icon">🚪</span>
+                <div class="hrp-kpi-card__label">Exits (12m)</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.exits_12m or 0"/>
+                <div class="hrp-kpi-card__sub">last 12 months</div>
+            </div>
+            <div class="hrp-kpi-card c-blue">
+                <span class="hrp-kpi-card__icon">👨</span>
+                <div class="hrp-kpi-card__label">Male</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.gender_male or 0"/>
+                <div class="hrp-kpi-card__sub">employees</div>
+            </div>
+            <div class="hrp-kpi-card c-pink">
+                <span class="hrp-kpi-card__icon">👩</span>
+                <div class="hrp-kpi-card__label">Female</div>
+                <div class="hrp-kpi-card__value" t-esc="state.kpis.gender_female or 0"/>
+                <div class="hrp-kpi-card__sub">employees</div>
+            </div>
+        </div>
+
+        <!-- ══ ROW 2 : By Department + Gender Donut ════ -->
+        <div class="hrp-grid-2-1">
+            <div class="hrp-panel hrp-panel-teal">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">By Department</h3>
+                </div>
+                <div t-if="!state.by_dept.length" class="hrp-panel__empty">No data</div>
+                <t t-foreach="state.by_dept" t-as="d" t-key="d[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="d[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--teal"
+                                 t-att-style="'width:' + this.barWidth(d[1], state.by_dept)"/>
+                        </div>
+                        <div class="hrp-bar-val" t-esc="d[1]"/>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Gender donut chart -->
+            <div class="hrp-panel hrp-panel-blue">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Gender Split</h3>
+                </div>
+                <div class="hrp-chart-wrap">
+                    <canvas t-ref="genderChart" width="170" height="170"/>
+                    <div class="hrp-chart-legend">
+                        <div class="hrp-chart-legend__item">
+                            <div class="hrp-chart-legend__dot" style="background:#3b82f6"/>
+                            <span class="hrp-chart-legend__label">Male</span>
+                            <span class="hrp-chart-legend__val" t-esc="state.kpis.gender_male or 0"/>
+                        </div>
+                        <div class="hrp-chart-legend__item">
+                            <div class="hrp-chart-legend__dot" style="background:#ec4899"/>
+                            <span class="hrp-chart-legend__label">Female</span>
+                            <span class="hrp-chart-legend__val" t-esc="state.kpis.gender_female or 0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ ROW 3 : Tenure + Age ═════════════════════ -->
+        <div class="hrp-grid-2-2">
+            <div class="hrp-panel hrp-panel-amber">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Tenure Distribution</h3>
+                </div>
+                <t t-foreach="state.tenure_buckets" t-as="b" t-key="b[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="b[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--amber"
+                                 t-att-style="'width:' + this.barWidth(b[1], state.tenure_buckets)"/>
+                        </div>
+                        <div class="hrp-bar-val" t-esc="b[1]"/>
+                    </div>
+                </t>
+            </div>
+            <div class="hrp-panel hrp-panel-purple">
+                <div class="hrp-panel__header">
+                    <div class="hrp-panel__accent"/>
+                    <h3 class="hrp-panel__title">Age Distribution</h3>
+                </div>
+                <t t-foreach="state.age_buckets" t-as="a" t-key="a[0]">
+                    <div class="hrp-bar-row">
+                        <div class="hrp-bar-label" t-esc="a[0]"/>
+                        <div class="hrp-bar-track">
+                            <div class="hrp-bar-fill hrp-bar-fill--purple"
+                                 t-att-style="'width:' + this.barWidth(a[1], state.age_buckets)"/>
+                        </div>
+                        <div class="hrp-bar-val" t-esc="a[1]"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+
+        <!-- ══ ROW 4 : Monthly Hires ════════════════════ -->
+        <div class="hrp-panel hrp-panel-green" style="animation-delay:0.45s">
+            <div class="hrp-panel__header">
+                <div class="hrp-panel__accent"/>
+                <h3 class="hrp-panel__title">Monthly Hires — Last 12 Months</h3>
+            </div>
+            <div t-if="!state.hires_series.length" class="hrp-panel__empty">
+                No hires recorded in the last 12 months
+            </div>
+            <t t-foreach="state.hires_series" t-as="h" t-key="h[0]">
+                <div class="hrp-bar-row">
+                    <div class="hrp-bar-label" t-esc="h[0]"/>
+                    <div class="hrp-bar-track">
+                        <div class="hrp-bar-fill hrp-bar-fill--green"
+                             t-att-style="'width:' + this.barWidth(h[1], state.hires_series)"/>
+                    </div>
+                    <div class="hrp-bar-val" t-esc="h[1]"/>
+                </div>
+            </t>
+        </div>
+
+    </div>
+</t>
+</templates>

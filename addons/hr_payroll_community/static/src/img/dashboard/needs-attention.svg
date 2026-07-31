@@ -1,0 +1,50 @@
+<svg width="220" height="200" viewBox="0 0 220 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .op-na-float { animation: opNaFloat 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes opNaFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+    .op-na-ring { animation: opNaRing 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes opNaRing { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.1); opacity: 1; } }
+    .op-na-check { stroke-dasharray: 30; stroke-dashoffset: 30; animation: opNaDraw .5s ease forwards; }
+    .op-na-check-1 { animation-delay: .3s; }
+    .op-na-check-2 { animation-delay: .55s; }
+    .op-na-check-3 { animation-delay: .8s; }
+    @keyframes opNaDraw { to { stroke-dashoffset: 0; } }
+  </style>
+  <defs>
+    <linearGradient id="naGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#7c6ae0"/>
+    </linearGradient>
+  </defs>
+
+  <ellipse cx="100" cy="180" rx="70" ry="10" fill="#e4e2ef"/>
+
+  <g class="op-na-float">
+    <rect x="52" y="34" width="96" height="132" rx="14" fill="#ffffff" stroke="#e4e2ef" stroke-width="2"/>
+    <rect x="82" y="24" width="36" height="16" rx="6" fill="url(#naGrad)"/>
+
+    <g stroke="#7c6ae0" stroke-width="3" stroke-linecap="round">
+      <line class="op-na-check op-na-check-1" x1="70" y1="72" x2="98" y2="72" opacity="0.25"/>
+      <line class="op-na-check op-na-check-2" x1="70" y1="98" x2="112" y2="98" opacity="0.25"/>
+      <line class="op-na-check op-na-check-3" x1="70" y1="124" x2="104" y2="124" opacity="0.25"/>
+    </g>
+
+    <g fill="#ede9fe">
+      <circle cx="70" cy="72" r="9"/>
+      <circle cx="70" cy="98" r="9"/>
+      <circle cx="70" cy="124" r="9"/>
+    </g>
+    <g fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M66 72 l3 3 l6 -6"/>
+      <path d="M66 98 l3 3 l6 -6"/>
+      <path d="M66 124 l3 3 l6 -6"/>
+    </g>
+  </g>
+
+  <g class="op-na-float" style="animation-delay:.5s">
+    <circle class="op-na-ring" cx="150" cy="52" r="24" fill="#ede9fe"/>
+    <circle cx="150" cy="52" r="24" fill="url(#naGrad)" opacity="0.85"/>
+    <path d="M150 40 a8 8 0 0 1 8 8 c0 6 2 9 4 11 h-24 c2 -2 4 -5 4 -11 a8 8 0 0 1 8 -8 z" fill="#ffffff"/>
+    <circle cx="150" cy="63" r="3" fill="#ffffff"/>
+  </g>
+</svg>

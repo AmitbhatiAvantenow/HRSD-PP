@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_offboarding.EmployeeJourney">
+        <div class="hro-app hro-journey" t-if="state.record">
+            <div class="hro-journey-topbar">
+                <button class="hro-back-btn" t-on-click="() => this.backToPipeline()">
+                    <i class="fa fa-arrow-left"/> Pipeline
+                </button>
+                <h2><t t-esc="state.record.employee_id ? state.record.employee_id[1] : ''"/> — Exit Journey</h2>
+            </div>
+
+            <div class="hro-journey-layout">
+                <!-- LEFT: profile -->
+                <div class="hro-card hro-journey-profile">
+                    <div class="hro-profile-avatar">
+                        <span><t t-esc="this.initials(state.record.employee_id ? state.record.employee_id[1] : '')"/></span>
+                    </div>
+                    <h3><t t-esc="state.record.employee_id ? state.record.employee_id[1] : ''"/></h3>
+                    <div class="hro-profile-stage"><t t-esc="state.record.stage_id ? state.record.stage_id[1] : ''"/></div>
+                    <div t-attf-class="hro-progress-ring hro-progress-ring-lg" t-attf-style="--p: #{state.record.progress}">
+                        <span><t t-esc="state.record.progress"/>%</span>
+                    </div>
+                    <div class="hro-profile-countdown"><t t-esc="state.record.countdown"/></div>
+
+                    <div class="hro-profile-fields">
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Department</span>
+                            <span><t t-esc="state.record.department_id ? state.record.department_id[1] : '—'"/></span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Designation</span>
+                            <span><t t-esc="state.record.job_id ? state.record.job_id[1] : '—'"/></span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Manager</span>
+                            <span><t t-esc="state.record.manager_id ? state.record.manager_id[1] : '—'"/></span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Successor</span>
+                            <span><t t-esc="state.record.successor_id ? state.record.successor_id[1] : '—'"/></span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Notice Period</span>
+                            <span><t t-esc="state.record.notice_period_days"/> day(s)</span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Last Working Day</span>
+                            <span><t t-esc="state.record.last_working_day"/></span>
+                        </div>
+                        <div class="hro-profile-field">
+                            <span class="hro-profile-label">Assigned HR</span>
+                            <span><t t-esc="state.record.hr_user_id ? state.record.hr_user_id[1] : '—'"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIDDLE: timeline -->
+                <div class="hro-card hro-journey-timeline">
+                    <h4>Exit Timeline</h4>
+                    <div class="hro-timeline">
+                        <div t-foreach="state.stages" t-as="stage" t-key="stage.id"
+                             t-attf-class="hro-timeline-item hro-timeline-#{this.stageStatus(stage_index)}">
+                            <div class="hro-timeline-marker">
+                                <i t-if="this.stageStatus(stage_index) === 'done'" class="fa fa-check"/>
+                                <i t-elif="this.stageStatus(stage_index) === 'current'" class="fa fa-circle"/>
+                                <i t-else="" class="fa fa-circle-o"/>
+                            </div>
+                            <div class="hro-timeline-content" t-on-click="() => this.toggleStage(stage.id)">
+                                <div class="hro-timeline-header">
+                                    <span class="hro-timeline-name"><t t-esc="stage.name"/></span>
+                                    <span class="hro-timeline-date">
+                                        <t t-if="state.stageDates[stage.id]" t-esc="state.stageDates[stage.id]"/>
+                                        <t t-else="">—</t>
+                                    </span>
+                                </div>
+                                <div t-if="state.expandedStageId === stage.id" class="hro-timeline-expanded">
+                                    <div t-if="this.tasksForStage(stage.id).length" class="hro-timeline-tasks">
+                                        <div t-foreach="this.tasksForStage(stage.id)" t-as="task" t-key="task.id"
+                                             class="hro-mini-task" t-on-click.stop="() => this.toggleTask(task)">
+                                            <i t-attf-class="fa #{task.done ? 'fa-check-square' : 'fa-square-o'}"/>
+                                            <span t-attf-class="#{task.done ? 'hro-task-strike' : ''}"><t t-esc="task.name"/></span>
+                                        </div>
+                                    </div>
+                                    <div t-if="stage.has_clearance" class="hro-timeline-docs">
+                                        <div t-foreach="state.clearances" t-as="cl" t-key="cl.id" class="hro-mini-doc">
+                                            <i class="fa fa-shield" title="Clearance"/>
+                                            <span><t t-esc="cl.department"/></span>
+                                            <span t-attf-class="hro-badge hro-badge-#{cl.status}"><t t-esc="cl.status"/></span>
+                                        </div>
+                                    </div>
+                                    <div t-if="stage.has_assets" class="hro-timeline-docs">
+                                        <div t-foreach="state.assets" t-as="asset" t-key="asset.id" class="hro-mini-doc">
+                                            <i class="fa fa-laptop" title="Asset"/>
+                                            <span><t t-esc="asset.name"/></span>
+                                            <span t-attf-class="hro-badge hro-badge-#{asset.status}"><t t-esc="asset.status"/></span>
+                                        </div>
+                                    </div>
+                                    <div t-if="stage.has_documents" class="hro-timeline-docs">
+                                        <div t-foreach="state.documents" t-as="doc" t-key="doc.id" class="hro-mini-doc">
+                                            <i class="fa fa-file-text-o" title="Document"/>
+                                            <span><t t-esc="doc.name"/></span>
+                                            <span t-attf-class="hro-badge hro-badge-#{doc.status}"><t t-esc="doc.status"/></span>
+                                        </div>
+                                    </div>
+                                    <div t-if="stage.has_payroll" class="hro-timeline-docs">
+                                        <div t-foreach="state.payrolls" t-as="pr" t-key="pr.id" class="hro-mini-doc">
+                                            <i class="fa fa-money" title="Settlement"/>
+                                            <span>Net Settlement: <t t-esc="pr.net_settlement"/></span>
+                                            <span t-attf-class="hro-badge hro-badge-#{pr.status}"><t t-esc="pr.status"/></span>
+                                        </div>
+                                    </div>
+                                    <div t-if="!this.tasksForStage(stage.id).length and !stage.has_clearance and !stage.has_assets and !stage.has_documents and !stage.has_payroll"
+                                         class="hro-empty">
+                                        No items linked to this stage.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: quick actions / feed -->
+                <div class="hro-journey-side">
+                    <div class="hro-card hro-panel">
+                        <h4>Quick Actions</h4>
+                        <button class="hro-qa hro-qa-block" t-on-click="() => this.markStageComplete()">
+                            <i class="fa fa-forward"/> Move to Next Stage
+                        </button>
+                    </div>
+
+                    <div class="hro-card hro-panel">
+                        <h4>Missing Approvals (<t t-esc="this.missingClearances.length"/>)</h4>
+                        <div t-if="!this.missingClearances.length" class="hro-empty">All departments cleared.</div>
+                        <div t-foreach="this.missingClearances" t-as="cl" t-key="cl.id" class="hro-side-row">
+                            <i class="fa fa-shield"/>
+                            <span><t t-esc="cl.department"/></span>
+                            <span t-attf-class="hro-badge hro-badge-#{cl.status}"><t t-esc="cl.status"/></span>
+                        </div>
+                    </div>
+
+                    <div class="hro-card hro-panel">
+                        <h4>Missing Assets (<t t-esc="this.missingAssets.length"/>)</h4>
+                        <div t-if="!this.missingAssets.length" class="hro-empty">All assets returned.</div>
+                        <div t-foreach="this.missingAssets" t-as="asset" t-key="asset.id" class="hro-side-row">
+                            <i class="fa fa-laptop"/>
+                            <span><t t-esc="asset.name"/></span>
+                        </div>
+                    </div>
+
+                    <div class="hro-card hro-panel">
+                        <h4>Pending Tasks (<t t-esc="this.pendingTasks.length"/>)</h4>
+                        <div t-if="!this.pendingTasks.length" class="hro-empty">All caught up!</div>
+                        <div t-foreach="this.pendingTasks" t-as="task" t-key="task.id" class="hro-side-row">
+                            <i class="fa fa-square-o"/>
+                            <span><t t-esc="task.name"/></span>
+                        </div>
+                    </div>
+
+                    <div class="hro-card hro-panel">
+                        <h4>Activity Feed</h4>
+                        <div t-if="!state.messages.length" class="hro-empty">No activity yet.</div>
+                        <div t-foreach="state.messages" t-as="msg" t-key="msg.id" class="hro-activity-row">
+                            <div class="hro-activity-dot"/>
+                            <div class="hro-activity-info">
+                                <div class="hro-activity-text"><t t-esc="msg.preview"/></div>
+                                <div class="hro-activity-date"><t t-esc="msg.date"/></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

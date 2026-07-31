@@ -1,0 +1,57 @@
+// Navbar Back Button ("Go to Home")
+// Takes over the far-left spot previously held by the Apps menu (9-dot
+// icon), so going back is always the first, easiest thing to reach.
+// The Apps menu itself is relocated next to the systray icons (bell,
+// user menu, ...) on the right - see navbar_back_button.xml.
+
+.o_navbar_back_btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--o-navbar-height) - #{$o-navbar-padding-v * 2});
+    width: calc(var(--o-navbar-height) - #{$o-navbar-padding-v * 2});
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    background-color: transparent;
+    color: var(--NavBar-entry-color, #{$o-navbar-entry-color});
+    font-size: 1.15em;
+    border-radius: $o-navbar-entry-border-radius;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+
+    .oi-arrow-left {
+        transition: transform .15s ease;
+    }
+
+    &:hover, &:focus-visible {
+        background: var(--NavBar-entry-backgroundColor--hover, #{$o-navbar-entry-bg--hover});
+        color: var(--NavBar-entry-color--hover, #{$o-navbar-entry-color--hover});
+
+        .oi-arrow-left {
+            transform: translateX(-2px);
+        }
+    }
+
+    &:active {
+        background: var(--NavBar-entry-backgroundColor--active, #{$o-navbar-entry-bg--active});
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--NavBar-entry-color--hover, #{$o-navbar-entry-color--hover});
+        outline-offset: -2px;
+    }
+}
+
+// The relocated Apps menu, now living just before the systray icons.
+.o_menu_systray .o_navbar_apps_menu {
+    margin-right: 6px;
+    align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .o_navbar_back_btn, .o_navbar_back_btn .oi-arrow-left {
+        transition: none;
+    }
+}

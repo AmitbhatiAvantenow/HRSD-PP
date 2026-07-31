@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_hr_case_root" name="Cases" 
+              groups="hr_case_management.group_hr_case_user"
+              action="action_hr_case"
+              web_icon="fa-folder-open"
+              sequence="186"/>
+
+    <menuitem id="menu_hr_case_catalog" name="Service Catalog"
+              parent="menu_hr_case_root"
+              action="action_hr_case_catalog"
+              sequence="1"/>
+
+    <menuitem id="menu_hr_case_my_requests" name="My Requests"
+              parent="menu_hr_case_root"
+              action="action_hr_case_submission_my"
+              sequence="3"/>
+
+    <menuitem id="menu_hr_case_my" name="My Cases" parent="menu_hr_case_root"
+              action="action_hr_case_my" sequence="5"/>
+
+    <menuitem id="menu_hr_case_all" name="All Cases" parent="menu_hr_case_root"
+              action="action_hr_case" sequence="10"
+              groups="hr_case_management.group_hr_case_officer"/>
+
+    <menuitem id="menu_hr_case_config" name="Configuration" parent="menu_hr_case_root" sequence="90"
+              groups="hr_case_management.group_hr_case_manager"/>
+    <menuitem id="menu_hr_case_division" name="Divisions" parent="menu_hr_case_config"
+              action="action_hr_case_division" sequence="10"/>
+    <menuitem id="menu_hr_case_category" name="Categories" parent="menu_hr_case_config"
+              action="action_hr_case_category" sequence="20"/>
+    <menuitem id="menu_hr_case_subcategory" name="Subcategories" parent="menu_hr_case_config"
+              action="action_hr_case_subcategory" sequence="30"/>
+    <menuitem id="menu_hr_case_service" name="HR Services" parent="menu_hr_case_config"
+              action="action_hr_case_service" sequence="40"/>
+    <menuitem id="menu_hr_case_team" name="Assignment Groups" parent="menu_hr_case_config"
+              action="action_hr_case_team" sequence="50"/>
+    <menuitem id="menu_hr_case_sla" name="SLA Policies" parent="menu_hr_case_config"
+              action="action_hr_case_sla" sequence="60"/>
+    <menuitem id="menu_hr_case_producer" name="Form Templates"
+              parent="menu_hr_case_config"
+              action="action_hr_case_producer" sequence="65"/>
+    <menuitem id="menu_hr_case_submission_all" name="All Submissions"
+              parent="menu_hr_case_config"
+              action="action_hr_case_submission_all" sequence="70"/>
+</odoo>

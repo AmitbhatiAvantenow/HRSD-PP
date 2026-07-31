@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_hr_timesheet_sheet_own" model="ir.rule">
+        <field name="name">Timesheet: employees see their own</field>
+        <field name="model_id" ref="model_hr_timesheet_sheet"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_timesheet_pro_employee'))]"/>
+    </record>
+
+    <record id="rule_hr_timesheet_sheet_manager" model="ir.rule">
+        <field name="name">Timesheet: Managers see all</field>
+        <field name="model_id" ref="model_hr_timesheet_sheet"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_timesheet_pro_manager'))]"/>
+    </record>
+
+    <record id="rule_hr_timesheet_line_own" model="ir.rule">
+        <field name="name">Timesheet Line: employees see their own</field>
+        <field name="model_id" ref="model_hr_timesheet_line"/>
+        <field name="domain_force">[('sheet_id.employee_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_timesheet_pro_employee'))]"/>
+    </record>
+
+    <record id="rule_hr_timesheet_line_manager" model="ir.rule">
+        <field name="name">Timesheet Line: Managers see all</field>
+        <field name="model_id" ref="model_hr_timesheet_line"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_timesheet_pro_manager'))]"/>
+    </record>
+</odoo>

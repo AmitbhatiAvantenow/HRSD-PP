@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_recognition" model="ir.actions.act_window"><field name="name">Recognition / Awards</field>
+<field name="res_model">mn.hr.recognition</field><field name="view_mode">list,form</field><field name="path">recognition-awards</field></record>
+<record id="view_rec_list" model="ir.ui.view"><field name="name">rec.list</field>
+<field name="model">mn.hr.recognition</field><field name="arch" type="xml">
+<list decoration-success="state=='announced'" decoration-info="state=='paid'">
+<field name="name"/><field name="employee_id"/><field name="award_date"/>
+<field name="award_type" widget="badge"/><field name="category" widget="badge"/>
+<field name="award_value" widget="monetary"/><field name="public" widget="boolean_toggle"/>
+<field name="currency_id" invisible="1"/><field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_rec_form" model="ir.ui.view"><field name="name">rec.form</field>
+<field name="model">mn.hr.recognition</field><field name="arch" type="xml">
+<form><header><button name="action_announce" type="object" string="Announce" class="oe_highlight" invisible="state in ('announced','paid')"/>
+<field name="state" widget="statusbar"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="employee_id"/><field name="award_type"/><field name="category"/><field name="award_date"/><field name="nominated_by_id"/></group>
+<group><field name="award_value"/><field name="currency_id"/><field name="public" widget="boolean_toggle"/></group></group>
+<field name="citation"/><field name="photo" widget="image"/></sheet><chatter/></form>
+</field></record></data></odoo>

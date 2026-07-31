@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Employee View -->
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(action_hr_payslip)d"
+                        class="oe_stat_button"
+                        icon="fa-credit-card"
+                        type="action"
+                        groups="hr_payroll_community.group_hr_payroll_community_user">
+                    <field name="payslip_count" widget="statinfo"
+                           string="Payslips"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='structure_type_id']" position="after">
+                <field name="struct_id" placeholder="No structure set"
+                       groups="hr_payroll_community.group_hr_payroll_community_user"/>
+            </xpath>
+            <xpath expr="//group[@name='payroll_group']" position="inside">
+                <group name="in_regular_rules" string="Compensation Rules (sets how the components on the right are computed)"
+                       groups="hr_payroll_community.group_hr_payroll_community_manager">
+                    <label for="ctc_basic_percentage"/>
+                    <div class="o_row">
+                        <field name="ctc_basic_percentage" nolabel="1"/>
+                        <span>% of Gross</span>
+                    </div>
+                    <label for="hra_percentage_of_basic"/>
+                    <div class="o_row">
+                        <field name="hra_percentage_of_basic" nolabel="1"/>
+                        <span>% of Basic</span>
+                    </div>
+                    <label for="cca_percentage_of_basic"/>
+                    <div class="o_row">
+                        <field name="cca_percentage_of_basic" nolabel="1"/>
+                        <span>% of Basic</span>
+                    </div>
+                    <field name="medical_allowance"/>
+                    <separator string="Statutory Contributions (EPF / LWF)" colspan="2"/>
+                    <field name="epf_wage_ceiling"/>
+                    <field name="epf_employee_rate"/>
+                    <field name="epf_employer_rate"/>
+                    <field name="epf_admin_rate"/>
+                    <field name="lwf_employee"/>
+                    <field name="lwf_employer"/>
+                    <field name="gratuity_rate"/>
+                </group>
+                <group name="in_regular_breakdown" string="Salary Components (auto-computed, this month's full amount)"
+                       groups="hr_payroll_community.group_hr_payroll_community_user">
+                    <field name="basic_amount" readonly="1"/>
+                    <field name="hra_amount" readonly="1"/>
+                    <field name="cca_amount" readonly="1"/>
+                    <field name="project_allowance_amount" readonly="1"/>
+                    <separator string="Gross Monthly" colspan="2"/>
+                    <field name="epf_employee_amount" readonly="1" string="EPF Deduction (Employee)"/>
+                    <field name="epf_employer_amount" readonly="1" string="EPF Contribution (Employer)"/>
+                    <field name="epf_admin_amount" readonly="1" string="EPF Admin/EDLI Charges"/>
+                    <field name="gratuity_per_month" readonly="1"/>
+                    <separator string="Total CTC" colspan="2"/>
+                    <field name="ctc_amount" readonly="1"/>
+                </group>
+                <group name="in_statutory_ids" string="Statutory Identification"
+                       groups="hr_payroll_community.group_hr_payroll_community_user">
+                    <field name="pan_number"/>
+                    <field name="uan_number"/>
+                    <field name="lwf_number"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

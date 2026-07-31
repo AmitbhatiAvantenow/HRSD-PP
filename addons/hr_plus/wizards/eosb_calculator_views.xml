@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_eosb_calc" model="ir.actions.act_window">
+            <field name="name">EOSB Calculator</field>
+            <field name="res_model">mn.hr.eosb.calculator.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+        <record id="view_eosb_calc_form" model="ir.ui.view">
+            <field name="name">eosb.calc.form</field>
+            <field name="model">mn.hr.eosb.calculator.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <h1>End-of-Service Benefits Calculator</h1>
+                    <p>Compute gratuity per Saudi / UAE / Kuwait / Bahrain / Qatar / Oman labor law.</p>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="country_law"/>
+                            <field name="reason"/>
+                        </group>
+                        <group>
+                            <field name="employment_start"/>
+                            <field name="employment_end"/>
+                            <field name="last_basic_salary"/>
+                            <field name="allowances"/>
+                            <field name="currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="years_of_service" readonly="1"/>
+                        <field name="eosb_amount" readonly="1" widget="monetary"
+                               style="font-size:24px;font-weight:700;color:#0F766E;"/>
+                    </group>
+                    <field name="breakdown" readonly="1"/>
+                    <footer>
+                        <button name="action_calculate" type="object" string="Calculate" class="oe_highlight"/>
+                        <button name="action_save_as_record" type="object" string="Save as EOSB record"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

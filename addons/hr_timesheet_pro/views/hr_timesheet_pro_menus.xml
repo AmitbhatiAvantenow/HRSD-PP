@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_hr_timesheet_pro_dashboard" model="ir.actions.client">
+        <field name="name">Workspace Dashboard</field>
+        <field name="tag">hr_timesheet_pro_dashboard</field>
+        <field name="path">timesheet</field>
+    </record>
+
+    <record id="action_hr_timesheet_pro_fill_wizard" model="ir.actions.client">
+        <field name="name">Fill Timesheet</field>
+        <field name="tag">hr_timesheet_pro_fill_wizard</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_hr_timesheet_pro_log_time_wizard" model="ir.actions.client">
+        <field name="name">Log Time</field>
+        <field name="tag">hr_timesheet_pro_log_time_wizard</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_hr_timesheet_pro_root"
+              name="Timesheets Pro"
+              action="action_hr_timesheet_pro_dashboard"
+              sequence="17"
+              web_icon="hr_timesheet_pro,static/description/icon.png"/>
+
+    <menuitem id="menu_hr_timesheet_pro_dashboard"
+              name="Workspace Dashboard"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_timesheet_pro_log_time"
+              name="Log Time"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_log_time_wizard"
+              sequence="15"/>
+
+    <menuitem id="menu_hr_timesheet_pro_my"
+              name="My Timesheets"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_my"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_timesheet_pro_weekly"
+              name="Weekly Timesheet"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_fill_wizard"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_timesheet_pro_team"
+              name="Team Timesheets"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_team"
+              groups="hr_timesheet_pro.group_timesheet_pro_manager"
+              sequence="40"/>
+
+    <menuitem id="menu_hr_timesheet_pro_approvals"
+              name="Approvals"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_approvals"
+              groups="hr_timesheet_pro.group_timesheet_pro_manager"
+              sequence="50"/>
+
+    <menuitem id="menu_hr_timesheet_pro_calendar"
+              name="Calendar View"
+              parent="menu_hr_timesheet_pro_root"
+              action="action_hr_timesheet_pro_calendar"
+              sequence="60"/>
+
+    <menuitem id="menu_hr_timesheet_pro_config"
+              name="Configuration"
+              parent="menu_hr_timesheet_pro_root"
+              groups="hr_timesheet_pro.group_timesheet_pro_manager"
+              sequence="90"/>
+
+    <menuitem id="menu_hr_timesheet_pro_config_settings"
+              name="Settings"
+              parent="menu_hr_timesheet_pro_config"
+              action="action_hr_timesheet_pro_settings"
+              sequence="10"/>
+</odoo>

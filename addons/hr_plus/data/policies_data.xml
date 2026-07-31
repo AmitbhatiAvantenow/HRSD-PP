@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="pol_handbook" model="mn.hr.policy">
+            <field name="name">Employee Handbook</field>
+            <field name="name_ar">دليل الموظفين</field>
+            <field name="category">handbook</field>
+            <field name="version">1.0</field>
+            <field name="summary">Mandatory reading for every new hire. Covers conduct, working hours, leave, compensation.</field>
+            <field name="document">aGFuZGJvb2sgcGRm</field>
+            <field name="document_filename">handbook.pdf</field>
+            <field name="mandatory_for_all">True</field>
+        </record>
+        <record id="pol_conduct" model="mn.hr.policy">
+            <field name="name">Code of Conduct</field>
+            <field name="name_ar">ميثاق السلوك</field>
+            <field name="category">code_of_conduct</field>
+            <field name="version">2.1</field>
+            <field name="document">Y29uZHVjdCBwZGY=</field>
+            <field name="document_filename">conduct.pdf</field>
+            <field name="mandatory_for_all">True</field>
+        </record>
+        <record id="pol_security" model="mn.hr.policy">
+            <field name="name">Information Security Policy</field>
+            <field name="name_ar">سياسة أمن المعلومات</field>
+            <field name="category">security</field>
+            <field name="document">aW5mb3NlYyBwZGY=</field>
+            <field name="document_filename">infosec.pdf</field>
+            <field name="mandatory_for_all">True</field>
+        </record>
+    </data>
+</odoo>

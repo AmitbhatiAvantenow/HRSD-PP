@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.CreateTemplateWizard">
+    <Dialog title="'New Template'" size="'md'" contentClass="'doc-wizard-dialog'">
+        <div class="doc-shell doc-dialog-scope">
+            <div class="doc-wizard-error" t-if="state.error"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/></div>
+
+            <div class="doc-field">
+                <label>Template Name *</label>
+                <input type="text" t-model="state.form.name" placeholder="e.g. Lease Agreement"/>
+            </div>
+
+            <div class="doc-field">
+                <label>Category *</label>
+                <ModernSelect options="categoryOptions" value="state.form.category_id" onSelect="(v) => this.onCategorySelect(v)"
+                              placeholder="'Select a category…'"/>
+            </div>
+
+            <div class="doc-field">
+                <label>Description</label>
+                <textarea t-model="state.form.description" rows="2" placeholder="Optional internal notes…"/>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="doc-field">
+                    <label>Language</label>
+                    <ModernSelect options="languageOptions" value="state.form.language" onSelect="(v) => this.onLanguageSelect(v)" searchable="false"/>
+                </div>
+                <div class="doc-field">
+                    <label>Access Level</label>
+                    <ModernSelect options="accessLevelOptions" value="state.form.access_level" onSelect="(v) => this.onAccessLevelSelect(v)" searchable="false"/>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="doc-field">
+                    <label>Paper Size</label>
+                    <ModernSelect options="paperSizeOptions" value="state.form.paper_size" onSelect="(v) => this.onPaperSizeSelect(v)" searchable="false"/>
+                </div>
+                <div class="doc-field">
+                    <label>Orientation</label>
+                    <ModernSelect options="orientationOptions" value="state.form.orientation" onSelect="(v) => this.onOrientationSelect(v)" searchable="false"/>
+                </div>
+            </div>
+
+            <div class="doc-field">
+                <label>Tags</label>
+                <ModernSelect options="tagOptions" value="''" onSelect="(v) => this.onTagSelect(v)" placeholder="'Add a tag…'"/>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" t-if="selectedTags.length">
+                    <span class="doc-chip doc-c-info" t-foreach="selectedTags" t-as="tag" t-key="tag.id">
+                        <t t-esc="tag.name"/>
+                        <i class="fa fa-times" style="margin-left:4px;cursor:pointer;" t-on-click="() => this.removeTag(tag.id)"/>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <t t-set-slot="footer">
+            <button class="doc-btn-outline" t-on-click="() => this.cancel()">Cancel</button>
+            <button class="doc-btn-primary" t-on-click="() => this.create()" t-att-disabled="!isValid || state.saving">
+                <i class="fa fa-check"/> <t t-if="state.saving">Creating...</t><t t-else="">Create Template</t>
+            </button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

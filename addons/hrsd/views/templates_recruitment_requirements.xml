@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="hrsd_recruitment_requirements_page" name="Recruitment Requirements">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="csrf-token" t-att-content="csrf_token"/>
+  <title>Requirements Recruitment · <t t-esc="brand['name']"/></title>
+  <link rel="stylesheet" href="/hrsd/static/src/css/recruitment_requirements.css"/>
+</head>
+<body>
+
+<div class="rrq-shell">
+
+  <header class="rrq-topbar">
+    <a href="/hrsd/dashboard" class="rrq-brand">
+      <t t-if="brand['logo_url']">
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="rrq-brand-mark" style="object-fit: cover;"/>
+      </t>
+      <t t-else="">
+        <span class="rrq-brand-mark"><t t-esc="brand['initial']"/></span>
+      </t>
+      <span class="rrq-brand-name"><t t-esc="brand['name']"/></span>
+    </a>
+    <a href="/hrsd/recruitment" class="rrq-back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Careers Portal
+    </a>
+  </header>
+
+  <main class="rrq-main">
+
+    <div class="rrq-page-header">
+      <div>
+        <h1 class="rrq-page-title"> Requirements</h1>
+        <p class="rrq-page-sub">Manage job requirements, candidates &amp; interviews.</p>
+      </div>
+      <div class="rrq-page-header-actions">
+        <button type="button" class="rrq-btn-ghost" id="rrq-upload-requirement-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Document
+        </button>
+        <button type="button" class="rrq-btn-primary" id="rrq-add-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Requirement
+        </button>
+      </div>
+    </div>
+
+    <section class="rrq-stats-grid" id="rrq-stats"></section>
+
+    <div class="rrq-toolbar">
+      <div class="rrq-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="rrq-search-input" placeholder="Search requirements, skills, clients..."/>
+      </div>
+      <div class="rrq-tabs" id="rrq-tabs"></div>
+    </div>
+
+    <section class="rrq-grid" id="rrq-grid"></section>
+    <div class="rrq-empty" id="rrq-empty" style="display:none;">No requirements match this view.</div>
+
+    <div class="rrq-pagination">
+      <div class="rrq-pagination-info" id="rrq-pagination-info"></div>
+      <div class="rrq-pagination-controls" id="rrq-pagination-controls"></div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════ CREATE / EDIT REQUIREMENT MODAL ═══════════════════════ -->
+  <div class="rrq-modal-overlay" id="rrq-form-modal">
+    <div class="rrq-modal rrq-modal-lg">
+      <div class="rrq-modal-header">
+        <div>
+          <h2 class="rrq-modal-title" id="rrq-form-title">Create New Requirement</h2>
+          <p class="rrq-modal-sub" id="rrq-form-sub">Fill in the job requirement details</p>
+        </div>
+        <button type="button" class="rrq-modal-close" data-action="close-form-modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="rrq-modal-body">
+        <input type="hidden" id="rrq-form-id"/>
+        <div class="rrq-form-grid">
+          <div class="rrq-field">
+            <label>Requirement For</label>
+            <div class="rrq-field-static" id="rrq-form-requirement-for"><t t-esc="brand['name']"/></div>
+          </div>
+          <div class="rrq-field">
+            <label>Client Name <span class="rrq-required">*</span></label>
+            <div class="rrq-typeahead-wrap" id="rrq-form-client-name-wrap">
+              <input type="text" id="rrq-form-client-name" autocomplete="off" placeholder="Start typing a company..."/>
+              <div class="rrq-typeahead-list" id="rrq-form-client-name-list"></div>
+            </div>
+          </div>
+          <div class="rrq-field">
+            <label>Client Contact Person <span class="rrq-required">*</span></label>
+            <input type="text" id="rrq-form-contact-person" placeholder="Contact name"/>
+          </div>
+          <div class="rrq-field">
+            <label>Coordinator <span class="rrq-required">*</span></label>
+            <div class="rrq-typeahead-wrap" id="rrq-form-coordinator-wrap">
+              <input type="text" id="rrq-form-coordinator" autocomplete="off" placeholder="Start typing a name..."/>
+              <div class="rrq-typeahead-list" id="rrq-form-coordinator-list"></div>
+            </div>
+          </div>
+          <div class="rrq-field">
+            <label>Requestor <span class="rrq-required">*</span></label>
+            <div class="rrq-typeahead-wrap" id="rrq-form-requestor-wrap">
+              <input type="text" id="rrq-form-requestor" autocomplete="off" placeholder="Start typing a name..."/>
+              <div class="rrq-typeahead-list" id="rrq-form-requestor-list"></div>
+            </div>
+          </div>
+          <div class="rrq-field">
+            <label>Assigned To</label>
+            <div class="rrq-typeahead-wrap" id="rrq-form-assigned-to-wrap">
+              <input type="text" id="rrq-form-assigned-to" autocomplete="off" placeholder="Start typing a name..."/>
+              <div class="rrq-typeahead-list" id="rrq-form-assigned-to-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rrq-section-label">JOB DETAILS</div>
+
+        <div class="rrq-form-grid">
+          <div class="rrq-field">
+            <label>Skill <span class="rrq-required">*</span></label>
+            <input type="text" id="rrq-form-skill" placeholder="e.g. SNOW ITSM Consultant"/>
+          </div>
+          <div class="rrq-field">
+            <label>Job Title <span class="rrq-required">*</span></label>
+            <input type="text" id="rrq-form-job-title" placeholder="e.g. ServiceNow Developer"/>
+          </div>
+          <div class="rrq-field">
+            <label>Priority <span class="rrq-required">*</span></label>
+            <select id="rrq-form-priority">
+              <t t-foreach="priority_options" t-as="p">
+                <option t-att-value="p[0]" t-esc="p[1]"/>
+              </t>
+            </select>
+          </div>
+          <div class="rrq-field">
+            <label>Status <span class="rrq-required">*</span></label>
+            <select id="rrq-form-status">
+              <t t-foreach="status_options" t-as="s">
+                <option t-att-value="s[0]" t-esc="s[1]"/>
+              </t>
+            </select>
+          </div>
+        </div>
+
+        <div class="rrq-field rrq-field-full">
+          <label>Job Description <span class="rrq-required">*</span></label>
+          <div class="rrq-help">Write it as plain text. Start a heading line with a colon (e.g. "Required Experience &amp; Skills:"), use "-" for a bullet point, and an indented " -" for a sub-bullet.</div>
+          <textarea id="rrq-form-description" rows="5" placeholder="Required Experience &amp; Skills:"></textarea>
+        </div>
+
+        <div class="rrq-form-error" id="rrq-form-error" style="display:none;"></div>
+      </div>
+      <div class="rrq-modal-footer">
+        <button type="button" class="rrq-btn-ghost" data-action="close-form-modal">Cancel</button>
+        <button type="button" class="rrq-btn-primary" id="rrq-form-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="rrq-form-submit-label">Create Requirement</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ REQUIREMENT DETAIL MODAL ═══════════════════════ -->
+  <div class="rrq-modal-overlay" id="rrq-detail-modal">
+    <div class="rrq-modal rrq-modal-lg">
+      <div class="rrq-modal-header">
+        <div>
+          <h2 class="rrq-modal-title" id="rrq-detail-title"></h2>
+          <p class="rrq-modal-sub" id="rrq-detail-sub"></p>
+        </div>
+        <div class="rrq-modal-header-actions">
+          <button type="button" class="rrq-btn-ghost rrq-btn-sm" id="rrq-detail-edit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+            Edit
+          </button>
+          <button type="button" class="rrq-modal-close" data-action="close-detail-modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="rrq-modal-tabs">
+        <button type="button" class="rrq-modal-tab is-active" data-tab="details">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2Z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Details
+        </button>
+        <button type="button" class="rrq-modal-tab" data-tab="candidates">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Interview Candidates
+          <span class="rrq-tab-badge" id="rrq-tab-candidate-count">0</span>
+        </button>
+        <button type="button" class="rrq-modal-tab" data-tab="notes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          Work Notes
+          <span class="rrq-tab-badge" id="rrq-tab-note-count">0</span>
+        </button>
+      </div>
+
+      <div class="rrq-modal-body">
+        <div class="rrq-tab-panel is-active" id="rrq-tab-panel-details"></div>
+        <div class="rrq-tab-panel" id="rrq-tab-panel-candidates">
+          <div class="rrq-candidates-header">
+            <div class="rrq-candidates-title">Interview Candidates</div>
+            <div class="rrq-candidates-header-actions">
+              <button type="button" class="rrq-btn-ghost rrq-btn-sm" id="rrq-upload-candidate-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Resume(s)
+              </button>
+              <button type="button" class="rrq-btn-primary rrq-btn-sm" id="rrq-add-candidate-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Candidate
+              </button>
+            </div>
+          </div>
+          <div id="rrq-candidates-list"></div>
+        </div>
+        <div class="rrq-tab-panel" id="rrq-tab-panel-notes">
+          <div id="rrq-notes-list"></div>
+          <div class="rrq-note-add">
+            <label>ADD COMMENT</label>
+            <textarea id="rrq-note-input" rows="3" placeholder="Type your comment here..."></textarea>
+            <button type="button" class="rrq-btn-primary rrq-btn-post" id="rrq-note-submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Post Comment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ ADD / EDIT CANDIDATE MODAL ═══════════════════════ -->
+  <div class="rrq-modal-overlay" id="rrq-candidate-modal">
+    <div class="rrq-modal">
+      <div class="rrq-modal-header">
+        <div>
+          <h2 class="rrq-modal-title" id="rrq-candidate-title">Add Candidate</h2>
+          <p class="rrq-modal-sub" id="rrq-candidate-sub"></p>
+        </div>
+        <button type="button" class="rrq-modal-close" data-action="close-candidate-modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="rrq-modal-body">
+        <input type="hidden" id="rrq-candidate-id"/>
+        <input type="hidden" id="rrq-candidate-requirement-id"/>
+
+        <label class="rrq-upload" id="rrq-resume-upload">
+          <input type="file" id="rrq-resume-input" accept=".pdf,.doc,.docx"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="rrq-upload-title" id="rrq-resume-upload-title">Click to upload resume</div>
+          <div class="rrq-upload-sub">PDF or Word document, up to 5 MB</div>
+        </label>
+
+        <div class="rrq-field rrq-field-full">
+          <label>Candidate Name <span class="rrq-required">*</span></label>
+          <input type="text" id="rrq-candidate-name" placeholder="e.g. Anargha Vivek"/>
+        </div>
+
+        <div class="rrq-form-grid">
+          <div class="rrq-field">
+            <label>Current Salary</label>
+            <input type="text" id="rrq-candidate-current-salary" placeholder="e.g. 6 LPA"/>
+          </div>
+          <div class="rrq-field">
+            <label>Expected Salary</label>
+            <input type="text" id="rrq-candidate-expected-salary" placeholder="e.g. 7.5 LPA"/>
+          </div>
+          <div class="rrq-field">
+            <label>Email ID</label>
+            <input type="email" id="rrq-candidate-email" placeholder="name@email.com"/>
+          </div>
+          <div class="rrq-field">
+            <label>Mobile Number</label>
+            <input type="text" id="rrq-candidate-mobile" placeholder="10-digit mobile number"/>
+          </div>
+          <div class="rrq-field">
+            <label>Current Location</label>
+            <input type="text" id="rrq-candidate-location" placeholder="City, State"/>
+          </div>
+          <div class="rrq-field">
+            <label>Experience (Years)</label>
+            <input type="text" id="rrq-candidate-experience" placeholder="e.g. 4"/>
+          </div>
+          <div class="rrq-field">
+            <label>Notice Period</label>
+            <input type="date" id="rrq-candidate-notice"/>
+          </div>
+          <div class="rrq-field">
+            <label>Interview Status</label>
+            <select id="rrq-candidate-status">
+              <t t-foreach="interview_status_options" t-as="s">
+                <option t-att-value="s[0]" t-esc="s[1]"/>
+              </t>
+            </select>
+          </div>
+          <div class="rrq-field">
+            <label>Coordinator</label>
+            <div class="rrq-typeahead-wrap" id="rrq-candidate-coordinator-wrap">
+              <input type="text" id="rrq-candidate-coordinator" autocomplete="off" placeholder="Start typing a name..."/>
+              <div class="rrq-typeahead-list" id="rrq-candidate-coordinator-list"></div>
+            </div>
+          </div>
+          <div class="rrq-field">
+            <label>Closing Rate</label>
+            <input type="text" id="rrq-candidate-closing-rate" placeholder="e.g. 9.5 LPA"/>
+          </div>
+        </div>
+
+        <label class="rrq-checkbox">
+          <input type="checkbox" id="rrq-candidate-deployed"/>
+          Deployed
+        </label>
+
+        <div class="rrq-form-error" id="rrq-candidate-form-error" style="display:none;"></div>
+      </div>
+      <div class="rrq-modal-footer">
+        <button type="button" class="rrq-btn-ghost" data-action="close-candidate-modal">Cancel</button>
+        <button type="button" class="rrq-btn-primary" id="rrq-candidate-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span id="rrq-candidate-submit-label">Add Candidate</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ CANDIDATE DETAIL VIEW ═══════════════════════ -->
+  <div class="rrq-modal-overlay" id="rrq-candidate-detail-modal">
+    <div class="rrq-modal">
+      <div class="rrq-modal-header">
+        <div class="rrq-modal-header-left">
+          <button type="button" class="rrq-icon-btn-sm" id="rrq-cand-detail-back" title="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <div>
+            <h2 class="rrq-modal-title" id="rrq-cand-detail-title"></h2>
+            <p class="rrq-modal-sub" id="rrq-cand-detail-sub"></p>
+          </div>
+        </div>
+        <div class="rrq-modal-header-actions">
+          <button type="button" class="rrq-btn-ghost rrq-btn-sm" id="rrq-cand-detail-edit-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+            Edit
+          </button>
+          <button type="button" class="rrq-modal-close" data-action="close-candidate-detail-modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="rrq-modal-body" id="rrq-cand-detail-body"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ BULK UPLOAD (requirements or resumes) ═══════════════════════ -->
+  <div class="rrq-modal-overlay" id="rrq-upload-modal">
+    <div class="rrq-modal">
+      <div class="rrq-modal-header">
+        <div>
+          <h2 class="rrq-modal-title" id="rrq-upload-title">Upload Documents</h2>
+          <p class="rrq-modal-sub" id="rrq-upload-sub">We'll auto-extract the fields and create the records for you</p>
+        </div>
+        <button type="button" class="rrq-modal-close" data-action="close-upload-modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="rrq-modal-body">
+        <label class="rrq-upload" id="rrq-upload-dropzone">
+          <input type="file" id="rrq-upload-input" multiple="multiple"/>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="rrq-upload-title" id="rrq-upload-dropzone-title">Click to choose one or more files</div>
+          <div class="rrq-upload-sub">PDF, Word or text — you can select multiple at once</div>
+        </label>
+        <div id="rrq-upload-file-list"></div>
+        <div id="rrq-upload-results"></div>
+        <div class="rrq-form-error" id="rrq-upload-error" style="display:none;"></div>
+      </div>
+      <div class="rrq-modal-footer">
+        <button type="button" class="rrq-btn-ghost" data-action="close-upload-modal">Close</button>
+        <button type="button" class="rrq-btn-primary" id="rrq-upload-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="rrq-upload-submit-label">Upload &amp; Auto-Fill</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="application/json" id="rrq-page-data"><t t-out="page_data_json"/></script>
+<script type="text/javascript" src="/hrsd/static/src/js/recruitment_requirements.js"></script>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

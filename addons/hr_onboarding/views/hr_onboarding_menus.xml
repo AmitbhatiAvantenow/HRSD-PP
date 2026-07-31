@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_hr_onboarding_dashboard" model="ir.actions.client">
+        <field name="name">Workspace Dashboard</field>
+        <field name="tag">hr_onboarding_dashboard</field>
+        <field name="path">onboarding</field>
+    </record>
+
+    <record id="action_hr_onboarding_pipeline" model="ir.actions.client">
+        <field name="name">New Hire Pipeline</field>
+        <field name="tag">hr_onboarding_pipeline</field>
+    </record>
+
+    <menuitem id="menu_hr_onboarding_root"
+              name="HR Onboarding"
+              action="action_hr_onboarding_dashboard"
+              sequence="15"
+              web_icon="hr_onboarding,static/description/icon.png"/>
+
+    <menuitem id="menu_hr_onboarding_dashboard"
+              name="Workspace Dashboard"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding_dashboard"
+              sequence="10"/>
+
+    <menuitem id="menu_hr_onboarding_pipeline"
+              name="New Hire Pipeline"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding_pipeline"
+              sequence="20"/>
+
+    <menuitem id="menu_hr_onboarding_records"
+              name="Onboarding Records"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding"
+              sequence="25"/>
+
+    <menuitem id="menu_hr_onboarding_documents"
+              name="Documents"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding_document"
+              sequence="30"/>
+
+    <menuitem id="menu_hr_onboarding_tasks"
+              name="Tasks &amp; Checklists"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding_task"
+              sequence="40"/>
+
+    <menuitem id="menu_hr_onboarding_equipment"
+              name="Equipment"
+              parent="menu_hr_onboarding_root"
+              action="action_hr_onboarding_equipment"
+              sequence="50"/>
+
+    <menuitem id="menu_hr_onboarding_config"
+              name="Configuration"
+              parent="menu_hr_onboarding_root"
+              sequence="90"/>
+
+    <menuitem id="menu_hr_onboarding_config_stages"
+              name="Pipeline Stages"
+              parent="menu_hr_onboarding_config"
+              action="action_hr_onboarding_stage"
+              sequence="10"/>
+</odoo>

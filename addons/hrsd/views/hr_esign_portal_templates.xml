@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<template id="esign_sign_page" name="E-Sign · Secure Signing Portal">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="csrf-token" t-att-content="csrf_token"/>
+  <title>Sign Document · <t t-esc="document.name"/></title>
+  <link rel="stylesheet" href="/hrsd/static/src/css/esign_portal.css"/>
+</head>
+<body>
+
+<div class="esp-shell">
+  <header class="esp-topbar">
+    <div class="esp-brand">
+      <span class="esp-brand-mark">✎</span>
+      <span class="esp-brand-name">HR<span class="esp-brand-accent">Sign</span></span>
+    </div>
+    <div class="esp-topbar-doc">
+      <span class="esp-topbar-doc-name" t-esc="document.name"/>
+      <span class="esp-topbar-doc-code" t-esc="document.code"/>
+    </div>
+  </header>
+
+  <main class="esp-main" id="esp-main">
+
+    <section class="esp-preview-col">
+      <div class="esp-preview-header">
+        <span>Document Preview</span>
+        <span class="esp-page-badge" id="esp-page-count"></span>
+      </div>
+      <div class="esp-pdf-pages" id="esp-pdf-pages">
+        <div class="esp-pdf-status" id="esp-pdf-status">Loading document…</div>
+      </div>
+    </section>
+
+    <section class="esp-panel-col">
+
+      <div class="esp-info-card">
+        <div class="esp-info-row"><label>Requested by</label><span t-esc="document.created_by_id.name"/></div>
+        <div class="esp-info-row"><label>For</label><span t-esc="signer.name"/></div>
+        <div class="esp-info-row"><label>Category</label><span t-esc="dict(document._fields['category'].selection).get(document.category)"/></div>
+        <div class="esp-info-row" t-if="document.due_date"><label>Due</label><span t-esc="document.due_date"/></div>
+      </div>
+
+      <div class="esp-sign-card" id="esp-sign-card">
+        <h2 class="esp-sign-title">Add Your Signature</h2>
+        <p class="esp-sign-sub">Draw, type, or upload an image of your signature.</p>
+
+        <div class="esp-tabs" id="esp-mode-tabs">
+          <button type="button" class="esp-tab is-active" data-mode="draw">Draw</button>
+          <button type="button" class="esp-tab" data-mode="type">Type</button>
+          <button type="button" class="esp-tab" data-mode="upload">Upload</button>
+        </div>
+
+        <div class="esp-mode-panel is-active" id="esp-mode-draw">
+          <canvas id="esp-draw-canvas" class="esp-draw-canvas" width="520" height="180"></canvas>
+          <div class="esp-mode-actions">
+            <button type="button" class="esp-btn-ghost" id="esp-draw-undo">Undo</button>
+            <button type="button" class="esp-btn-ghost" id="esp-draw-clear">Clear</button>
+          </div>
+        </div>
+
+        <div class="esp-mode-panel" id="esp-mode-type">
+          <input type="text" id="esp-type-input" class="esp-type-input" placeholder="Type your full name"/>
+          <div class="esp-type-preview" id="esp-type-preview">Your signature preview</div>
+        </div>
+
+        <div class="esp-mode-panel" id="esp-mode-upload">
+          <label class="esp-upload-drop" id="esp-upload-drop">
+            <input type="file" id="esp-upload-input" accept="image/*"/>
+            <span id="esp-upload-label">Click to upload a signature image</span>
+          </label>
+          <img id="esp-upload-preview" class="esp-upload-preview" style="display:none;"/>
+        </div>
+
+        <label class="esp-confirm-check">
+          <input type="checkbox" id="esp-confirm-checkbox"/>
+          I agree this electronic signature is legally binding, equivalent to my handwritten signature.
+        </label>
+
+        <div class="esp-error" id="esp-error" style="display:none;"></div>
+
+        <div class="esp-sign-actions">
+          <button type="button" class="esp-btn-reject" id="esp-reject-btn">Reject</button>
+          <button type="button" class="esp-btn-primary" id="esp-sign-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirm &amp; Sign
+          </button>
+        </div>
+      </div>
+
+      <!-- Reject reason overlay -->
+      <div class="esp-reject-overlay" id="esp-reject-overlay">
+        <div class="esp-reject-box">
+          <h3>Reject this document?</h3>
+          <textarea id="esp-reject-reason" rows="3" placeholder="Let them know why (optional)"></textarea>
+          <div class="esp-reject-actions">
+            <button type="button" class="esp-btn-ghost" id="esp-reject-cancel">Cancel</button>
+            <button type="button" class="esp-btn-reject-confirm" id="esp-reject-confirm">Confirm Reject</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success screen -->
+      <div class="esp-success-card" id="esp-success-card" style="display:none;">
+        <div class="esp-success-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>Signed Successfully</h2>
+        <p>A confirmation email is on its way. Your signed copy is ready below.</p>
+        <a class="esp-btn-primary" t-attf-href="/hrsd/sign/#{token}/download">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Signed Copy
+        </a>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<script type="module" src="/web/static/lib/pdfjs/build/pdf.js"></script>
+<script type="module" src="/web/static/lib/pdfjs/build/pdf.worker.js"></script>
+<script type="application/json" id="esp-page-data"><t t-out="page_data_json"/></script>
+<script type="text/javascript" src="/hrsd/static/src/js/esign_portal.js"></script>
+</body>
+</html>
+</template>
+
+<template id="esign_invalid_link_page" name="E-Sign · Invalid Link">
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Invalid Signing Link</title>
+  <link rel="stylesheet" href="/hrsd/static/src/css/esign_portal.css"/>
+</head>
+<body>
+  <div class="esp-invalid-shell">
+    <div class="esp-invalid-card">
+      <h1>Link not found</h1>
+      <p>This signing link is invalid or has expired. Please contact the sender for a new link.</p>
+    </div>
+  </div>
+</body>
+</html>
+</template>
+
+</data>
+</odoo>

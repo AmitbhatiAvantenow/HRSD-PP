@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+  <t t-name="hr_payroll_community.PayslipCreateWizard">
+    <div class="o_payslip_wizard">
+
+      <!-- Progress stepper (hidden on the success screen) -->
+      <div class="opw-stepper" t-if="!state.success">
+        <div t-foreach="steps" t-as="step" t-key="step.key"
+             t-attf-class="opw-step {{ step_index === state.stepIndex ? 'is-active' : '' }} {{ step_index &lt; state.stepIndex ? 'is-done' : '' }}"
+             t-on-click="() => this.goToStep(step_index)">
+          <div class="opw-step-dot">
+            <i t-if="step_index &lt; state.stepIndex" class="fa fa-check"/>
+            <t t-else="" t-esc="step_index + 1"/>
+          </div>
+          <span class="opw-step-label" t-esc="step.label"/>
+        </div>
+        <div class="opw-stepper-track"><div class="opw-stepper-fill" t-attf-style="width: {{progressPct}}%"/></div>
+      </div>
+
+      <div class="opw-body">
+
+        <!-- Success screen -->
+        <div t-if="state.success" class="opw-success">
+          <div class="opw-success-burst">
+            <i class="fa fa-check"/>
+          </div>
+          <h2 class="opw-success-title" t-if="!isBulk">Payslip Validated!</h2>
+          <h2 class="opw-success-title" t-else="">
+            <t t-esc="bulkValidatedResults.length"/> Payslips Validated!
+          </h2>
+          <p class="opw-success-sub" t-if="!isBulk">
+            <t t-esc="state.employeeName"/> · <t t-esc="state.dateFrom"/> → <t t-esc="state.dateTo"/> · <t t-esc="state.slipNumber"/>
+          </p>
+          <p class="opw-success-sub" t-else="">
+            <t t-esc="state.dateFrom"/> → <t t-esc="state.dateTo"/>
+            <t t-if="bulkSkippedResults.length"> · <t t-esc="bulkSkippedResults.length"/> skipped (already existed)</t>
+            <t t-if="bulkErrorResults.length"> · <t t-esc="bulkErrorResults.length"/> failed</t>
+          </p>
+          <div class="opw-success-netpay">
+            <span class="opw-success-netpay-label">Total Net Pay</span>
+            <span class="opw-success-netpay-value" t-esc="formatMoney(state.netPay)"/>
+          </div>
+
+          <div class="opw-pay-panel" t-if="!state.paidDone">
+            <select t-on-change="onPaymentModeChange">
+              <option value="advice" t-att-selected="state.paymentMode === 'advice'">Payment Advice</option>
+              <option value="neft" t-att-selected="state.paymentMode === 'neft'">NEFT (Bank Transfer)</option>
+              <option value="cheque" t-att-selected="state.paymentMode === 'cheque'">Cheque</option>
+            </select>
+            <input type="date" t-att-value="state.paymentDate" t-on-change="onPaymentDateChange"/>
+            <button type="button" class="opw-btn-primary" t-att-disabled="state.markingPaid" t-on-click="onMarkPaid">
+              <i t-if="state.markingPaid" class="fa fa-spinner fa-spin"/>
+              <i t-else="" class="fa fa-money"/> Mark as Paid
+            </button>
+          </div>
+          <div class="opw-pay-confirmed" t-if="state.paidDone">
+            <i class="fa fa-check-circle"/> Marked as Paid
+          </div>
+
+          <!-- Single-employee: actions + PDF preview -->
+          <div class="opw-success-layout" t-if="!isBulk">
+            <div class="opw-success-actions">
+              <button type="button" class="opw-btn-primary" t-on-click="viewPayslip"><i class="fa fa-external-link"/> View Payslip</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="printPayslip"><i class="fa fa-print"/> Print / Download</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="createAnother"><i class="fa fa-plus"/> Create Another</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="onClose">Close</button>
+            </div>
+            <div class="opw-success-preview">
+              <div t-if="state.previewLoading" class="opw-preview-status"><i class="fa fa-spinner fa-spin"/> Rendering preview…</div>
+              <div t-if="state.previewError" class="opw-preview-status" t-esc="state.previewError"/>
+              <div t-foreach="state.previewPages" t-as="pg" t-key="pg_index" class="opw-preview-page">
+                <img t-att-src="pg.url" class="opw-preview-img"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bulk: actions + results list -->
+          <div class="opw-success-layout opw-success-layout-bulk" t-if="isBulk">
+            <div class="opw-success-actions">
+              <button type="button" class="opw-btn-primary" t-on-click="viewBulkRun"><i class="fa fa-external-link"/> View Payslip Batch</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="printBulkPayslips"><i class="fa fa-print"/> Print / Download</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="createAnother"><i class="fa fa-plus"/> Create Another</button>
+              <button type="button" class="opw-btn-ghost" t-on-click="onClose">Close</button>
+            </div>
+            <table class="opw-table opw-bulk-result-table">
+              <thead><tr><th>Employee</th><th>Status</th><th class="text-end">Net Pay</th></tr></thead>
+              <tbody>
+                <tr t-foreach="state.bulkResults" t-as="r" t-key="r.employee_id">
+                  <td t-esc="r.employee_name"/>
+                  <td>
+                    <span t-if="r.status === 'validated' &amp;&amp; state.paidDone" class="opw-badge opw-badge-paid">Paid</span>
+                    <span t-if="r.status === 'validated' &amp;&amp; !state.paidDone" class="opw-badge opw-badge-ok">Validated</span>
+                    <span t-if="r.status === 'skipped'" class="opw-badge opw-badge-warn" t-att-title="r.reason">Skipped</span>
+                    <span t-if="r.status === 'error'" class="opw-badge opw-badge-error" t-att-title="r.reason">Failed</span>
+                  </td>
+                  <td class="text-end" t-esc="r.status === 'validated' ? formatMoney(r.net_total) : '—'"/>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 1: Employee &amp; Period -->
+        <div t-if="currentStep === 'employee'" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-user"/></div>
+            <div>
+              <h3 class="opw-step-title">Who is this payslip for?</h3>
+              <p class="opw-step-sub">Search or filter, pick one employee for a detailed payslip, or select several to generate them all at once.</p>
+            </div>
+          </div>
+
+          <div class="opw-form-grid">
+            <div class="opw-field">
+              <label>Period Start</label>
+              <input type="date" t-model="state.dateFrom"/>
+            </div>
+            <div class="opw-field">
+              <label>Period End</label>
+              <input type="date" t-model="state.dateTo"/>
+            </div>
+          </div>
+
+          <div t-if="state.duplicateInfo" class="opw-duplicate-notice">
+            <i class="fa fa-info-circle"/>
+            <div class="opw-duplicate-body">
+              <strong>A payslip already exists for this employee &amp; period</strong>
+              <p>
+                <t t-esc="state.duplicateInfo.number"/> ·
+                <t t-esc="state.duplicateInfo.date_from"/> → <t t-esc="state.duplicateInfo.date_to"/> ·
+                Status: <t t-esc="state.duplicateInfo.state"/>
+              </p>
+            </div>
+            <div class="opw-duplicate-actions">
+              <button type="button" class="opw-btn-ghost" t-on-click="openExistingPayslip">Open Existing Payslip</button>
+              <button type="button" class="opw-btn-primary" t-on-click="confirmCreateDuplicate">Create Duplicate Anyway</button>
+            </div>
+          </div>
+
+          <!-- Bulk mode: warn about any employees that already have a payslip for this period -->
+          <div t-if="state.bulkDuplicateInfo" class="opw-duplicate-notice opw-duplicate-notice-bulk">
+            <i class="fa fa-info-circle"/>
+            <div class="opw-duplicate-body">
+              <strong><t t-esc="state.bulkDuplicateInfo.length"/> of <t t-esc="state.selectedEmployeeIds.length"/> selected employees already have a payslip for this period</strong>
+              <ul class="opw-duplicate-list">
+                <li t-foreach="state.bulkDuplicateInfo" t-as="conflict" t-key="conflict.employee_id">
+                  <span t-esc="conflict.employee_name"/> — <t t-esc="conflict.number"/> (<t t-esc="conflict.state"/>)
+                  <button type="button" class="opw-link-btn" t-on-click="() => this.openBulkDuplicate(conflict)">Open</button>
+                </li>
+              </ul>
+            </div>
+            <div class="opw-duplicate-actions">
+              <button type="button" class="opw-btn-ghost" t-on-click="confirmBulkSkipDuplicates">
+                Skip Them, Generate the Rest (<t t-esc="state.selectedEmployeeIds.length - state.bulkDuplicateInfo.length"/>)
+              </button>
+              <button type="button" class="opw-btn-primary" t-on-click="confirmBulkCreateDuplicates">Create Duplicates for Everyone Anyway</button>
+            </div>
+          </div>
+
+          <!-- Search + advanced filters -->
+          <div class="opw-search-bar">
+            <div class="opw-search-input">
+              <i class="fa fa-search"/>
+              <input type="text" placeholder="Search employees by name or job title..."
+                     t-att-value="state.employeeSearch" t-on-input="onSearchInput"/>
+            </div>
+            <select class="opw-filter-select" t-on-change="onFilterDeptChange">
+              <option value="">All Departments</option>
+              <option t-foreach="state.departments" t-as="dept" t-key="dept.id"
+                      t-att-value="dept.id" t-att-selected="state.filterDeptId === dept.id"
+                      t-esc="dept.name"/>
+            </select>
+            <div class="opw-filter-pills">
+              <button type="button" t-attf-class="opw-filter-pill {{ state.filterStructure === 'all' ? 'is-active' : '' }}"
+                      t-on-click="() => this.setFilterStructure('all')">All</button>
+              <button type="button" t-attf-class="opw-filter-pill {{ state.filterStructure === 'set' ? 'is-active' : '' }}"
+                      t-on-click="() => this.setFilterStructure('set')">Has Structure</button>
+              <button type="button" t-attf-class="opw-filter-pill {{ state.filterStructure === 'unset' ? 'is-active' : '' }}"
+                      t-on-click="() => this.setFilterStructure('unset')">No Structure</button>
+            </div>
+          </div>
+
+          <div class="opw-selection-bar">
+            <span class="opw-selection-count">
+              <t t-esc="filteredEmployees.length"/> employee<t t-if="filteredEmployees.length !== 1">s</t> shown
+              <t t-if="state.selectedEmployeeIds.length">
+                · <strong><t t-esc="state.selectedEmployeeIds.length"/> selected</strong>
+              </t>
+            </span>
+            <div class="opw-selection-actions">
+              <button type="button" class="opw-link-btn" t-on-click="selectAllFiltered" t-if="!allFilteredSelected">
+                Select All Shown
+              </button>
+              <button type="button" class="opw-link-btn" t-on-click="clearSelection" t-if="state.selectedEmployeeIds.length">
+                Clear Selection
+              </button>
+            </div>
+          </div>
+
+          <div class="opw-employee-grid">
+            <div t-foreach="filteredEmployees" t-as="emp" t-key="emp.id"
+                 t-attf-class="opw-employee-card {{ state.selectedEmployeeIds.includes(emp.id) ? 'is-selected' : '' }}"
+                 t-on-click="() => this.toggleEmployee(emp)">
+              <div class="opw-employee-check">
+                <i t-if="state.selectedEmployeeIds.includes(emp.id)" class="fa fa-check-circle"/>
+                <i t-else="" class="fa fa-circle-o"/>
+              </div>
+              <div t-attf-class="opw-employee-avatar opw-color-{{avatarColor(emp.id)}}" t-esc="(emp.name || '?')[0].toUpperCase()"/>
+              <div class="opw-employee-name" t-esc="emp.name"/>
+              <div class="opw-employee-sub" t-esc="emp.job_title || ''"/>
+              <div t-if="!emp.struct_id" class="opw-employee-warn">No structure set</div>
+            </div>
+            <div t-if="!filteredEmployees.length" class="opw-empty opw-empty-wide">No employees match this search/filter.</div>
+          </div>
+        </div>
+
+        <!-- Step 2: Worked Days (single-employee only) -->
+        <div t-if="currentStep === 'worked' &amp;&amp; !isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-clock-o"/></div>
+            <div>
+              <h3 class="opw-step-title">Worked days for this period</h3>
+              <p class="opw-step-sub">Pulled automatically from approved HR Timesheet Pro sheets and Time Off.</p>
+            </div>
+            <button type="button" class="opw-btn-ghost opw-refresh-btn" t-on-click="refreshWorkedDays">
+              <i t-attf-class="fa fa-refresh {{ state.loadingStep ? 'fa-spin' : '' }}"/> Refresh
+            </button>
+          </div>
+          <table class="opw-table opw-table-editable">
+            <thead><tr><th>Description</th><th>Code</th><th class="text-end">Days</th><th class="text-end">Hours</th><th/></tr></thead>
+            <tbody>
+              <tr t-foreach="state.workedDays" t-as="wd" t-key="wd.id">
+                <td>
+                  <input type="text" class="opw-inline-input" t-att-value="wd.name"
+                         t-on-change="(ev) => this.onWorkedDayFieldChange(wd, 'name', ev)"/>
+                </td>
+                <td>
+                  <input type="text" class="opw-inline-input opw-code" t-att-value="wd.code"
+                         placeholder="e.g. LWOP"
+                         t-on-change="(ev) => this.onWorkedDayFieldChange(wd, 'code', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end" t-att-value="wd.number_of_days"
+                         t-on-change="(ev) => this.onWorkedDayFieldChange(wd, 'number_of_days', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end" t-att-value="wd.number_of_hours"
+                         t-on-change="(ev) => this.onWorkedDayFieldChange(wd, 'number_of_hours', ev)"/>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="opw-btn-icon" title="Remove line" t-on-click="() => this.removeWorkedDayLine(wd)">
+                    <i class="fa fa-trash-o"/>
+                  </button>
+                </td>
+              </tr>
+              <tr t-if="!state.workedDays.length"><td colspan="5" class="opw-empty">No worked days yet.</td></tr>
+            </tbody>
+          </table>
+          <button type="button" class="opw-btn-ghost opw-add-line-btn" t-on-click="addWorkedDayLine">
+            <i class="fa fa-plus"/> Add Line
+          </button>
+        </div>
+
+        <!-- Step 2 (bulk): Worked Days for every generated employee -->
+        <div t-if="currentStep === 'worked' &amp;&amp; isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-clock-o"/></div>
+            <div>
+              <h3 class="opw-step-title">Worked days — <t t-esc="bulkWorkedDaysFiltered.length"/> Employees</h3>
+              <p class="opw-step-sub">Auto-pulled per employee from Timesheets/Time Off. Edit any cell directly, or bulk-edit several rows at once.</p>
+            </div>
+            <button type="button" class="opw-btn-ghost opw-refresh-btn" t-on-click="toggleShowBulkEdit">
+              <i class="fa fa-pencil-square-o"/> Bulk Edit
+            </button>
+          </div>
+
+          <div t-if="bulkSkippedResults.length + bulkErrorResults.length > 0" class="opw-duplicate-notice opw-generation-notice">
+            <i class="fa fa-exclamation-triangle"/>
+            <div class="opw-duplicate-body">
+              <strong>
+                <t t-esc="bulkCreatedResults.length"/> of <t t-esc="state.bulkResults.length"/> employees generated -
+                <t t-esc="bulkSkippedResults.length + bulkErrorResults.length"/> didn't make it in
+              </strong>
+              <ul class="opw-duplicate-list">
+                <li t-foreach="bulkSkippedResults" t-as="r" t-key="r.employee_id">
+                  <span t-esc="r.employee_name"/> — Skipped: <t t-esc="r.reason"/>
+                </li>
+                <li t-foreach="bulkErrorResults" t-as="r" t-key="r.employee_id">
+                  <span t-esc="r.employee_name"/> — Failed: <t t-esc="r.reason"/>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="opw-bulk-edit-panel" t-if="state.showBulkEdit">
+            <span><t t-esc="state.bulkEditSelectedIds.length"/> row(s) checked</span>
+            <select t-on-change="onBulkEditFieldChange">
+              <option value="paid_days" t-att-selected="state.bulkEditField === 'paid_days'">Total Paid Days</option>
+              <option value="working_days" t-att-selected="state.bulkEditField === 'working_days'">Working Days in Period</option>
+            </select>
+            <span>=</span>
+            <input type="number" step="0.5" t-att-value="state.bulkEditValue" t-on-change="onBulkEditValueChange"/>
+            <button type="button" class="opw-btn-primary" t-att-disabled="!state.bulkEditSelectedIds.length" t-on-click="applyBulkEdit">
+              Apply to <t t-esc="state.bulkEditSelectedIds.length"/> Selected
+            </button>
+          </div>
+
+          <div class="opw-search-bar">
+            <div class="opw-search-input">
+              <i class="fa fa-search"/>
+              <input type="text" placeholder="Search employees..."
+                     t-att-value="state.bulkTableSearch"
+                     t-on-input="onBulkTableSearchInput"/>
+            </div>
+          </div>
+
+          <table class="opw-table opw-table-editable opw-bulk-worked-table">
+            <thead>
+              <tr>
+                <th class="opw-checkbox-col"><input type="checkbox" t-att-checked="allBulkEditSelected" t-on-change="toggleBulkEditAll"/></th>
+                <th>Employee</th>
+                <th class="text-end">Working Days</th>
+                <th class="text-end">Timesheet Days</th>
+                <th class="text-end">Total Paid Days</th>
+                <th class="text-end">Hours</th>
+                <th/>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="bulkWorkedDaysFiltered" t-as="row" t-key="row.slip_id">
+                <td class="opw-checkbox-col">
+                  <input type="checkbox" t-att-checked="state.bulkEditSelectedIds.includes(row.slip_id)"
+                         t-on-change="() => this.toggleBulkEditRow(row)"/>
+                </td>
+                <td>
+                  <t t-esc="row.employee_name"/>
+                  <i t-if="state.bulkRowBusy[row.slip_id]" class="fa fa-spinner fa-spin ms-1"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end"
+                         t-att-value="wdValue(row, 'WORKING_DAYS', 'number_of_days')"
+                         t-on-change="(ev) => this.onBulkWdFieldChange(row, 'WORKING_DAYS', 'number_of_days', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end"
+                         t-att-value="wdValue(row, 'WORK100', 'number_of_days')"
+                         t-on-change="(ev) => this.onBulkWdFieldChange(row, 'WORK100', 'number_of_days', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end"
+                         t-att-value="wdValue(row, 'PAID_DAYS', 'number_of_days')"
+                         t-on-change="(ev) => this.onBulkWdFieldChange(row, 'PAID_DAYS', 'number_of_days', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.5" class="opw-inline-input text-end"
+                         t-att-value="wdValue(row, 'PAID_DAYS', 'number_of_hours')"
+                         t-on-change="(ev) => this.onBulkWdFieldChange(row, 'PAID_DAYS', 'number_of_hours', ev)"/>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="opw-btn-icon" title="Remove this employee from the batch" t-on-click="() => this.removeBulkEmployee(row)">
+                    <i class="fa fa-trash-o"/>
+                  </button>
+                </td>
+              </tr>
+              <tr t-if="!bulkWorkedDaysFiltered.length"><td colspan="7" class="opw-empty">No employees to show.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Step 3: Earnings (auto) + Bonus (manual) - single-employee only -->
+        <div t-if="currentStep === 'earnings' &amp;&amp; !isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-arrow-up"/></div>
+            <div>
+              <h3 class="opw-step-title">Earnings</h3>
+              <p class="opw-step-sub">Basic, HRA, CCA, Medical &amp; Project Allowance are auto-computed from the employee's compensation. Bonus is the only manual entry.</p>
+            </div>
+          </div>
+          <table class="opw-table">
+            <thead><tr><th>Component</th><th class="text-end">Amount</th></tr></thead>
+            <tbody>
+              <tr t-foreach="earningLines" t-as="line" t-key="line.id">
+                <td t-esc="line.name"/>
+                <td class="text-end" t-esc="formatMoney(line.total)"/>
+              </tr>
+            </tbody>
+          </table>
+          <div class="opw-input-row" t-if="inputByCode('BONUS')">
+            <label>Bonus if any</label>
+            <input type="number" step="0.01"
+                   t-att-value="inputByCode('BONUS').amount"
+                   t-on-change="(ev) => this.onInputChange('BONUS', ev)"/>
+          </div>
+          <div class="opw-total-row">
+            <span>Gross Total</span>
+            <strong t-esc="formatMoney(grossTotal)"/>
+          </div>
+        </div>
+
+        <!-- Step 3 (bulk): Earnings, aggregated per component across every employee -->
+        <div t-if="currentStep === 'earnings' &amp;&amp; isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-arrow-up"/></div>
+            <div>
+              <h3 class="opw-step-title">Earnings — <t t-esc="bulkCreatedResults.length"/> Employees</h3>
+              <p class="opw-step-sub">Basic/HRA/CCA/Medical/Project Allowance are auto-computed per employee. Bonus below applies the same amount to everyone.</p>
+            </div>
+          </div>
+          <table class="opw-table opw-bulk-component-table">
+            <thead><tr><th>Component</th><th>Employees Impacted</th><th class="text-end">Total Amount</th></tr></thead>
+            <tbody>
+              <tr t-foreach="bulkEarningComponents" t-as="c" t-key="c.code">
+                <td t-esc="c.name"/>
+                <td>
+                  <div class="opw-impact-bar"><div class="opw-impact-fill" t-attf-style="width: {{ c.total_employees ? (c.impacted / c.total_employees * 100) : 0 }}%"/></div>
+                  <span class="opw-impact-label"><t t-esc="c.impacted"/> of <t t-esc="c.total_employees"/></span>
+                </td>
+                <td class="text-end" t-esc="formatMoney(c.total)"/>
+              </tr>
+            </tbody>
+          </table>
+          <div class="opw-input-row">
+            <label>Bonus for all selected employees</label>
+            <input type="number" step="0.01" value="0" t-on-change="onBulkBonusChange"/>
+          </div>
+          <div class="opw-total-row">
+            <span>Total Earnings (all employees)</span>
+            <strong t-esc="formatMoney(bulkEarningsTotal)"/>
+          </div>
+
+          <h4 class="opw-subsection-title">Per-Employee Breakdown</h4>
+          <p class="opw-subsection-note">
+            Basic/HRA/CCA/Medical/Project Allowance are auto-computed from each employee's own Compensation Rules
+            (Employee → Payroll tab) - edit them there to change the formula. Bonus is a manual entry per payslip, editable below.
+          </p>
+          <table class="opw-table opw-table-scroll opw-per-employee-table">
+            <thead>
+              <tr>
+                <th>Employee</th><th class="text-end">Basic</th><th class="text-end">HRA</th>
+                <th class="text-end">CCA</th><th class="text-end">Medical</th>
+                <th class="text-end">Project Allw.</th><th class="text-end">Bonus</th>
+                <th class="text-end">Gross</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="bulkEarningsPerEmployee" t-as="row" t-key="row.slip_id">
+                <td>
+                  <t t-esc="row.employee_name"/>
+                  <i t-if="state.bulkRowBusy[row.slip_id]" class="fa fa-spinner fa-spin ms-1"/>
+                </td>
+                <td class="text-end" t-esc="formatMoney(row.basic)"/>
+                <td class="text-end" t-esc="formatMoney(row.hra)"/>
+                <td class="text-end" t-esc="formatMoney(row.cca)"/>
+                <td class="text-end" t-esc="formatMoney(row.medical)"/>
+                <td class="text-end" t-esc="formatMoney(row.projalw)"/>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="row.bonus"
+                         t-on-change="(ev) => this.onBulkPerEmployeeInputChange(row.slip_id, 'BONUS', ev)"/>
+                </td>
+                <td class="text-end"><strong t-esc="formatMoney(row.gross)"/></td>
+              </tr>
+              <tr t-if="!bulkEarningsPerEmployee.length"><td colspan="8" class="opw-empty">No employees to show.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Step 4: Deductions (auto) + TDS/Additional (manual) - single-employee only -->
+        <div t-if="currentStep === 'deductions' &amp;&amp; !isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-arrow-down"/></div>
+            <div>
+              <h3 class="opw-step-title">Deductions</h3>
+              <p class="opw-step-sub">EPF and LWF (employee share) are auto-computed. TDS and any additional deduction are entered per payslip since they vary.</p>
+            </div>
+          </div>
+          <table class="opw-table">
+            <thead><tr><th>Component</th><th class="text-end">Amount</th></tr></thead>
+            <tbody>
+              <tr t-foreach="deductionLines" t-as="line" t-key="line.id">
+                <td t-esc="line.name"/>
+                <td class="text-end" t-esc="formatMoney(-line.total)"/>
+              </tr>
+            </tbody>
+          </table>
+          <div class="opw-input-row" t-if="inputByCode('TDS')">
+            <label>TDS if any</label>
+            <input type="number" step="0.01"
+                   t-att-value="inputByCode('TDS').amount"
+                   t-on-change="(ev) => this.onInputChange('TDS', ev)"/>
+          </div>
+          <div class="opw-input-row" t-if="inputByCode('ADDLDED')">
+            <label>Additional Deductions if any</label>
+            <input type="number" step="0.01"
+                   t-att-value="inputByCode('ADDLDED').amount"
+                   t-on-change="(ev) => this.onInputChange('ADDLDED', ev)"/>
+          </div>
+        </div>
+
+        <!-- Step 4 (bulk): Deductions, aggregated per component across every employee -->
+        <div t-if="currentStep === 'deductions' &amp;&amp; isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-arrow-down"/></div>
+            <div>
+              <h3 class="opw-step-title">Deductions — <t t-esc="bulkCreatedResults.length"/> Employees</h3>
+              <p class="opw-step-sub">EPF/LWF are auto-computed per employee. TDS and Additional Deduction below apply the same amount to everyone.</p>
+            </div>
+          </div>
+          <table class="opw-table opw-bulk-component-table">
+            <thead><tr><th>Component</th><th>Employees Impacted</th><th class="text-end">Total Amount</th></tr></thead>
+            <tbody>
+              <tr t-foreach="bulkDeductionComponents" t-as="c" t-key="c.code">
+                <td t-esc="c.name"/>
+                <td>
+                  <div class="opw-impact-bar"><div class="opw-impact-fill" t-attf-style="width: {{ c.total_employees ? (c.impacted / c.total_employees * 100) : 0 }}%"/></div>
+                  <span class="opw-impact-label"><t t-esc="c.impacted"/> of <t t-esc="c.total_employees"/></span>
+                </td>
+                <td class="text-end" t-esc="formatMoney(-c.total)"/>
+              </tr>
+            </tbody>
+          </table>
+          <div class="opw-input-row">
+            <label>TDS for all selected employees</label>
+            <input type="number" step="0.01" value="0" t-on-change="onBulkTdsChange"/>
+          </div>
+          <div class="opw-input-row">
+            <label>Additional Deduction for all selected employees</label>
+            <input type="number" step="0.01" value="0" t-on-change="onBulkAddlDedChange"/>
+          </div>
+          <div class="opw-total-row">
+            <span>Total Deductions (all employees)</span>
+            <strong t-esc="formatMoney(bulkDeductionsTotal)"/>
+          </div>
+
+          <h4 class="opw-subsection-title">Per-Employee Breakdown</h4>
+          <p class="opw-subsection-note">
+            EPF/LWF are auto-computed from each employee's Compensation Rules. TDS and Additional Deduction are manual entries per payslip, editable below.
+          </p>
+          <table class="opw-table opw-table-scroll opw-per-employee-table">
+            <thead>
+              <tr>
+                <th>Employee</th><th class="text-end">EPF</th><th class="text-end">LWF</th>
+                <th class="text-end">TDS</th><th class="text-end">Additional</th>
+                <th class="text-end">Total Deduction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr t-foreach="bulkDeductionsPerEmployee" t-as="row" t-key="row.slip_id">
+                <td>
+                  <t t-esc="row.employee_name"/>
+                  <i t-if="state.bulkRowBusy[row.slip_id]" class="fa fa-spinner fa-spin ms-1"/>
+                </td>
+                <td class="text-end" t-esc="formatMoney(-row.epf)"/>
+                <td class="text-end" t-esc="formatMoney(-row.lwf)"/>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="-row.tds"
+                         t-on-change="(ev) => this.onBulkPerEmployeeInputChange(row.slip_id, 'TDS', ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="-row.addl"
+                         t-on-change="(ev) => this.onBulkPerEmployeeInputChange(row.slip_id, 'ADDLDED', ev)"/>
+                </td>
+                <td class="text-end"><strong t-esc="formatMoney(-row.total)"/></td>
+              </tr>
+              <tr t-if="!bulkDeductionsPerEmployee.length"><td colspan="6" class="opw-empty">No employees to show.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Step 5: Review &amp; Confirm -->
+        <div t-if="currentStep === 'review' &amp;&amp; !isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-check"/></div>
+            <div>
+              <h3 class="opw-step-title">Review &amp; Confirm</h3>
+              <p class="opw-step-sub">Validating locks the payslip, posts the accounting entry (if configured), and generates the payslip PDF.</p>
+            </div>
+          </div>
+          <div class="opw-review-grid">
+            <div class="opw-review-item"><label>Employee</label><span t-esc="state.employeeName"/></div>
+            <div class="opw-review-item"><label>Period</label><span><t t-esc="state.dateFrom"/> → <t t-esc="state.dateTo"/></span></div>
+          </div>
+          <div class="opw-summary-cards">
+            <div class="opw-summary-card">
+              <div class="opw-summary-label">Gross</div>
+              <div class="opw-summary-value" t-esc="formatMoney(grossTotal)"/>
+            </div>
+            <div class="opw-summary-card opw-summary-card-net">
+              <div class="opw-summary-label">Net Pay</div>
+              <div class="opw-summary-value" t-esc="formatMoney(netTotal)"/>
+            </div>
+            <div class="opw-summary-card">
+              <div class="opw-summary-label">Total CTC</div>
+              <div class="opw-summary-value" t-esc="formatMoney(ctcTotal)"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 (bulk): Review &amp; Validate all generated payslips -->
+        <div t-if="currentStep === 'review' &amp;&amp; isBulk" class="opw-step-panel">
+          <div class="opw-step-header">
+            <div class="opw-step-header-icon"><i class="fa fa-check"/></div>
+            <div>
+              <h3 class="opw-step-title">Review &amp; Confirm — <t t-esc="state.selectedEmployeeIds.length"/> Employees</h3>
+              <p class="opw-step-sub">Each payslip was generated automatically from Timesheets/Time Off. Validating locks all of them at once.</p>
+            </div>
+          </div>
+          <div t-if="state.loadingStep" class="opw-preview-status opw-bulk-generating">
+            <i class="fa fa-spinner fa-spin"/> Generating payslips…
+          </div>
+          <t t-else="">
+            <div class="opw-summary-cards">
+              <div class="opw-summary-card">
+                <div class="opw-summary-label">Created</div>
+                <div class="opw-summary-value" t-esc="bulkCreatedResults.length"/>
+              </div>
+              <div class="opw-summary-card opw-summary-card-net">
+                <div class="opw-summary-label">Total Net Pay</div>
+                <div class="opw-summary-value" t-esc="formatMoney(bulkNetTotal)"/>
+              </div>
+              <div class="opw-summary-card">
+                <div class="opw-summary-label">Skipped / Failed</div>
+                <div class="opw-summary-value"><t t-esc="bulkSkippedResults.length + bulkErrorResults.length"/></div>
+              </div>
+            </div>
+            <table class="opw-table opw-bulk-result-table">
+              <thead><tr><th>Employee</th><th>Status</th><th class="text-end">Net Pay</th></tr></thead>
+              <tbody>
+                <tr t-foreach="state.bulkResults" t-as="r" t-key="r.employee_id">
+                  <td t-esc="r.employee_name"/>
+                  <td>
+                    <span t-if="r.status === 'created'" class="opw-badge opw-badge-ok">Ready</span>
+                    <span t-if="r.status === 'skipped'" class="opw-badge opw-badge-warn" t-att-title="r.reason">Skipped - already exists</span>
+                    <span t-if="r.status === 'error'" class="opw-badge opw-badge-error" t-att-title="r.reason">Failed</span>
+                  </td>
+                  <td class="text-end" t-esc="r.status === 'created' ? formatMoney(r.net_total) : '—'"/>
+                </tr>
+                <tr t-if="!state.bulkResults.length"><td colspan="3" class="opw-empty">No results yet.</td></tr>
+              </tbody>
+            </table>
+          </t>
+        </div>
+
+        <div t-if="state.error" class="opw-error"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.error"/></div>
+      </div>
+
+      <div class="opw-footer" t-if="!state.success">
+        <button type="button" class="opw-btn-ghost" t-on-click="onCancel">Cancel</button>
+        <div class="opw-footer-right">
+          <button type="button" class="opw-btn-ghost" t-if="!isFirstStep" t-on-click="goBack">Back</button>
+          <button type="button" class="opw-btn-primary" t-if="!isLastStep" t-att-disabled="state.loadingStep || state.checkingDuplicate" t-on-click="goNext">
+            <i t-if="state.loadingStep || state.checkingDuplicate" class="fa fa-spinner fa-spin"/>
+            <t t-if="isBulk &amp;&amp; currentStep === 'employee'">Generate <t t-esc="state.selectedEmployeeIds.length"/> Payslips</t>
+            <t t-else="">Next</t>
+          </button>
+          <button type="button" class="opw-btn-primary" t-if="isLastStep &amp;&amp; !isBulk" t-att-disabled="state.submitting" t-on-click="onValidate">
+            <i t-if="state.submitting" class="fa fa-spinner fa-spin"/> Validate &amp; Generate Payslip
+          </button>
+          <button type="button" class="opw-btn-primary" t-if="isLastStep &amp;&amp; isBulk" t-att-disabled="state.bulkValidating || state.loadingStep || !bulkCreatedResults.length" t-on-click="onValidateBulk">
+            <i t-if="state.bulkValidating" class="fa fa-spinner fa-spin"/> Validate All (<t t-esc="bulkCreatedResults.length"/>)
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </t>
+</templates>

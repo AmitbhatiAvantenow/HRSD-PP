@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- New categories used by the India: Regular Pay structure -->
+        <record id="CCA" model="hr.salary.rule.category">
+            <field name="name">City Compensatory Allowance</field>
+            <field name="code">CCA</field>
+            <field name="parent_id" ref="hr_payroll_community.ALW"/>
+        </record>
+        <record id="PROJALW" model="hr.salary.rule.category">
+            <field name="name">Project &amp; Special Allowance</field>
+            <field name="code">PROJALW</field>
+            <field name="parent_id" ref="hr_payroll_community.ALW"/>
+        </record>
+        <record id="BONUS_CAT" model="hr.salary.rule.category">
+            <field name="name">Bonus</field>
+            <field name="code">BONUS</field>
+            <field name="parent_id" ref="hr_payroll_community.ALW"/>
+        </record>
+        <record id="INFO" model="hr.salary.rule.category">
+            <field name="name">Info (not on payslip)</field>
+            <field name="code">INFO</field>
+        </record>
+        <record id="CTC_CAT" model="hr.salary.rule.category">
+            <field name="name">Total CTC</field>
+            <field name="code">CTC</field>
+        </record>
+
+        <!-- Basic: % of Gross wage, pro-rated by days actually paid
+             (timesheet attendance + paid leave) over scheduled working
+             days in the period. -->
+        <record id="hr_rule_in_basic" model="hr.salary.rule">
+            <field name="name">Basic Salary</field>
+            <field name="sequence" eval="1"/>
+            <field name="code">BASIC</field>
+            <field name="category_id" ref="hr_payroll_community.BASIC"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
+PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
+ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
+result = contract.wage * (contract.ctc_basic_percentage / 100.0) * ratio</field>
+            <field name="note">Basic Salary = Gross Wage x Basic % x (Paid Hours / Working Hours). Pro-rated by hours, not days, so editing the Hours column on a worked-days line actually changes pay.</field>
+        </record>
+
+        <!-- Hidden helper: EPF is computed on Basic capped at the
+             statutory wage ceiling (pro-rated the same way as Basic). -->
+        <record id="hr_rule_in_epf_base" model="hr.salary.rule">
+            <field name="name">EPF Contribution Base (hidden)</field>
+            <field name="sequence" eval="5"/>
+            <field name="code">EPF_BASE</field>
+            <field name="category_id" ref="INFO"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
+PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
+ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
+result = min(categories.BASIC, contract.epf_wage_ceiling * ratio)</field>
+        </record>
+
+        <record id="hr_rule_in_hra" model="hr.salary.rule">
+            <field name="name">House Rent Allowance</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">HRA</field>
+            <field name="category_id" ref="hr_payroll_community.HRA"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC * (contract.hra_percentage_of_basic / 100.0)</field>
+        </record>
+
+        <record id="hr_rule_in_cca" model="hr.salary.rule">
+            <field name="name">City Compensatory Allowance</field>
+            <field name="sequence" eval="11"/>
+            <field name="code">CCA</field>
+            <field name="category_id" ref="CCA"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC * (contract.cca_percentage_of_basic / 100.0)</field>
+        </record>
+
+        <record id="hr_rule_in_medical" model="hr.salary.rule">
+            <field name="name">Medical Allowance</field>
+            <field name="sequence" eval="12"/>
+            <field name="code">MEDICAL</field>
+            <field name="category_id" ref="hr_payroll_community.Medical"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
+PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
+ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
+result = contract.medical_allowance * ratio</field>
+        </record>
+
+        <record id="hr_rule_in_projalw" model="hr.salary.rule">
+            <field name="name">Project and Special Allowance</field>
+            <field name="sequence" eval="15"/>
+            <field name="code">PROJALW</field>
+            <field name="category_id" ref="PROJALW"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
+PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
+ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
+result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
+            <field name="note">Balancing figure: Gross target (pro-rated) minus Basic and every other allowance already computed.</field>
+        </record>
+
+        <record id="hr_rule_in_bonus" model="hr.salary.rule">
+            <field name="name">Bonus if any</field>
+            <field name="sequence" eval="16"/>
+            <field name="code">BONUSAMT</field>
+            <field name="category_id" ref="BONUS_CAT"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.dict['BONUS'].amount if 'BONUS' in inputs.dict else 0.0</field>
+        </record>
+        <record id="input_bonus" model="hr.rule.input">
+            <field name="name">Bonus if any</field>
+            <field name="code">BONUS</field>
+            <field name="input_id" ref="hr_rule_in_bonus"/>
+        </record>
+
+        <!-- Statutory / manual-input deductions -->
+        <record id="hr_rule_in_epf_ee" model="hr.salary.rule">
+            <field name="name">EPF Employee Deduction</field>
+            <field name="sequence" eval="110"/>
+            <field name="code">EPF_EE</field>
+            <field name="category_id" ref="hr_payroll_community.DED"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -round(EPF_BASE * (contract.epf_employee_rate / 100.0), 2)</field>
+        </record>
+
+        <record id="hr_rule_in_lwf_ee" model="hr.salary.rule">
+            <field name="name">Labour Welfare Fund (Employee)</field>
+            <field name="sequence" eval="111"/>
+            <field name="code">LWF_EE</field>
+            <field name="category_id" ref="hr_payroll_community.DED"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -contract.lwf_employee</field>
+        </record>
+
+        <record id="hr_rule_in_tds" model="hr.salary.rule">
+            <field name="name">TDS if any</field>
+            <field name="sequence" eval="112"/>
+            <field name="code">TDSAMT</field>
+            <field name="category_id" ref="hr_payroll_community.DED"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -(inputs.dict['TDS'].amount if 'TDS' in inputs.dict else 0.0)</field>
+        </record>
+        <record id="input_tds" model="hr.rule.input">
+            <field name="name">TDS if any</field>
+            <field name="code">TDS</field>
+            <field name="input_id" ref="hr_rule_in_tds"/>
+        </record>
+
+        <record id="hr_rule_in_addldeduction" model="hr.salary.rule">
+            <field name="name">Additional Deductions if any</field>
+            <field name="sequence" eval="113"/>
+            <field name="code">ADDLDEDAMT</field>
+            <field name="category_id" ref="hr_payroll_community.DED"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -(inputs.dict['ADDLDED'].amount if 'ADDLDED' in inputs.dict else 0.0)</field>
+        </record>
+        <record id="input_addldeduction" model="hr.rule.input">
+            <field name="name">Additional Deductions if any</field>
+            <field name="code">ADDLDED</field>
+            <field name="input_id" ref="hr_rule_in_addldeduction"/>
+        </record>
+
+        <!-- Employer/company contributions: part of CTC, not deducted
+             from the employee's Net pay. -->
+        <record id="hr_rule_in_epf_er" model="hr.salary.rule">
+            <field name="name">Company EPF Share</field>
+            <field name="sequence" eval="120"/>
+            <field name="code">EPF_ER</field>
+            <field name="category_id" ref="hr_payroll_community.COMP"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = round(EPF_BASE * (contract.epf_employer_rate / 100.0), 2)</field>
+        </record>
+
+        <record id="hr_rule_in_epf_admin" model="hr.salary.rule">
+            <field name="name">EPF Admin / EDLI Charges</field>
+            <field name="sequence" eval="121"/>
+            <field name="code">EPF_ADMIN</field>
+            <field name="category_id" ref="hr_payroll_community.COMP"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = round(EPF_BASE * (contract.epf_admin_rate / 100.0), 2)</field>
+        </record>
+
+        <record id="hr_rule_in_lwf_er" model="hr.salary.rule">
+            <field name="name">Labour Welfare Fund (Employer)</field>
+            <field name="sequence" eval="122"/>
+            <field name="code">LWF_ER</field>
+            <field name="category_id" ref="hr_payroll_community.COMP"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = contract.lwf_employer</field>
+        </record>
+
+        <!-- Hidden: gratuity is a real employer cost that accrues monthly
+             even though it's only paid out at exit, so standard Indian
+             CTC definitions include it. Category COMP so it folds into
+             Total CTC automatically via categories.COMP below, matching
+             the employee's "Gratuity per Month" figure on their Payroll
+             tab (same formula: Basic x gratuity_rate). Not shown on the
+             payslip itself - purely a CTC contributor. -->
+        <record id="hr_rule_in_gratuity" model="hr.salary.rule">
+            <field name="name">Gratuity Accrual (hidden)</field>
+            <field name="sequence" eval="123"/>
+            <field name="code">GRATUITY</field>
+            <field name="category_id" ref="hr_payroll_community.COMP"/>
+            <field name="appears_on_payslip" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC * (contract.gratuity_rate / 100.0)</field>
+        </record>
+
+        <!-- Total CTC = everything earned (incl. bonus) + employer's EPF,
+             LWF and Gratuity accrual. Matches "Total Salary + EPF Share +
+             EPF Exp + Gratuity + Bonus" definition used on real Indian
+             payslips. -->
+        <record id="hr_rule_in_ctc" model="hr.salary.rule">
+            <field name="name">Total CTC (this period)</field>
+            <field name="sequence" eval="210"/>
+            <field name="code">CTC</field>
+            <field name="category_id" ref="CTC_CAT"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = categories.BASIC + categories.ALW + categories.COMP</field>
+        </record>
+
+        <!-- India: Regular Pay structure -->
+        <record id="structure_in_regular" model="hr.payroll.structure">
+            <field name="code">IN_REGULAR</field>
+            <field name="name">India: Regular Pay</field>
+            <!-- This structure is self-contained: it already includes its
+                 own Basic/Gross/Net rules (some by direct ref to the base
+                 module's rules). It must NOT inherit "Base for new
+                 structures" as a parent - that structure defines its OWN
+                 unconditional Basic/Gross/Net rules with the same codes,
+                 which get_all_rules()/_get_parent_structure() would merge
+                 in alongside these, double-firing same-code rules and
+                 corrupting the category totals used for pro-ration. -->
+            <field name="parent_id" eval="False"/>
+            <field name="note">Generic, configurable Indian payroll structure: Basic/HRA/CCA/Medical/Project Allowance auto pro-rated from Timesheet Pro attendance and Time Off, with statutory EPF (employee + employer + admin) and Labour Welfare Fund contributions.</field>
+            <field eval="[(6, 0, [
+                ref('hr_rule_in_basic'),
+                ref('hr_rule_in_epf_base'),
+                ref('hr_rule_in_hra'),
+                ref('hr_rule_in_cca'),
+                ref('hr_rule_in_medical'),
+                ref('hr_rule_in_projalw'),
+                ref('hr_rule_in_bonus'),
+                ref('hr_payroll_community.hr_rule_taxable'),
+                ref('hr_rule_in_epf_ee'),
+                ref('hr_rule_in_lwf_ee'),
+                ref('hr_rule_in_tds'),
+                ref('hr_rule_in_addldeduction'),
+                ref('hr_rule_in_epf_er'),
+                ref('hr_rule_in_epf_admin'),
+                ref('hr_rule_in_lwf_er'),
+                ref('hr_rule_in_gratuity'),
+                ref('hr_payroll_community.hr_rule_net'),
+                ref('hr_rule_in_ctc'),
+            ])]" name="rule_ids"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+    </data>
+</odoo>

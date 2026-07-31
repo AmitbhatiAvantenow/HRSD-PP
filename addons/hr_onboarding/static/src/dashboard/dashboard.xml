@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="hr_onboarding.Dashboard">
+        <div class="hro-app hro-dashboard">
+            <div class="hro-hero">
+                <div class="hro-hero-text">
+                    <h1>Welcome to HR Onboarding</h1>
+                    <p>Everything you need to bring new hires up to speed, in one workspace.</p>
+                </div>
+                <div class="hro-hero-actions">
+                    <button class="btn hro-btn-primary" t-on-click="() => this.openNewOnboarding()">
+                        <i class="fa fa-plus me-1"/> Create Onboarding
+                    </button>
+                    <button class="btn hro-btn-ghost" t-on-click="() => this.openAction('hr_onboarding.action_hr_onboarding_pipeline')">
+                        <i class="fa fa-columns me-1"/> Open Pipeline
+                    </button>
+                </div>
+            </div>
+
+            <div class="hro-kpi-grid">
+                <div t-foreach="kpiCards" t-as="card" t-key="card.key"
+                     t-attf-class="hro-kpi-card hro-kpi-#{card.color}">
+                    <div class="hro-kpi-icon"><i t-attf-class="fa #{card.icon}"/></div>
+                    <div class="hro-kpi-value"><t t-esc="card.value"/></div>
+                    <div class="hro-kpi-label"><t t-esc="card.label"/></div>
+                </div>
+            </div>
+
+            <div class="hro-quick-actions">
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_onboarding.action_hr_onboarding_document')">
+                    <i class="fa fa-file-text-o"/> Documents
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_onboarding.action_hr_onboarding_task')">
+                    <i class="fa fa-check-square-o"/> Tasks &amp; Checklists
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_onboarding.action_hr_onboarding_equipment')">
+                    <i class="fa fa-laptop"/> Equipment
+                </button>
+                <button class="hro-qa" t-on-click="() => this.openAction('hr_onboarding.action_hr_onboarding')">
+                    <i class="fa fa-list"/> All Records
+                </button>
+            </div>
+
+            <div class="hro-dashboard-columns">
+                <div class="hro-card hro-panel">
+                    <h4>Today's Joiners</h4>
+                    <div t-if="!state.todaysJoiners.length" class="hro-empty">No one is joining today.</div>
+                    <div t-foreach="state.todaysJoiners" t-as="joiner" t-key="joiner.id" class="hro-joiner-row">
+                        <div class="hro-avatar-sm"><t t-esc="joiner.display_name[0]"/></div>
+                        <div class="hro-joiner-info">
+                            <div class="hro-joiner-name"><t t-esc="joiner.display_name"/></div>
+                            <div class="hro-joiner-meta">
+                                <t t-esc="joiner.job_id ? joiner.job_id[1] : ''"/>
+                                <t t-if="joiner.department_id"> · <t t-esc="joiner.department_id[1]"/></t>
+                            </div>
+                        </div>
+                        <span class="hro-chip"><t t-esc="joiner.stage_id ? joiner.stage_id[1] : ''"/></span>
+                    </div>
+                </div>
+
+                <div class="hro-card hro-panel">
+                    <h4>Pending Tasks</h4>
+                    <div t-if="!state.pendingTasks.length" class="hro-empty">No pending tasks. Nice!</div>
+                    <div t-foreach="state.pendingTasks" t-as="task" t-key="task.id" class="hro-task-row">
+                        <i class="fa fa-square-o"/>
+                        <div class="hro-task-row-info">
+                            <div class="hro-task-row-name"><t t-esc="task.name"/></div>
+                            <div class="hro-task-row-meta">
+                                <t t-esc="task.onboarding_id ? task.onboarding_id[1] : ''"/>
+                                <t t-if="task.due_date"> · due <t t-esc="task.due_date"/></t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hro-card hro-panel">
+                    <h4>Recent Activity</h4>
+                    <div t-if="!state.recentActivity.length" class="hro-empty">No recent activity yet.</div>
+                    <div t-foreach="state.recentActivity" t-as="msg" t-key="msg.id" class="hro-activity-row">
+                        <div class="hro-activity-dot"/>
+                        <div class="hro-activity-info">
+                            <div class="hro-activity-text">
+                                <b t-esc="msg.onboardingName"/> — <t t-esc="msg.preview"/>
+                            </div>
+                            <div class="hro-activity-date"><t t-esc="msg.date"/></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="document_templates.ModernSelect">
+    <div class="doc-modern-select">
+        <input t-if="props.searchable" type="text"
+               class="doc-modern-select-input"
+               t-att-placeholder="props.placeholder"
+               t-att-value="state.query"
+               t-att-disabled="props.disabled"
+               t-on-input="onInput"
+               t-on-focus="onFocus"
+               t-on-blur="onBlur"/>
+        <div t-else="" class="doc-fake-select" t-attf-class="{{ props.disabled ? 'doc-fake-select-disabled' : '' }}"
+             tabindex="0" t-on-click="toggleOpen" t-on-blur="onBlur">
+            <span t-attf-class="{{ !state.query ? 'doc-fake-select-placeholder' : '' }}"><t t-esc="state.query || props.placeholder"/></span>
+            <i class="fa fa-angle-down"/>
+        </div>
+        <div class="doc-modern-select-dropdown" t-if="state.open">
+            <t t-if="filteredOptions.length">
+                <div class="doc-modern-select-option" t-foreach="filteredOptions" t-as="opt" t-key="opt.value" t-on-click="() => this.select(opt)">
+                    <span class="doc-modern-select-option-name"><t t-esc="opt.label"/></span>
+                    <span class="doc-modern-select-option-sub" t-if="opt.sublabel"><t t-esc="opt.sublabel"/></span>
+                </div>
+            </t>
+            <div class="doc-modern-select-empty" t-else=""><t t-esc="props.emptyLabel"/></div>
+        </div>
+    </div>
+</t>
+
+</templates>

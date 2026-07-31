@@ -1,0 +1,151 @@
+// Scoped Payroll app theme — every rule here is prefixed with
+// body.o_app_hr_payroll (toggled by payroll_app_scope.js) so it only
+// applies while the Payroll app is open, and never leaks into other apps.
+
+body.o_app_hr_payroll {
+
+  // ---- Top navbar: Enterprise-style dark per-app theme -------------------
+  .o_main_navbar {
+    background: $payroll-indigo !important;
+    border-bottom-color: darken($payroll-indigo, 6%) !important;
+
+    --NavBar-entry-color: #{rgba(#fff, .85)};
+    --NavBar-entry-color--hover: #fff;
+    --NavBar-entry-bg--hover: #{rgba(#fff, .1)};
+    --NavBar-entry-color--active: #fff;
+    --NavBar-entry-bg--active: #{$payroll-rose};
+
+    .o_menu_brand, .o_menu_toggle, .o_navbar_breadcrumbs, .o_navbar_breadcrumbs * {
+      color: #fff !important;
+    }
+
+    // Push the apps-grid ("waffle") next to the systray on the far right,
+    // instead of its default spot at the far left.
+    .o_navbar_apps_menu {
+      order: 4;
+      margin-left: auto !important;
+    }
+    .o_menu_brand { order: 1; }
+    .o_navbar_breadcrumbs { order: 2; }
+    .o_menu_sections { order: 3; }
+    .o_menu_systray {
+      order: 5;
+      margin-left: 0 !important;
+    }
+  }
+
+  // ---- Primary actions (Validate, Pay, New, ...) ------------------------
+  .btn-primary {
+    background-color: $payroll-rose;
+    border-color: $payroll-rose;
+
+    &:hover, &:focus, &:active {
+      background-color: darken($payroll-rose, 8%);
+      border-color: darken($payroll-rose, 8%);
+    }
+  }
+
+  // ---- Status pills (Draft -> Validated -> Paid / Draft -> Done) --------
+  .o_statusbar_status {
+    .o_arrow_button {
+      &.text-bg-primary, &.btn-primary {
+        background-color: $payroll-indigo-soft !important;
+        border-color: $payroll-indigo-soft !important;
+      }
+    }
+  }
+
+  .badge.badge-secondary, .badge.text-bg-secondary {
+    background-color: rgba($payroll-indigo-soft, 0.12) !important;
+    color: $payroll-indigo-soft !important;
+  }
+
+  // ---- List views: card-like container, calmer header, row hover -------
+  .o_list_renderer {
+    background: #fff;
+    border: 1px solid $payroll-border;
+    border-radius: 8px;
+
+    thead {
+      background: $payroll-canvas;
+
+      th {
+        color: $payroll-indigo;
+        font-weight: 600;
+      }
+    }
+
+    .o_data_row:hover {
+      background: rgba($payroll-indigo-soft, 0.04);
+    }
+
+    .o_data_row .text-info {
+      color: $payroll-sky !important;
+    }
+
+    .o_data_row .text-muted {
+      color: darken($payroll-canvas, 35%) !important;
+    }
+  }
+
+  // ---- Kanban cards (Pay Runs) -------------------------------------------
+  .o_kanban_view .o_kanban_record {
+    border-radius: 10px;
+    border: 1px solid $payroll-border;
+    box-shadow: 0 1px 2px rgba($payroll-indigo, 0.06);
+
+    &:hover {
+      border-color: $payroll-indigo-soft;
+      box-shadow: 0 2px 6px rgba($payroll-indigo, 0.1);
+    }
+  }
+
+  // ---- Form sheet: subtle card polish ------------------------------------
+  .o_form_sheet {
+    border-radius: 10px;
+  }
+
+  // ---- Payslip live preview ---------------------------------------------
+  .o_payslip_preview_frame {
+    width: 100%;
+    height: 80vh;
+    border: 1px solid $payroll-border;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .o_payslip_preview_iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  // ---- KPI stat cards (Payroll dashboard) --------------------------------
+  .o_payroll_stat_card {
+    background: #fff;
+    border: 1px solid $payroll-border;
+    border-radius: 10px;
+    padding: 16px 20px;
+
+    .o_payroll_stat_label {
+      color: darken($payroll-canvas, 40%);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .o_payroll_stat_value {
+      color: $payroll-indigo;
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .o_payroll_stat_hint {
+      color: $payroll-mint;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+  }
+}

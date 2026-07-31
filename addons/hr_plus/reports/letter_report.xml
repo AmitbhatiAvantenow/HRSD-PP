@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_letter" model="ir.actions.report">
+        <field name="name">HR Letter</field>
+        <field name="model">mn.hr.letter</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mn_hr_plus.report_letter</field>
+        <field name="report_file">mn_hr_plus.report_letter</field>
+        <field name="binding_model_id" ref="model_mn_hr_letter"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="padding:24px; font-family:Helvetica, Arial, sans-serif;">
+                        <div style="text-align:right; color:#64748b; font-size:11px;">
+                            <t t-esc="o.issue_date"/>
+                            <br/>Ref: <t t-esc="o.name"/>
+                        </div>
+                        <h2 style="text-align:center; color:#0f172a; margin-top:24px;">
+                            <t t-if="o.letter_type=='employment'">Employment Certificate</t>
+                            <t t-if="o.letter_type=='experience'">Experience Certificate</t>
+                            <t t-if="o.letter_type=='salary_cert'">Salary Certificate</t>
+                            <t t-if="o.letter_type=='noc'">No Objection Certificate</t>
+                            <t t-if="o.letter_type=='visa_support'">Visa Support Letter</t>
+                            <t t-if="o.letter_type=='bank_account'">Bank Account Opening Letter</t>
+                            <t t-if="o.letter_type=='school'">School Admission Letter</t>
+                            <t t-if="o.letter_type=='travel'">Travel Letter</t>
+                            <t t-if="o.letter_type=='other'">HR Letter</t>
+                        </h2>
+                        <div style="margin-top:24px;">
+                            <strong>To: </strong><span t-esc="o.addressed_to or 'To whom it may concern'"/>
+                        </div>
+                        <div t-if="o.custom_body" style="margin-top:24px; line-height:1.7;">
+                            <div t-field="o.custom_body"/>
+                        </div>
+                        <div t-else="" style="margin-top:24px; line-height:1.7;">
+                            <p>This is to certify that
+                               <strong t-field="o.employee_id.name"/>
+                               (<span t-esc="o.employee_id.identification_id or ''"/>)
+                               is currently employed at <strong t-field="o.company_id.name"/>
+                               as <strong t-field="o.employee_id.job_title"/>
+                               since <strong t-esc="o.employee_id.create_date and o.employee_id.create_date.strftime('%d %B %Y') or ''"/>.</p>
+                            <p t-if="o.include_salary">The employee's monthly salary is
+                               <strong t-field="o.salary_amount" t-options='{"widget":"monetary","display_currency":o.currency_id}'/>.</p>
+                            <p t-if="o.purpose">This letter is being issued for the purpose of:
+                               <em t-esc="o.purpose"/>.</p>
+                            <p>This letter is issued upon the employee's request and the company bears no responsibility regarding its use.</p>
+                        </div>
+                        <div style="margin-top:48px;">
+                            <span style="color:#64748b;">Sincerely,</span><br/>
+                            <strong t-field="o.issued_by_id.name"/><br/>
+                            <span style="color:#64748b;">Human Resources</span><br/>
+                            <strong t-field="o.company_id.name"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_referral" model="ir.actions.act_window"><field name="name">Referrals</field>
+<field name="res_model">mn.hr.referral</field><field name="view_mode">list,form</field></record>
+<record id="view_ref_list" model="ir.ui.view"><field name="name">ref.list</field>
+<field name="model">mn.hr.referral</field><field name="arch" type="xml">
+<list decoration-success="state=='hired'" decoration-info="state in ('interview','offered')" decoration-muted="state in ('rejected','withdrawn')">
+<field name="name"/><field name="referrer_id"/><field name="candidate_name"/><field name="job_position"/>
+<field name="referral_date"/><field name="bonus_amount" widget="monetary"/>
+<field name="bonus_paid" widget="boolean_toggle"/><field name="currency_id" invisible="1"/>
+<field name="state" widget="badge"/></list>
+</field></record>
+<record id="view_ref_form" model="ir.ui.view"><field name="name">ref.form</field>
+<field name="model">mn.hr.referral</field><field name="arch" type="xml">
+<form><header><button name="action_hired" type="object" string="Mark hired" class="oe_highlight" invisible="state in ('hired','rejected','withdrawn')"/>
+<button name="action_pay_bonus" type="object" string="Pay bonus" invisible="state!='hired' or bonus_paid"/>
+<field name="state" widget="statusbar"/></header>
+<sheet><h1><field name="name"/></h1>
+<group><group><field name="referrer_id"/><field name="candidate_name"/><field name="candidate_email"/><field name="candidate_phone"/><field name="candidate_linkedin"/></group>
+<group><field name="job_id"/><field name="job_position"/><field name="referral_date"/><field name="hired_employee_id"/><field name="hired_on"/></group></group>
+<group><group string="Bonus"><field name="bonus_amount"/><field name="bonus_paid" widget="boolean_toggle"/><field name="bonus_paid_on"/><field name="currency_id"/></group></group>
+<field name="candidate_cv" widget="binary"/><field name="notes"/></sheet><chatter/></form>
+</field></record></data></odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data>
+<record id="action_dashboard" model="ir.actions.client">
+<field name="name">HR Ops Dashboard</field><field name="tag">mn_hr_plus_dashboard</field></record>
+<record id="action_people_dashboard" model="ir.actions.client">
+<field name="name">People Analytics</field><field name="tag">mn_hr_plus_people</field></record>
+<record id="action_training_dashboard" model="ir.actions.client">
+<field name="name">Training &amp; Compliance</field><field name="tag">mn_hr_plus_training</field></record>
+<record id="action_engagement_dashboard" model="ir.actions.client">
+<field name="name">Engagement &amp; Culture</field><field name="tag">mn_hr_plus_engagement</field></record>
+</data></odoo>

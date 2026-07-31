@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="division_complaints" model="hr.case.division">
+        <field name="name">Complaints</field>
+    </record>
+    <record id="division_requests" model="hr.case.division">
+        <field name="name">Requests</field>
+    </record>
+
+    <record id="category_salary_payroll" model="hr.case.category">
+        <field name="name">Salary / Payroll Complaint</field>
+        <field name="division_id" ref="division_complaints"/>
+    </record>
+
+    <record id="subcategory_salary" model="hr.case.subcategory">
+        <field name="name">Salary</field>
+        <field name="category_id" ref="category_salary_payroll"/>
+    </record>
+
+    <record id="service_salary_complaint" model="hr.case.service">
+        <field name="name">Salary Complaint</field>
+        <field name="division_id" ref="division_complaints"/>
+        <field name="category_id" ref="category_salary_payroll"/>
+        <field name="subcategory_id" ref="subcategory_salary"/>
+    </record>
+
+    <record id="team_finance_pac" model="hr.case.team">
+        <field name="name">Finance - PAC Group</field>
+    </record>
+
+    <record id="sla_default_critical" model="hr.case.sla">
+        <field name="name">Default - Critical</field>
+        <field name="priority">1</field>
+        <field name="response_hours">1</field>
+        <field name="resolution_hours">8</field>
+        <field name="escalation_hours">12</field>
+    </record>
+    <record id="sla_default_moderate" model="hr.case.sla">
+        <field name="name">Default - Moderate</field>
+        <field name="priority">3</field>
+        <field name="response_hours">8</field>
+        <field name="resolution_hours">48</field>
+        <field name="escalation_hours">120</field>
+    </record>
+    <record id="sla_default_low" model="hr.case.sla">
+        <field name="name">Default - Low</field>
+        <field name="priority">4</field>
+        <field name="response_hours">24</field>
+        <field name="resolution_hours">96</field>
+        <field name="escalation_hours">168</field>
+    </record>
+</odoo>

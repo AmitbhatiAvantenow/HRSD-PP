@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+    <template id="resume_page" name="AI Resume Screening">
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1"/>
+          <meta name="csrf-token" t-att-content="csrf_token"/>
+          <title>AI Resume Screening · <t t-esc="brand['name']"/> HR Portal</title>
+          <link rel="stylesheet" href="/hrsd/static/src/css/dashboard.css"/>
+          <link rel="stylesheet" href="/hrsd/static/src/css/resume.css"/>
+        </head>
+        <body>
+        <div class="rs-app" id="rs-app">
+
+          <!-- ════════════════════ TOPBAR ════════════════════ -->
+          <header class="rs-topbar">
+            <div class="rs-topbar-left">
+              <a href="/hrsd/dashboard" class="rs-back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                Dashboard
+              </a>
+              <div class="rs-topbar-div"/>
+              <div class="rs-topbar-title">
+                <div class="rs-topbar-icon">🤖</div>
+                <div>
+                  <div class="rs-topbar-name">AI Resume Screening</div>
+                  <div class="rs-topbar-sub">Screen, score and rank candidates automatically</div>
+                </div>
+              </div>
+            </div>
+            <div class="rs-topbar-right">
+              <div class="rs-badge-row">
+                <span class="rs-badge blue">PDF</span>
+                <span class="rs-badge green">DOCX</span>
+                <span class="rs-badge purple">TF-IDF</span>
+                <span class="rs-badge orange">Fuzzy Match</span>
+              </div>
+              <button type="button" class="rs-history-btn" id="rs-history-btn">
+                📋 History
+              </button>
+              <div class="rs-brand-chip">
+                <t t-if="brand['logo_url']">
+                  <img t-attf-src="#{brand['logo_url']}" alt="logo" class="rs-brand-mark" style="object-fit: cover;"/>
+                </t>
+                <t t-else="">
+                  <div class="rs-brand-mark"><t t-esc="brand['initial']"/></div>
+                </t>
+                <t t-esc="brand['name']"/>
+              </div>
+            </div>
+          </header>
+
+          <!-- ════════════════════ MISSING PACKAGES WARNING ════════════════════ -->
+          <t t-if="missing_packages">
+            <div class="rs-warn-banner">
+              <span>⚠️</span>
+              <div>
+                <strong>Missing Python packages:</strong>
+                <code t-esc="', '.join(missing_packages)"/>
+                — Run: <code>pip install <t t-esc="' '.join(missing_packages)"/></code> then restart Odoo.
+              </div>
+            </div>
+          </t>
+
+          <!-- ════════════════════ MAIN LAYOUT ════════════════════ -->
+          <div class="rs-layout">
+
+            <!-- ── LEFT: Job Profile ── -->
+            <aside class="rs-sidebar">
+              <div class="rs-sidebar-header">
+                <div class="rs-section-label">JOB PROFILE</div>
+                <button type="button" class="rs-new-btn" id="rs-new-job-btn">+ New</button>
+              </div>
+
+              <!-- Job selector -->
+              <t t-if="jobs">
+                <div class="rs-job-select-wrap">
+                  <select class="rs-job-select" id="rs-job-select">
+                    <t t-foreach="jobs" t-as="j">
+                      <option t-att-value="j['id']"
+                              t-att-selected="selected_job and selected_job.id == j['id']">
+                        <t t-esc="j['name']"/> (<t t-esc="j['count']"/>)
+                      </option>
+                    </t>
+                  </select>
+                </div>
+              </t>
+
+              <!-- Job form (create / edit) -->
+              <form class="rs-job-form" id="rs-job-form" autocomplete="off">
+                <input type="hidden" id="rs-job-id"
+                       t-att-value="selected_job.id if selected_job else 0"/>
+
+                <div class="rs-field">
+                  <label class="rs-label" for="rs-job-title">Job Title *</label>
+                  <input type="text" id="rs-job-title" class="rs-input"
+                         placeholder="e.g. Senior Software Engineer"
+                         t-att-value="selected_job.name if selected_job else ''"/>
+                </div>
+
+                <div class="rs-field">
+                  <label class="rs-label" for="rs-req-skills">Required Skills</label>
+                  <textarea id="rs-req-skills" class="rs-textarea" rows="3"
+                            placeholder="Python, SQL, Django, Leadership, ..."><t t-if="selected_job"><t t-esc="selected_job.required_skills or ''"/></t></textarea>
+                  <div class="rs-hint">Comma-separated. Skill match = 40% of score.</div>
+                </div>
+
+                <div class="rs-field">
+                  <label class="rs-label" for="rs-pref-skills">Preferred Skills</label>
+                  <textarea id="rs-pref-skills" class="rs-textarea" rows="2"
+                            placeholder="Docker, Kubernetes, ..."><t t-if="selected_job"><t t-esc="selected_job.preferred_skills or ''"/></t></textarea>
+                </div>
+
+                <div class="rs-row2">
+                  <div class="rs-field">
+                    <label class="rs-label" for="rs-min-exp">Min. Experience</label>
+                    <div class="rs-input-unit">
+                      <input type="number" id="rs-min-exp" class="rs-input" min="0" max="40"
+                             t-att-value="selected_job.min_experience if selected_job else 0"/>
+                      <span>yrs</span>
+                    </div>
+                  </div>
+                  <div class="rs-field">
+                    <label class="rs-label" for="rs-edu-level">Min. Education</label>
+                    <select id="rs-edu-level" class="rs-input rs-select">
+                      <option value="any"         t-att-selected="selected_job and selected_job.education_level == 'any'">Any</option>
+                      <option value="high_school"  t-att-selected="selected_job and selected_job.education_level == 'high_school'">High School</option>
+                      <option value="bachelor"     t-att-selected="not selected_job or selected_job.education_level == 'bachelor'">Bachelor</option>
+                      <option value="master"       t-att-selected="selected_job and selected_job.education_level == 'master'">Master</option>
+                      <option value="phd"          t-att-selected="selected_job and selected_job.education_level == 'phd'">PhD</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="rs-field">
+                  <label class="rs-label" for="rs-jd">Job Description</label>
+                  <textarea id="rs-jd" class="rs-textarea" rows="4"
+                            placeholder="Paste the full job description here for better content matching..."><t t-if="selected_job"><t t-esc="selected_job.job_description or ''"/></t></textarea>
+                  <div class="rs-hint">Used for TF-IDF content similarity (15% of score).</div>
+                </div>
+
+                <div class="rs-job-actions">
+                  <button type="submit" class="rs-save-btn">
+                    💾 Save Profile
+                  </button>
+                  <t t-if="selected_job">
+                    <a t-attf-href="/hrsd/resume/export/#{selected_job.id}"
+                       class="rs-export-btn" title="Export rankings as CSV">
+                      📥 Export CSV
+                    </a>
+                  </t>
+                </div>
+              </form>
+
+              <!-- Score weight legend -->
+              <div class="rs-weight-legend">
+                <div class="rs-section-label" style="margin-bottom:8px">SCORE WEIGHTS</div>
+                <div class="rs-weight-row"><div class="rs-weight-bar" style="width:40%; background:#6366f1"/><span>Skills 40%</span></div>
+                <div class="rs-weight-row"><div class="rs-weight-bar" style="width:25%; background:#10b981"/><span>Experience 25%</span></div>
+                <div class="rs-weight-row"><div class="rs-weight-bar" style="width:20%; background:#f59e0b"/><span>Education 20%</span></div>
+                <div class="rs-weight-row"><div class="rs-weight-bar" style="width:15%; background:#8b5cf6"/><span>Content 15%</span></div>
+              </div>
+            </aside>
+
+            <!-- ── RIGHT: Upload + Results ── -->
+            <main class="rs-main">
+
+              <!-- Upload area -->
+              <div class="rs-upload-section">
+                <div class="rs-section-label">UPLOAD RESUMES</div>
+                <div class="rs-dropzone" id="rs-dropzone">
+                  <div class="rs-dz-icon">📄</div>
+                  <div class="rs-dz-title">Drop resumes here or <span class="rs-dz-link">browse</span></div>
+                  <div class="rs-dz-sub">PDF, DOCX, DOC, TXT · Multiple files · Max 10 MB each</div>
+                  <input type="file" id="rs-file-input" multiple="multiple"
+                         accept=".pdf,.docx,.doc,.txt" hidden="hidden"/>
+                </div>
+                <div class="rs-upload-progress" id="rs-upload-progress" style="display:none">
+                  <div class="rs-progress-bar"><div class="rs-progress-fill" id="rs-progress-fill"/></div>
+                  <div class="rs-progress-label" id="rs-progress-label">Uploading &amp; analysing…</div>
+                </div>
+              </div>
+
+              <!-- Results header -->
+              <div class="rs-results-header">
+                <div class="rs-results-title">
+                  <span class="rs-section-label" style="margin:0">RANKED CANDIDATES</span>
+                  <span class="rs-count-chip" id="rs-count-chip">
+                    <t t-esc="len(candidates)"/> candidate(s)
+                  </span>
+                </div>
+                <div class="rs-results-actions">
+                  <button type="button" class="rs-action-btn" id="rs-rerank-btn">🔄 Re-Rank</button>
+                  <div class="rs-filter-wrap">
+                    <select class="rs-filter-select" id="rs-filter-status">
+                      <option value="">All Statuses</option>
+                      <option value="scored">Scored</option>
+                      <option value="shortlisted">Shortlisted</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div class="rs-empty" id="rs-empty" t-if="not candidates">
+                <div class="rs-empty-icon">📋</div>
+                <div class="rs-empty-title">No candidates yet</div>
+                <div class="rs-empty-sub">Upload resumes above to start screening and ranking.</div>
+              </div>
+
+              <!-- Candidate cards list -->
+              <div class="rs-candidates" id="rs-candidates">
+                <t t-foreach="candidates" t-as="c">
+                  <div class="rs-card" t-att-data-id="c['id']" t-att-data-state="c['state']">
+
+                    <!-- Card header -->
+                    <div class="rs-card-header">
+                      <div class="rs-rank-badge"
+                           t-attf-class="rs-rank-badge #{'' if c['rank'] > 3 else 'top-' + str(c['rank'])}">
+                        #<t t-esc="c['rank'] or '—'"/>
+                      </div>
+                      <div class="rs-card-info">
+                        <div class="rs-card-name"><t t-esc="c['name']"/></div>
+                        <div class="rs-card-meta">
+                          <t t-if="c['email']"><span>✉ <t t-esc="c['email']"/></span></t>
+                          <t t-if="c['phone']"><span>📞 <t t-esc="c['phone']"/></span></t>
+                          <t t-if="c['experience_years']">
+                            <span>⏱ <t t-esc="'%.1f' % c['experience_years']"/> yrs exp</span>
+                          </t>
+                          <t t-if="c['education_level']">
+                            <span>🎓 <t t-esc="c['education_level']"/></span>
+                          </t>
+                        </div>
+                      </div>
+                      <div class="rs-card-right">
+                        <!-- Overall score ring -->
+                        <div t-attf-class="rs-score-ring #{
+                              'green' if c['score_overall'] >= 75
+                              else 'amber' if c['score_overall'] >= 50
+                              else 'red'}">
+                          <t t-esc="'%.0f' % c['score_overall']"/>
+                          <span class="rs-score-pct">%</span>
+                        </div>
+                        <!-- Status badge -->
+                        <span t-attf-class="rs-status-badge is-#{c['state']}">
+                          <t t-esc="c['state_label']"/>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Score bars -->
+                    <div class="rs-score-bars">
+                      <div class="rs-bar-row">
+                        <span class="rs-bar-label">Skills</span>
+                        <div class="rs-bar-track">
+                          <div class="rs-bar-fill indigo"
+                               t-attf-style="width: #{min(100, c['score_skills'])}%"/>
+                        </div>
+                        <span class="rs-bar-val"><t t-esc="'%.0f' % c['score_skills']"/>%</span>
+                      </div>
+                      <div class="rs-bar-row">
+                        <span class="rs-bar-label">Exp</span>
+                        <div class="rs-bar-track">
+                          <div class="rs-bar-fill green"
+                               t-attf-style="width: #{min(100, c['score_experience'])}%"/>
+                        </div>
+                        <span class="rs-bar-val"><t t-esc="'%.0f' % c['score_experience']"/>%</span>
+                      </div>
+                      <div class="rs-bar-row">
+                        <span class="rs-bar-label">Edu</span>
+                        <div class="rs-bar-track">
+                          <div class="rs-bar-fill amber"
+                               t-attf-style="width: #{min(100, c['score_education'])}%"/>
+                        </div>
+                        <span class="rs-bar-val"><t t-esc="'%.0f' % c['score_education']"/>%</span>
+                      </div>
+                      <div class="rs-bar-row">
+                        <span class="rs-bar-label">Match</span>
+                        <div class="rs-bar-track">
+                          <div class="rs-bar-fill purple"
+                               t-attf-style="width: #{min(100, c['score_content'])}%"/>
+                        </div>
+                        <span class="rs-bar-val"><t t-esc="'%.0f' % c['score_content']"/>%</span>
+                      </div>
+                    </div>
+
+                    <!-- Skill chips -->
+                    <div class="rs-skills-row">
+                      <t t-foreach="c['matched_skills']" t-as="sk">
+                        <span class="rs-skill-chip matched">✓ <t t-esc="sk"/></span>
+                      </t>
+                      <t t-foreach="c['missing_skills'][:4]" t-as="sk">
+                        <span class="rs-skill-chip missing">✗ <t t-esc="sk"/></span>
+                      </t>
+                      <t t-foreach="[s for s in c['detected_skills'] if s not in c['matched_skills'] and s not in c['missing_skills']][:4]" t-as="sk">
+                        <span class="rs-skill-chip neutral"><t t-esc="sk"/></span>
+                      </t>
+                    </div>
+
+                    <!-- Card actions -->
+                    <div class="rs-card-actions">
+                      <button type="button" class="rs-act shortlist"
+                              t-att-data-id="c['id']" title="Shortlist">
+                        ✅ Shortlist
+                      </button>
+                      <button type="button" class="rs-act reject"
+                              t-att-data-id="c['id']" title="Reject">
+                        ❌ Reject
+                      </button>
+                      <button type="button" class="rs-act expand"
+                              t-att-data-id="c['id']" title="View details">
+                        🔍 Details
+                      </button>
+                      <button type="button" class="rs-act del"
+                              t-att-data-id="c['id']" title="Delete">
+                        🗑
+                      </button>
+                    </div>
+
+                  </div><!-- /rs-card -->
+                </t>
+              </div><!-- /rs-candidates -->
+            </main>
+          </div><!-- /rs-layout -->
+        </div><!-- /rs-app -->
+
+        <!-- Detail modal -->
+        <div class="rs-modal-overlay" id="rs-modal" style="display:none">
+          <div class="rs-modal">
+            <div class="rs-modal-header">
+              <div class="rs-modal-title" id="rs-modal-title">Candidate Details</div>
+              <button type="button" class="rs-modal-close" id="rs-modal-close">✕</button>
+            </div>
+            <div class="rs-modal-body" id="rs-modal-body">
+              <textarea class="rs-modal-text" id="rs-modal-text" readonly="readonly"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════ HISTORY MODAL ════════════════════ -->
+        <div id="rs-hist-backdrop" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9000;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);">
+          <div id="rs-hist-modal">
+            <!-- Header -->
+            <div class="rs-hist-head">
+              <div class="rs-hist-head-left">
+                <span class="rs-hist-icon">📋</span>
+                <div>
+                  <div class="rs-hist-title">Screening History</div>
+                  <div class="rs-hist-sub" id="rs-hist-count-label">All candidates across all job profiles</div>
+                </div>
+              </div>
+              <button type="button" id="rs-hist-close" class="rs-hist-close-btn">✕</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="rs-hist-filters">
+              <div class="rs-hist-search-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" id="rs-hist-search" placeholder="Search name, email…" class="rs-hist-search-inp"/>
+              </div>
+              <select id="rs-hist-job" class="rs-hist-select"><option value="">All Jobs</option></select>
+              <select id="rs-hist-status" class="rs-hist-select">
+                <option value="">All Statuses</option>
+                <option value="scored">Scored</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <a id="rs-hist-export" href="#" class="rs-hist-export-btn" style="display:none">📥 Export CSV</a>
+            </div>
+
+            <!-- List -->
+            <div class="rs-hist-list" id="rs-hist-list">
+              <div class="rs-hist-loading" id="rs-hist-loading">
+                <div class="rs-hist-spinner"/>
+                <span>Loading history…</span>
+              </div>
+              <div class="rs-hist-empty" id="rs-hist-empty" style="display:none">
+                <div style="font-size:32px">🔍</div>
+                <div>No records match your filter.</div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="rs-hist-footer">
+              <span id="rs-hist-footer-count">0 records</span>
+              <span class="rs-hist-footer-hint">Click a candidate to open their job profile</span>
+            </div>
+          </div>
+        </div>
+
+        <script src="/hrsd/static/src/js/resume.js"/>
+        </body>
+      </html>
+    </template>
+  </data>
+</odoo>

@@ -1,0 +1,32 @@
+// Design tokens for the HR Timesheet Pro workspace ("TimeFlow" look).
+$htp-primary: #6d5ef8;
+$htp-primary-dark: #5b4bdb;
+$htp-primary-light: #eeecff;
+$htp-accent: #06b6d4;
+$htp-success: #16a34a;
+$htp-warning: #d97706;
+$htp-danger: #dc2626;
+$htp-info: #0891b2;
+$htp-muted: #6b7280;
+
+$htp-bg: #f6f6fb;
+$htp-card-bg: #ffffff;
+$htp-border: #e7e6f3;
+$htp-text: #1f2430;
+$htp-text-muted: #6b7280;
+
+$htp-radius: 14px;
+$htp-radius-lg: 20px;
+$htp-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+$htp-shadow-hover: 0 4px 10px rgba(16, 24, 40, 0.08), 0 8px 24px rgba(16, 24, 40, 0.08);
+
+// Dark navy app-shell (navbar)
+$htp-shell-bg: #181234;
+$htp-shell-border: rgba(255, 255, 255, 0.08);
+$htp-shell-text: rgba(233, 230, 255, 0.72);
+
+// Light "frosted glass" hero
+$htp-hero-light-start: #efe9ff;
+$htp-hero-light-end: #ded0fb;
+$htp-ink: #2e1065;
+$htp-ink-muted: #7c6a9c;

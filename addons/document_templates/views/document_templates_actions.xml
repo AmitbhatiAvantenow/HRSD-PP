@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_doc_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard</field>
+        <field name="tag">doc_dashboard</field>
+    </record>
+
+    <record id="action_doc_templates" model="ir.actions.client">
+        <field name="name">Templates</field>
+        <field name="tag">doc_templates</field>
+    </record>
+
+    <record id="action_doc_categories" model="ir.actions.client">
+        <field name="name">Categories</field>
+        <field name="tag">doc_categories</field>
+    </record>
+
+    <record id="action_doc_variables" model="ir.actions.client">
+        <field name="name">Variables</field>
+        <field name="tag">doc_variables</field>
+    </record>
+
+    <record id="action_doc_generated" model="ir.actions.client">
+        <field name="name">Generated Documents</field>
+        <field name="tag">doc_generated</field>
+    </record>
+
+    <record id="action_doc_approval_workflow" model="ir.actions.client">
+        <field name="name">Approval Workflow</field>
+        <field name="tag">doc_approval_workflow</field>
+    </record>
+
+    <record id="action_doc_shared_templates" model="ir.actions.client">
+        <field name="name">Shared Templates</field>
+        <field name="tag">doc_shared_templates</field>
+    </record>
+
+    <record id="action_doc_favourite_templates" model="ir.actions.client">
+        <field name="name">Favourite Templates</field>
+        <field name="tag">doc_favourite_templates</field>
+    </record>
+
+    <record id="action_doc_ai_generator_stub" model="ir.actions.client">
+        <field name="name">AI Template Generator</field>
+        <field name="tag">doc_ai_generator_stub</field>
+    </record>
+
+    <record id="action_doc_marketplace_stub" model="ir.actions.client">
+        <field name="name">Template Marketplace</field>
+        <field name="tag">doc_marketplace_stub</field>
+    </record>
+
+    <record id="action_doc_settings" model="ir.actions.client">
+        <field name="name">Settings</field>
+        <field name="tag">doc_settings</field>
+    </record>
+
+    <!-- Not menu-linked, reached via "New Template" / a card's edit affordance. -->
+    <record id="action_doc_builder" model="ir.actions.client">
+        <field name="name">Template Builder</field>
+        <field name="tag">doc_builder</field>
+    </record>
+</odoo>

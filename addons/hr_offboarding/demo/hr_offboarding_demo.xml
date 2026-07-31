@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <data>
+
+        <!-- Self-contained demo org chart (kept local to hr_offboarding so this data
+             does not depend on hr module demo data, or on hr_onboarding, being installed). -->
+        <record id="demo_dep_eng" model="hr.department">
+            <field name="name">Engineering</field>
+        </record>
+        <record id="demo_dep_sales" model="hr.department">
+            <field name="name">Sales</field>
+        </record>
+        <record id="demo_dep_finance" model="hr.department">
+            <field name="name">Finance</field>
+        </record>
+        <record id="demo_dep_support" model="hr.department">
+            <field name="name">Customer Support</field>
+        </record>
+
+        <record id="demo_job_developer" model="hr.job">
+            <field name="name">Software Developer</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+        </record>
+        <record id="demo_job_sales_exec" model="hr.job">
+            <field name="name">Sales Executive</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+        </record>
+        <record id="demo_job_accountant" model="hr.job">
+            <field name="name">Accountant</field>
+            <field name="department_id" ref="demo_dep_finance"/>
+        </record>
+        <record id="demo_job_support_lead" model="hr.job">
+            <field name="name">Support Team Lead</field>
+            <field name="department_id" ref="demo_dep_support"/>
+        </record>
+
+        <record id="demo_mgr_eng" model="hr.employee">
+            <field name="name">Rakesh Iyer</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+        </record>
+        <record id="demo_mgr_sales" model="hr.employee">
+            <field name="name">Sunita Rao</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+        </record>
+        <record id="demo_mgr_finance" model="hr.employee">
+            <field name="name">Deepak Malhotra</field>
+            <field name="department_id" ref="demo_dep_finance"/>
+        </record>
+        <record id="demo_successor_1" model="hr.employee">
+            <field name="name">Ayesha Khan</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+        </record>
+
+        <!-- Departing employees -->
+        <record id="demo_emp_vivek" model="hr.employee">
+            <field name="name">Vivek Nair</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_priya" model="hr.employee">
+            <field name="name">Priya Menon</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="parent_id" ref="demo_mgr_sales"/>
+        </record>
+        <record id="demo_emp_farhan" model="hr.employee">
+            <field name="name">Farhan Sheikh</field>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="parent_id" ref="demo_mgr_finance"/>
+        </record>
+        <record id="demo_emp_ritu" model="hr.employee">
+            <field name="name">Ritu Chawla</field>
+            <field name="department_id" ref="demo_dep_support"/>
+            <field name="job_id" ref="demo_job_support_lead"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_arvind" model="hr.employee">
+            <field name="name">Arvind Kulkarni</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_kavya" model="hr.employee">
+            <field name="name">Kavya Reddy</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="parent_id" ref="demo_mgr_sales"/>
+        </record>
+        <record id="demo_emp_sameer" model="hr.employee">
+            <field name="name">Sameer Joshi</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_neelam" model="hr.employee">
+            <field name="name">Neelam Verma</field>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="parent_id" ref="demo_mgr_finance"/>
+        </record>
+        <record id="demo_emp_gaurav" model="hr.employee">
+            <field name="name">Gaurav Bhatia</field>
+            <field name="department_id" ref="demo_dep_support"/>
+            <field name="job_id" ref="demo_job_support_lead"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_isha" model="hr.employee">
+            <field name="name">Isha Kapoor</field>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="parent_id" ref="demo_mgr_sales"/>
+        </record>
+        <record id="demo_emp_manoj" model="hr.employee">
+            <field name="name">Manoj Tiwari</field>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="parent_id" ref="demo_mgr_eng"/>
+        </record>
+        <record id="demo_emp_pooja" model="hr.employee">
+            <field name="name">Pooja Desai</field>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="parent_id" ref="demo_mgr_finance"/>
+        </record>
+
+        <!-- Exit requests across the pipeline -->
+
+        <record id="ex_vivek" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_vivek"/>
+            <field name="email">vivek.nair@example.com</field>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="stage_id" ref="stage_resignation_submitted"/>
+            <field name="reason">better_opportunity</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="resignation_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=29)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_priya" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_priya"/>
+            <field name="email">priya.menon@example.com</field>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="manager_id" ref="demo_mgr_sales"/>
+            <field name="stage_id" ref="stage_manager_review"/>
+            <field name="reason">relocation</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=25)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_farhan" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_farhan"/>
+            <field name="email">farhan.sheikh@example.com</field>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="manager_id" ref="demo_mgr_finance"/>
+            <field name="stage_id" ref="stage_hr_review"/>
+            <field name="reason">compensation</field>
+            <field name="priority">2</field>
+            <field name="notice_period_days">60</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=20)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_ritu" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_ritu"/>
+            <field name="email">ritu.chawla@example.com</field>
+            <field name="job_id" ref="demo_job_support_lead"/>
+            <field name="department_id" ref="demo_dep_support"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="stage_id" ref="stage_exit_approved"/>
+            <field name="reason">higher_education</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=18)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_arvind" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_arvind"/>
+            <field name="email">arvind.kulkarni@example.com</field>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="successor_id" ref="demo_successor_1"/>
+            <field name="stage_id" ref="stage_knowledge_transfer"/>
+            <field name="reason">better_opportunity</field>
+            <field name="priority">2</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=14)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_kavya" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_kavya"/>
+            <field name="email">kavya.reddy@example.com</field>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="manager_id" ref="demo_mgr_sales"/>
+            <field name="stage_id" ref="stage_asset_collection"/>
+            <field name="reason">relocation</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=10)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_sameer" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_sameer"/>
+            <field name="email">sameer.joshi@example.com</field>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="stage_id" ref="stage_it_deprovisioning"/>
+            <field name="reason">performance</field>
+            <field name="priority">3</field>
+            <field name="notice_period_days">0</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=3)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_neelam" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_neelam"/>
+            <field name="email">neelam.verma@example.com</field>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="manager_id" ref="demo_mgr_finance"/>
+            <field name="stage_id" ref="stage_payroll_settlement"/>
+            <field name="reason">health</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=2)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_gaurav" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_gaurav"/>
+            <field name="email">gaurav.bhatia@example.com</field>
+            <field name="job_id" ref="demo_job_support_lead"/>
+            <field name="department_id" ref="demo_dep_support"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="stage_id" ref="stage_exit_interview"/>
+            <field name="reason">other</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_isha" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_isha"/>
+            <field name="email">isha.kapoor@example.com</field>
+            <field name="job_id" ref="demo_job_sales_exec"/>
+            <field name="department_id" ref="demo_dep_sales"/>
+            <field name="manager_id" ref="demo_mgr_sales"/>
+            <field name="stage_id" ref="stage_experience_letter"/>
+            <field name="reason">relocation</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="DateTime.today().strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_manoj" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_manoj"/>
+            <field name="email">manoj.tiwari@example.com</field>
+            <field name="job_id" ref="demo_job_developer"/>
+            <field name="department_id" ref="demo_dep_eng"/>
+            <field name="manager_id" ref="demo_mgr_eng"/>
+            <field name="stage_id" ref="stage_relieving_letter"/>
+            <field name="reason">better_opportunity</field>
+            <field name="priority">1</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="ex_pooja" model="hr.offboarding.request">
+            <field name="employee_id" ref="demo_emp_pooja"/>
+            <field name="email">pooja.desai@example.com</field>
+            <field name="job_id" ref="demo_job_accountant"/>
+            <field name="department_id" ref="demo_dep_finance"/>
+            <field name="manager_id" ref="demo_mgr_finance"/>
+            <field name="stage_id" ref="stage_completed"/>
+            <field name="reason">compensation</field>
+            <field name="priority">0</field>
+            <field name="notice_period_days">30</field>
+            <field name="last_working_day" eval="(DateTime.today() - relativedelta(days=45)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <!-- Tasks -->
+        <record id="ex_arvind_task_1" model="hr.offboarding.task">
+            <field name="name">Handover active project docs</field>
+            <field name="request_id" ref="ex_arvind"/>
+            <field name="stage_id" ref="stage_knowledge_transfer"/>
+            <field name="due_date" eval="(DateTime.today() + relativedelta(days=2)).strftime('%Y-%m-%d')"/>
+        </record>
+        <record id="ex_arvind_task_2" model="hr.offboarding.task">
+            <field name="name">Transfer repository access to successor</field>
+            <field name="request_id" ref="ex_arvind"/>
+            <field name="stage_id" ref="stage_knowledge_transfer"/>
+            <field name="done">1</field>
+        </record>
+        <record id="ex_sameer_task_1" model="hr.offboarding.task">
+            <field name="name">Revoke Microsoft 365 account</field>
+            <field name="request_id" ref="ex_sameer"/>
+            <field name="stage_id" ref="stage_it_deprovisioning"/>
+            <field name="done">1</field>
+        </record>
+        <record id="ex_sameer_task_2" model="hr.offboarding.task">
+            <field name="name">Revoke VPN and GitHub access</field>
+            <field name="request_id" ref="ex_sameer"/>
+            <field name="stage_id" ref="stage_it_deprovisioning"/>
+            <field name="due_date" eval="(DateTime.today() + relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <!-- Clearances -->
+        <record id="ex_ritu_clearance_hr" model="hr.offboarding.clearance">
+            <field name="request_id" ref="ex_ritu"/>
+            <field name="department">hr</field>
+            <field name="status">approved</field>
+        </record>
+        <record id="ex_ritu_clearance_finance" model="hr.offboarding.clearance">
+            <field name="request_id" ref="ex_ritu"/>
+            <field name="department">finance</field>
+            <field name="status">pending</field>
+        </record>
+        <record id="ex_ritu_clearance_it" model="hr.offboarding.clearance">
+            <field name="request_id" ref="ex_ritu"/>
+            <field name="department">it</field>
+            <field name="status">needs_action</field>
+        </record>
+        <record id="ex_ritu_clearance_manager" model="hr.offboarding.clearance">
+            <field name="request_id" ref="ex_ritu"/>
+            <field name="department">manager</field>
+            <field name="status">approved</field>
+        </record>
+
+        <!-- Assets -->
+        <record id="ex_kavya_asset_1" model="hr.offboarding.asset">
+            <field name="name">Dell Latitude Laptop</field>
+            <field name="request_id" ref="ex_kavya"/>
+            <field name="asset_type">laptop</field>
+            <field name="status">pending</field>
+            <field name="serial_number">DL-77245</field>
+        </record>
+        <record id="ex_kavya_asset_2" model="hr.offboarding.asset">
+            <field name="name">Access Card</field>
+            <field name="request_id" ref="ex_kavya"/>
+            <field name="asset_type">access_card</field>
+            <field name="status">returned</field>
+        </record>
+        <record id="ex_kavya_asset_3" model="hr.offboarding.asset">
+            <field name="name">Company Phone</field>
+            <field name="request_id" ref="ex_kavya"/>
+            <field name="asset_type">phone</field>
+            <field name="status">pending</field>
+        </record>
+
+        <!-- Documents -->
+        <record id="ex_isha_doc_1" model="hr.offboarding.document">
+            <field name="name">Experience Letter</field>
+            <field name="request_id" ref="ex_isha"/>
+            <field name="document_type">experience_letter</field>
+            <field name="status">generated</field>
+        </record>
+        <record id="ex_manoj_doc_1" model="hr.offboarding.document">
+            <field name="name">Relieving Letter</field>
+            <field name="request_id" ref="ex_manoj"/>
+            <field name="document_type">relieving_letter</field>
+            <field name="status">verified</field>
+        </record>
+        <record id="ex_manoj_doc_2" model="hr.offboarding.document">
+            <field name="name">Full &amp; Final Settlement Letter</field>
+            <field name="request_id" ref="ex_manoj"/>
+            <field name="document_type">settlement_letter</field>
+            <field name="status">pending</field>
+        </record>
+
+        <!-- Payroll settlement -->
+        <record id="ex_neelam_payroll" model="hr.offboarding.payroll">
+            <field name="request_id" ref="ex_neelam"/>
+            <field name="leave_encashment">18500</field>
+            <field name="pending_salary">42000</field>
+            <field name="bonus">5000</field>
+            <field name="gratuity">36000</field>
+            <field name="loans">10000</field>
+            <field name="tax">7500</field>
+            <field name="pf">6200</field>
+            <field name="status">generated</field>
+        </record>
+        <record id="ex_pooja_payroll" model="hr.offboarding.payroll">
+            <field name="request_id" ref="ex_pooja"/>
+            <field name="leave_encashment">12000</field>
+            <field name="pending_salary">0</field>
+            <field name="gratuity">28000</field>
+            <field name="tax">4100</field>
+            <field name="pf">3200</field>
+            <field name="status">paid</field>
+        </record>
+
+        <!-- Exit interview -->
+        <record id="ex_gaurav_interview" model="hr.offboarding.interview">
+            <field name="request_id" ref="ex_gaurav"/>
+            <field name="scheduled_date" eval="(DateTime.today() + relativedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="status">scheduled</field>
+        </record>
+        <record id="ex_pooja_interview" model="hr.offboarding.interview">
+            <field name="request_id" ref="ex_pooja"/>
+            <field name="exit_reason">compensation</field>
+            <field name="overall_rating">4</field>
+            <field name="manager_feedback">Supportive manager, would recommend the team.</field>
+            <field name="company_feedback">Good culture, compensation review process could be faster.</field>
+            <field name="status">completed</field>
+        </record>
+
+    </data>
+</odoo>
