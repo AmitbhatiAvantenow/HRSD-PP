@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_flutterattendance_root"
+              name="Mobile Attendance"
+              sequence="60"
+              groups="hr.group_hr_user"/>
+
+    <menuitem id="menu_flutterattendance_attendance"
+              name="Attendance"
+              parent="menu_flutterattendance_root"
+              action="action_flutterattendance_attendance"
+              sequence="10"/>
+
+    <menuitem id="menu_flutterattendance_device"
+              name="Devices"
+              parent="menu_flutterattendance_root"
+              action="action_flutterattendance_device"
+              sequence="20"/>
+
+    <menuitem id="menu_flutterattendance_shift"
+              name="Shifts"
+              parent="menu_flutterattendance_root"
+              action="action_flutterattendance_shift"
+              sequence="30"/>
+</odoo>

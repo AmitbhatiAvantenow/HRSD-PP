@@ -47,3 +47,6 @@ access_hrsd_dashboard_navbar_item_user,hrsd.dashboard.navbar.item user,model_hrs
 access_hrsd_dashboard_navbar_item_manager,hrsd.dashboard.navbar.item manager,model_hrsd_dashboard_navbar_item,base.group_system,1,1,1,1
 access_hrsd_dashboard_stat_card_user,hrsd.dashboard.stat.card user,model_hrsd_dashboard_stat_card,base.group_user,1,0,0,0
 access_hrsd_dashboard_stat_card_manager,hrsd.dashboard.stat.card manager,model_hrsd_dashboard_stat_card,base.group_system,1,1,1,1
+access_document_template_hrsd_read,document.template hrsd read,document_templates.model_document_template,base.group_user,1,0,0,0
+access_document_template_category_hrsd_read,document.template.category hrsd read,document_templates.model_document_template_category,base.group_user,1,0,0,0
+access_document_template_variable_hrsd_read,document.template.variable hrsd read,document_templates.model_document_template_variable,base.group_user,1,0,0,0

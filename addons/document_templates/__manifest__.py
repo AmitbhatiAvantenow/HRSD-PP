@@ -1,14 +1,14 @@
 {
-    'name': 'Document Templates',
+    'name': 'HR Document Templates',
     'version': '19.0.1.0.0',
-    'category': 'Productivity/Document Templates',
-    'summary': 'Cross-department drag-and-drop document template engine: build, generate, share and approve documents.',
+    'category': 'Human Resources',
+    'summary': 'HR document template engine: build, generate, share and approve HR documents.',
     'description': """
-Generic, department-agnostic document template engine.
+HR-focused document template engine.
 Design once with a Canva-like drag-and-drop canvas, merge with per-template
-dynamic variables, and generate PDF/DOCX output on demand -- usable by any
-department (Real Estate, HR, Finance, Legal, Procurement, Sales, Maintenance,
-Operations, Administration, Marketing) or future Odoo module.
+dynamic variables, and generate PDF/DOCX output on demand for the HR document
+lifecycle -- offer letters, employment contracts, confidentiality agreements,
+policy acknowledgments, appraisal forms, relieving letters and more.
     """,
     'author': 'PS6',
     'depends': ['base', 'mail', 'web'],
@@ -21,12 +21,7 @@ Operations, Administration, Marketing) or future Odoo module.
         'data/ir_sequence_data.xml',
         'views/document_templates_actions.xml',
         'views/document_templates_menus.xml',
-        # TEMP: demo data loaded unconditionally (not gated behind the demo flag) so a
-        # fresh install has walkthrough content immediately. Remove once real templates exist.
-        'demo/document_templates_demo.xml',
-    ],
-    'demo': [
-        'demo/document_templates_demo.xml',
+        'data/document_templates_seed_data.xml',
     ],
     'assets': {
         'web.assets_backend': [

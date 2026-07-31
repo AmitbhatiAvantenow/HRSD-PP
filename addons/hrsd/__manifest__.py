@@ -25,6 +25,7 @@
         'hr_maintenance',
         'website_hr_recruitment_livechat',
         'hr_recruitment_survey',
+        'document_templates',
     ],
     'data': [
         'security/ir.model.access.csv',

@@ -88,6 +88,7 @@ export class HrEsignCreateWizard extends Component {
         this.state = useState({
             stepIndex: 0,
             templates: [],
+            docTemplates: [],
             partnerId: false,
             partnerName: "",
             partnerEmail: "",
@@ -95,6 +96,7 @@ export class HrEsignCreateWizard extends Component {
             category: "other",
             useTemplate: false,
             templateId: false,
+            templateSource: "esign",
             fileName: "",
             fileData: false,
             aiSuggestion: null,
@@ -121,13 +123,22 @@ export class HrEsignCreateWizard extends Component {
 
         onWillStart(async () => {
             this.state.templates = await this.orm.searchRead("hr.esign.template", [], ["id", "name", "category"], { limit: 100 });
+            this.state.docTemplates = await this.orm.searchRead(
+                "document.template", [["status", "=", "published"]],
+                ["id", "name", "category_id"], { limit: 100 }
+            );
         });
     }
 
     get currentStep() { return this.steps[this.state.stepIndex].key; }
     get isFirstStep() { return this.state.stepIndex === 0; }
     get isLastStep() { return this.state.stepIndex === this.steps.length - 1; }
-    get selectedTemplate() { return this.state.templates.find((t) => t.id === this.state.templateId); }
+    get selectedTemplate() {
+        if (this.state.templateSource === "doc") {
+            return this.state.docTemplates.find((t) => t.id === this.state.templateId);
+        }
+        return this.state.templates.find((t) => t.id === this.state.templateId);
+    }
     get progressPct() { return Math.round(((this.state.stepIndex + 1) / this.steps.length) * 100); }
 
     // Props for the "Choose Customer" step's main picker.
@@ -213,10 +224,15 @@ export class HrEsignCreateWizard extends Component {
         this.state.fields = [];
     }
 
-    selectTemplate(id) {
+    selectTemplate(id, source = "esign") {
         this.state.templateId = id;
+        this.state.templateSource = source;
         this.state.pdfPages = [];
         this.state.fields = [];
+    }
+
+    openManageTemplates() {
+        this.action.doAction("document_templates.action_doc_dashboard", { newWindow: true });
     }
 
     async onFileChange(ev) {
@@ -297,11 +313,22 @@ export class HrEsignCreateWizard extends Component {
             return { data: this.state.fileData, name: this.state.fileName };
         }
         if (!this.state.templateId) return { data: false, name: "" };
-        if (this.state.templateFileCache && this.state.templateFileCache.id === this.state.templateId) {
+        if (
+            this.state.templateFileCache &&
+            this.state.templateFileCache.id === this.state.templateId &&
+            this.state.templateFileCache.source === this.state.templateSource
+        ) {
             return this.state.templateFileCache;
         }
-        const [tmpl] = await this.orm.read("hr.esign.template", [this.state.templateId], ["file_data", "file_name"]);
-        const cache = { id: this.state.templateId, data: tmpl.file_data, name: tmpl.file_name };
+        let cache;
+        if (this.state.templateSource === "doc") {
+            const tmpl = this.state.docTemplates.find((t) => t.id === this.state.templateId);
+            const pdfB64 = await this.orm.call("document.template", "preview_pdf_base64", [[this.state.templateId]]);
+            cache = { id: this.state.templateId, source: "doc", data: pdfB64, name: `${(tmpl && tmpl.name) || "document"}.pdf` };
+        } else {
+            const [tmpl] = await this.orm.read("hr.esign.template", [this.state.templateId], ["file_data", "file_name"]);
+            cache = { id: this.state.templateId, source: "esign", data: tmpl.file_data, name: tmpl.file_name };
+        }
         this.state.templateFileCache = cache;
         return cache;
     }
@@ -472,7 +499,9 @@ export class HrEsignCreateWizard extends Component {
                 const { data, name } = await this._getFileForPdf();
                 vals.file_data = data;
                 vals.file_name = name;
-                vals.template_id = this.state.templateId;
+                if (this.state.templateSource === "esign") {
+                    vals.template_id = this.state.templateId;
+                }
             } else {
                 vals.file_data = this.state.fileData;
                 vals.file_name = this.state.fileName;

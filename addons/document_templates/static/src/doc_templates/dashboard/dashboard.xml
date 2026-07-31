@@ -2,8 +2,8 @@
 <templates xml:space="preserve">
 
 <t t-name="document_templates.Dashboard">
-    <DocShell activeKey="'dashboard'" eyebrow="'Document Templates'" title="'Templates Dashboard'"
-              subtitle="'Design once, generate everywhere.'">
+    <DocShell activeKey="'dashboard'" eyebrow="'HR Document Templates'" title="'Templates Dashboard'"
+              subtitle="'Design once, generate every HR document.'">
         <t t-set-slot="headerActions">
             <button class="doc-btn-primary" t-on-click="() => this.openTemplates()"><i class="fa fa-plus"/> New Template</button>
         </t>
@@ -75,7 +75,7 @@
 
         <div class="doc-grid" style="grid-template-columns: 1fr 1fr;">
             <div class="doc-card">
-                <div class="doc-card-title">Department Usage</div>
+                <div class="doc-card-title">HR Area Usage</div>
                 <div class="doc-vbar-row" t-if="state.by_department.length">
                     <div class="doc-vbar-col" t-foreach="state.by_department" t-as="d" t-key="d.department">
                         <div class="doc-vbar-value"><t t-esc="d.count"/></div>
@@ -83,7 +83,7 @@
                         <div class="doc-vbar-label"><t t-esc="d.label"/></div>
                     </div>
                 </div>
-                <div class="doc-empty" t-else="">No departments in use yet.</div>
+                <div class="doc-empty" t-else="">No HR areas in use yet.</div>
             </div>
 
             <div class="doc-card">

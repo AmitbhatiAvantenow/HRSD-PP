@@ -7,8 +7,8 @@
             <div class="doc-sidebar-brand">
                 <span class="doc-sidebar-logo">DT</span>
                 <div class="doc-sidebar-brand-text">
-                    <div class="doc-sidebar-co"><t t-esc="state.companyName || 'Document Templates'"/></div>
-                    <div class="doc-sidebar-sub">Template Engine</div>
+                    <div class="doc-sidebar-co"><t t-esc="state.companyName || 'HR Document Templates'"/></div>
+                    <div class="doc-sidebar-sub">HR Template Engine</div>
                 </div>
             </div>
             <div class="doc-sidebar-nav">
@@ -52,7 +52,7 @@
                     <t t-esc="props.footerModule or props.title"/>
                 </div>
                 <div class="doc-footer-brand">
-                    Document Templates · v1.0.0 · <span class="doc-status-dot"/> All systems operational
+                    HR Document Templates · v1.0.0 · <span class="doc-status-dot"/> All systems operational
                 </div>
             </div>
         </div>

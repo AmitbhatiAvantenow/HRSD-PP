@@ -166,6 +166,8 @@
   .ohw-ai-title { font-weight: 800; margin-bottom: 6px; display: flex; align-items: center; gap: 7px; color: var(--ohw-indigo); }
   .ohw-ai-warning { color: var(--ohw-orange); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; }
 
+  .ohw-template-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .ohw-manage-templates-btn { padding: 4px 10px; font-size: 11.5px; }
   .ohw-template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
   .ohw-template-card { border: 1.5px solid var(--ohw-border); border-radius: var(--ohw-radius-lg); padding: 18px; text-align: center; cursor: pointer; transition: all 0.15s ease; }
   .ohw-template-card:hover { border-color: var(--ohw-indigo); transform: translateY(-2px); box-shadow: 0 10px 22px -12px rgba(30, 27, 75, 0.3); }

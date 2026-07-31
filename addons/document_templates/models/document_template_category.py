@@ -1,16 +1,12 @@
 from odoo import fields, models
 
 DEPARTMENT_SELECTION = [
-    ('real_estate', 'Real Estate'),
-    ('hr', 'HR'),
-    ('finance', 'Finance'),
-    ('legal', 'Legal'),
-    ('procurement', 'Procurement'),
-    ('sales', 'Sales'),
-    ('maintenance', 'Maintenance'),
-    ('operations', 'Operations'),
-    ('administration', 'Administration'),
-    ('marketing', 'Marketing'),
+    ('recruitment', 'Recruitment'),
+    ('onboarding', 'Onboarding'),
+    ('performance', 'Performance & Appraisal'),
+    ('compensation', 'Compensation & Benefits'),
+    ('compliance', 'Compliance & Policies'),
+    ('offboarding', 'Offboarding'),
 ]
 
 

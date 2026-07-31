@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- ==================== Categories (HR document lifecycle areas) ==================== -->
+    <record id="cat_offer_letters" model="document.template.category">
+        <field name="name">Offer Letters</field>
+        <field name="department">recruitment</field>
+        <field name="icon">fa-paper-plane</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="cat_employment_contracts" model="document.template.category">
+        <field name="name">Employment Contracts</field>
+        <field name="department">onboarding</field>
+        <field name="icon">fa-id-card-o</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="cat_confidentiality" model="document.template.category">
+        <field name="name">Confidentiality Agreements</field>
+        <field name="department">compliance</field>
+        <field name="icon">fa-lock</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="cat_policy_acknowledgments" model="document.template.category">
+        <field name="name">Policy Acknowledgments</field>
+        <field name="department">compliance</field>
+        <field name="icon">fa-book</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="cat_appraisal_forms" model="document.template.category">
+        <field name="name">Appraisal Forms</field>
+        <field name="department">performance</field>
+        <field name="icon">fa-line-chart</field>
+        <field name="sequence">50</field>
+    </record>
+    <record id="cat_relieving_letters" model="document.template.category">
+        <field name="name">Relieving Letters</field>
+        <field name="department">offboarding</field>
+        <field name="icon">fa-sign-out</field>
+        <field name="sequence">60</field>
+    </record>
+    <record id="cat_warning_letters" model="document.template.category">
+        <field name="name">Warning Letters</field>
+        <field name="department">compliance</field>
+        <field name="icon">fa-exclamation-triangle</field>
+        <field name="sequence">70</field>
+    </record>
+    <record id="cat_promotion_increment" model="document.template.category">
+        <field name="name">Promotion / Increment Letters</field>
+        <field name="department">compensation</field>
+        <field name="icon">fa-arrow-up</field>
+        <field name="sequence">80</field>
+    </record>
+
+    <!-- ==================== Tags ==================== -->
+    <record id="tag_contract" model="document.template.tag"><field name="name">Contract</field></record>
+    <record id="tag_compliance" model="document.template.tag"><field name="name">Compliance</field></record>
+    <record id="tag_confidential" model="document.template.tag"><field name="name">Confidential</field></record>
+    <record id="tag_internal" model="document.template.tag"><field name="name">Internal</field></record>
+
+    <!-- ==================== Templates ==================== -->
+
+    <record id="tpl_offer_letter" model="document.template">
+        <field name="name">Offer Letter</field>
+        <field name="category_id" ref="cat_offer_letters"/>
+        <field name="description">Standard offer letter sent to a new candidate.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"footer_text": "Confidential -- Offer Letter"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Offer Letter", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Dear {{ candidate_name }},\nWe are pleased to offer you the position of {{ position }}."}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 30, "z": 1, "props": {"text": "Start Date: {{ start_date }}\nAnnual Salary: {{ annual_salary }}"}},
+                {"id": "b4", "type": "text", "x": 40, "y": 180, "w": 420, "h": 24, "z": 1, "props": {"text": "Reporting Manager: {{ reporting_manager }}"}},
+                {"id": "b5", "type": "signature", "x": 40, "y": 220, "w": 200, "h": 60, "z": 1, "props": {"label": "Candidate Signature"}},
+                {"id": "b6", "type": "signature", "x": 260, "y": 220, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_offer_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_offer_letter"/><field name="name">Candidate Name</field><field name="key">candidate_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_offer_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_offer_letter"/><field name="name">Position</field><field name="key">position</field><field name="sequence">20</field>
+    </record>
+    <record id="var_offer_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_offer_letter"/><field name="name">Start Date</field><field name="key">start_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+    <record id="var_offer_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_offer_letter"/><field name="name">Annual Salary</field><field name="key">annual_salary</field><field name="variable_type">currency</field><field name="sequence">40</field>
+    </record>
+    <record id="var_offer_5" model="document.template.variable">
+        <field name="template_id" ref="tpl_offer_letter"/><field name="name">Reporting Manager</field><field name="key">reporting_manager</field><field name="is_required">False</field><field name="sequence">50</field>
+    </record>
+
+    <record id="tpl_employment_contract" model="document.template">
+        <field name="name">Employment Contract</field>
+        <field name="category_id" ref="cat_employment_contracts"/>
+        <field name="description">Standard employment contract signed on joining.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"footer_text": "Confidential -- Employment Contract"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Employment Contract", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Employee: {{ employee_name }}\nPosition: {{ position }}"}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 30, "z": 1, "props": {"text": "Start Date: {{ start_date }}\nAnnual Salary: {{ salary }}"}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 200, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b5", "type": "signature", "x": 260, "y": 200, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_emp_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_emp_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Position</field><field name="key">position</field><field name="sequence">20</field>
+    </record>
+    <record id="var_emp_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Start Date</field><field name="key">start_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+    <record id="var_emp_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_employment_contract"/><field name="name">Salary</field><field name="key">salary</field><field name="variable_type">currency</field><field name="sequence">40</field>
+    </record>
+
+    <record id="tpl_nda" model="document.template">
+        <field name="name">NDA / Confidentiality Agreement</field>
+        <field name="category_id" ref="cat_confidentiality"/>
+        <field name="description">Employee confidentiality / non-disclosure agreement.</field>
+        <field name="status">published</field>
+        <field name="access_level">company</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_contract'), ref('tag_confidential'), ref('tag_compliance')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {"footer_text": "Confidential -- Non-Disclosure Agreement"},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Non-Disclosure Agreement", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "This agreement is between {{ company_name }} and {{ employee_name }}, effective {{ effective_date }}."}},
+                {"id": "b3", "type": "signature", "x": 40, "y": 150, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b4", "type": "signature", "x": 260, "y": 150, "w": 200, "h": 60, "z": 1, "props": {"label": "Company Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_nda_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_nda_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Company Name</field><field name="key">company_name</field><field name="sequence">20</field>
+    </record>
+    <record id="var_nda_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_nda"/><field name="name">Effective Date</field><field name="key">effective_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_policy_ack" model="document.template">
+        <field name="name">Policy Acknowledgment</field>
+        <field name="category_id" ref="cat_policy_acknowledgments"/>
+        <field name="description">Employee acknowledgment of a company policy or code of conduct.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_compliance'), ref('tag_internal')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Policy Acknowledgment", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "I, {{ employee_name }}, acknowledge that I have read and understood the policy: {{ policy_name }}."}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 24, "z": 1, "props": {"text": "Date: {{ acknowledgment_date }}"}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 180, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_policy_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_policy_ack"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_policy_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_policy_ack"/><field name="name">Policy Name</field><field name="key">policy_name</field><field name="sequence">20</field>
+    </record>
+    <record id="var_policy_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_policy_ack"/><field name="name">Acknowledgment Date</field><field name="key">acknowledgment_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_appraisal_form" model="document.template">
+        <field name="name">Appraisal Form</field>
+        <field name="category_id" ref="cat_appraisal_forms"/>
+        <field name="description">Performance review / appraisal summary form.</field>
+        <field name="status">draft</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Appraisal Form", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Employee: {{ employee_name }}\nReview Period: {{ review_period }}"}},
+                {"id": "b3", "type": "table", "x": 40, "y": 140, "w": 320, "h": 50, "z": 1, "props": {"headers": ["Reviewer", "Overall Rating"], "rows": [["{{ reviewer_name }}", "{{ overall_rating }}"]]}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 210, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b5", "type": "signature", "x": 260, "y": 210, "w": 200, "h": 60, "z": 1, "props": {"label": "Reviewer Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_appraisal_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_appraisal_form"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_appraisal_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_appraisal_form"/><field name="name">Review Period</field><field name="key">review_period</field><field name="sequence">20</field>
+    </record>
+    <record id="var_appraisal_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_appraisal_form"/><field name="name">Reviewer Name</field><field name="key">reviewer_name</field><field name="sequence">30</field>
+    </record>
+    <record id="var_appraisal_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_appraisal_form"/><field name="name">Overall Rating</field><field name="key">overall_rating</field><field name="sequence">40</field>
+    </record>
+
+    <record id="tpl_relieving_letter" model="document.template">
+        <field name="name">Relieving Letter</field>
+        <field name="category_id" ref="cat_relieving_letters"/>
+        <field name="description">Confirms an employee's last working day and relieves them of duties.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Relieving Letter", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "This is to certify that {{ employee_name }}, {{ designation }}, was relieved of duties.\nLast Working Day: {{ last_working_day }}"}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 24, "z": 1, "props": {"text": "Relieving Date: {{ relieving_date }}"}},
+                {"id": "b4", "type": "divider", "x": 40, "y": 170, "w": 420, "h": 2, "z": 1, "props": {}},
+                {"id": "b5", "type": "signature", "x": 40, "y": 190, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_relieve_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_relieving_letter"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_relieve_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_relieving_letter"/><field name="name">Designation</field><field name="key">designation</field><field name="sequence">20</field>
+    </record>
+    <record id="var_relieve_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_relieving_letter"/><field name="name">Last Working Day</field><field name="key">last_working_day</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+    <record id="var_relieve_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_relieving_letter"/><field name="name">Relieving Date</field><field name="key">relieving_date</field><field name="variable_type">date</field><field name="sequence">40</field>
+    </record>
+
+    <record id="tpl_warning_letter" model="document.template">
+        <field name="name">Warning Letter</field>
+        <field name="category_id" ref="cat_warning_letters"/>
+        <field name="description">Formal disciplinary warning letter.</field>
+        <field name="status">draft</field>
+        <field name="access_level">team</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_compliance'), ref('tag_confidential')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Warning Letter", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Dear {{ employee_name }},\nThis letter serves as a formal warning regarding: {{ issue_description }}"}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 24, "z": 1, "props": {"text": "Date: {{ issue_date }}"}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 180, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b5", "type": "signature", "x": 260, "y": 180, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_warn_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_warning_letter"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_warn_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_warning_letter"/><field name="name">Issue Description</field><field name="key">issue_description</field><field name="variable_type">long_text</field><field name="sequence">20</field>
+    </record>
+    <record id="var_warn_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_warning_letter"/><field name="name">Issue Date</field><field name="key">issue_date</field><field name="variable_type">date</field><field name="sequence">30</field>
+    </record>
+
+    <record id="tpl_promotion_letter" model="document.template">
+        <field name="name">Promotion / Increment Letter</field>
+        <field name="category_id" ref="cat_promotion_increment"/>
+        <field name="description">Confirms a promotion and/or salary revision.</field>
+        <field name="status">published</field>
+        <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
+        <field name="canvas_data"><![CDATA[{
+            "page": {},
+            "blocks": [
+                {"id": "b1", "type": "heading", "x": 40, "y": 40, "w": 420, "h": 34, "z": 1, "props": {"text": "Promotion / Increment Letter", "level": 1}},
+                {"id": "b2", "type": "text", "x": 40, "y": 90, "w": 420, "h": 44, "z": 1, "props": {"text": "Dear {{ employee_name }},\nWe are pleased to confirm your promotion to {{ new_position }}."}},
+                {"id": "b3", "type": "text", "x": 40, "y": 140, "w": 420, "h": 30, "z": 1, "props": {"text": "New Annual Salary: {{ new_salary }}\nEffective Date: {{ effective_date }}"}},
+                {"id": "b4", "type": "signature", "x": 40, "y": 190, "w": 200, "h": 60, "z": 1, "props": {"label": "Employee Signature"}},
+                {"id": "b5", "type": "signature", "x": 260, "y": 190, "w": 200, "h": 60, "z": 1, "props": {"label": "HR Signature"}}
+            ]
+        }]]></field>
+    </record>
+    <record id="var_promo_1" model="document.template.variable">
+        <field name="template_id" ref="tpl_promotion_letter"/><field name="name">Employee Name</field><field name="key">employee_name</field><field name="sequence">10</field>
+    </record>
+    <record id="var_promo_2" model="document.template.variable">
+        <field name="template_id" ref="tpl_promotion_letter"/><field name="name">New Position</field><field name="key">new_position</field><field name="sequence">20</field>
+    </record>
+    <record id="var_promo_3" model="document.template.variable">
+        <field name="template_id" ref="tpl_promotion_letter"/><field name="name">New Salary</field><field name="key">new_salary</field><field name="variable_type">currency</field><field name="sequence">30</field>
+    </record>
+    <record id="var_promo_4" model="document.template.variable">
+        <field name="template_id" ref="tpl_promotion_letter"/><field name="name">Effective Date</field><field name="key">effective_date</field><field name="variable_type">date</field><field name="sequence">40</field>
+    </record>
+
+</odoo>

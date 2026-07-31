@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_mobile_app_access" model="ir.ui.view">
+        <field name="name">hr.employee.form.mobile.app.access</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group name="settings_group" position="inside">
+                <group string="Mobile App" name="flutterlogin">
+                    <field name="mobile_app_access"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

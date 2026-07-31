@@ -51,15 +51,37 @@
             </div>
           </div>
 
-          <div t-else="" class="ohw-template-grid">
-            <div t-foreach="state.templates" t-as="tmpl" t-key="tmpl.id"
-                 t-attf-class="ohw-template-card {{ state.templateId === tmpl.id ? 'is-selected' : '' }}"
-                 t-on-click="() => this.selectTemplate(tmpl.id)">
-              <i class="fa fa-file-text-o"/>
-              <div class="ohw-template-name" t-esc="tmpl.name"/>
-              <div class="ohw-template-cat" t-esc="categoryLabel(tmpl.category)"/>
+          <div t-else="">
+            <div class="ohw-template-section-header">
+              <span class="ohw-palette-label">HR Sign Templates</span>
             </div>
-            <div t-if="!state.templates.length" class="ohw-widget-empty">No templates yet — switch to "Upload PDF" instead.</div>
+            <div class="ohw-template-grid">
+              <div t-foreach="state.templates" t-as="tmpl" t-key="tmpl.id"
+                   t-attf-class="ohw-template-card {{ state.templateId === tmpl.id and state.templateSource === 'esign' ? 'is-selected' : '' }}"
+                   t-on-click="() => this.selectTemplate(tmpl.id, 'esign')">
+                <i class="fa fa-file-text-o"/>
+                <div class="ohw-template-name" t-esc="tmpl.name"/>
+                <div class="ohw-template-cat" t-esc="categoryLabel(tmpl.category)"/>
+              </div>
+              <div t-if="!state.templates.length" class="ohw-widget-empty">No HR Sign templates yet.</div>
+            </div>
+
+            <div class="ohw-template-section-header" style="margin-top:18px;">
+              <span class="ohw-palette-label">Document Templates</span>
+              <button type="button" class="ohw-btn-ghost ohw-manage-templates-btn" t-on-click="openManageTemplates">
+                <i class="fa fa-external-link"/> Manage Templates
+              </button>
+            </div>
+            <div class="ohw-template-grid">
+              <div t-foreach="state.docTemplates" t-as="tmpl" t-key="tmpl.id"
+                   t-attf-class="ohw-template-card {{ state.templateId === tmpl.id and state.templateSource === 'doc' ? 'is-selected' : '' }}"
+                   t-on-click="() => this.selectTemplate(tmpl.id, 'doc')">
+                <i class="fa fa-file-text-o"/>
+                <div class="ohw-template-name" t-esc="tmpl.name"/>
+                <div class="ohw-template-cat" t-esc="tmpl.category_id and tmpl.category_id[1]"/>
+              </div>
+              <div t-if="!state.docTemplates.length" class="ohw-widget-empty">No document templates published yet.</div>
+            </div>
           </div>
 
           <div class="ohw-form-grid">

@@ -5,9 +5,8 @@ import { DocShell } from "../shell/doc_shell";
 import { ModernSelect } from "../widgets/modern_select";
 
 const DEPARTMENT_LABELS = {
-    real_estate: "Real Estate", hr: "HR", finance: "Finance", legal: "Legal",
-    procurement: "Procurement", sales: "Sales", maintenance: "Maintenance",
-    operations: "Operations", administration: "Administration", marketing: "Marketing",
+    recruitment: "Recruitment", onboarding: "Onboarding", performance: "Performance & Appraisal",
+    compensation: "Compensation & Benefits", compliance: "Compliance & Policies", offboarding: "Offboarding",
 };
 const DEPARTMENT_ORDER = Object.keys(DEPARTMENT_LABELS);
 
@@ -21,7 +20,7 @@ export class CategoriesPage extends Component {
             categories: [],
             adding: false,
             newName: "",
-            newDepartment: "real_estate",
+            newDepartment: "recruitment",
         });
 
         onWillStart(() => this.reload());

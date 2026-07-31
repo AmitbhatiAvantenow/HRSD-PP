@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.flutterattendance</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='employees_setting_container']" position="inside">
+                <setting id="flutterattendance_setting" string="Mobile Attendance"
+                         help="Geofencing and reminder settings for the Flutter mobile attendance app.">
+                    <field name="flutterattendance_gps_radius"/>
+                    <field name="flutterattendance_office_latitude"/>
+                    <field name="flutterattendance_office_longitude"/>
+                    <div class="d-flex">
+                        <field name="flutterattendance_notifications_enabled" class="ml16"/>
+                        <label for="flutterattendance_notifications_enabled" class="o_light_label"/>
+                    </div>
+                    <div invisible="not flutterattendance_notifications_enabled">
+                        <field name="flutterattendance_checkin_reminder_time" widget="float_time"/>
+                        <field name="flutterattendance_checkout_reminder_time" widget="float_time"/>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
