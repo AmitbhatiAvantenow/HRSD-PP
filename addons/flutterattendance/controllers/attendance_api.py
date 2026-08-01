@@ -60,7 +60,11 @@ def _attendance_data(rec):
     }
 
 
-def _register_device(env, employee, data):
+def _register_device(env, employee, data, touch_field='last_sync'):
+    """Upserts the flutterattendance.device row for whichever device sent
+    this request (check-in or check-out both call this, each touching its
+    own freshness field). No device_id in the payload -> no-op, same as
+    the login-time registration this mirrors."""
     device_id_str = (data.get('device_id') or '').strip()
     if not device_id_str:
         return None
@@ -72,7 +76,7 @@ def _register_device(env, employee, data):
         'device_name': data.get('device_name') or (device.device_name if device else False),
         'os_version': data.get('os_version') or (device.os_version if device else False),
         'app_version': data.get('app_version') or (device.app_version if device else False),
-        'last_login': fields.Datetime.now(),
+        touch_field: fields.Datetime.now(),
     }
     if device:
         device.write(vals)
@@ -150,6 +154,7 @@ class FlutterAttendanceController(http.Controller):
         if latitude is None or longitude is None:
             return _error('latitude and longitude are required', 400)
 
+        _register_device(request.env, employee, data)
         photo_bytes = _decode_photo(data.get('photo'))
         record.write({
             'check_out_time': fields.Datetime.now(),

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from odoo import http
+from odoo import fields, http
 from odoo.exceptions import AccessDenied
 from odoo.http import request
 
@@ -52,6 +52,61 @@ def _employee_data(employee):
         'job_position': employee.job_id.name or False,
         'work_email': employee.work_email or False,
     }
+
+
+def _enforce_device_binding(env, employee, data):
+    """Registers/validates the logging-in device against the employee's
+    one-device binding (flutterattendance.device.state).
+
+    Returns (device_or_None, error_response_or_None). If the request
+    doesn't include a device_id at all, binding is skipped rather than
+    blocking the login — callers that don't send one (e.g. a future web
+    login) aren't punished for it.
+    """
+    device_id_str = (data.get('device_id') or '').strip()
+    if not device_id_str:
+        return None, None
+
+    Device = env['flutterattendance.device'].sudo()
+    device = Device.search([('employee_id', '=', employee.id), ('device_id', '=', device_id_str)], limit=1)
+    active_elsewhere = Device.search([
+        ('employee_id', '=', employee.id),
+        ('state', '=', 'active'),
+        ('device_id', '!=', device_id_str),
+    ], limit=1)
+
+    vals = {
+        'employee_id': employee.id,
+        'device_id': device_id_str,
+        'device_name': data.get('device_name') or (device.device_name if device else False),
+        'os_version': data.get('os_version') or (device.os_version if device else False),
+        'app_version': data.get('app_version') or (device.app_version if device else False),
+    }
+
+    if device and device.state == 'active':
+        device.write(vals)
+        return device, None
+
+    if active_elsewhere:
+        if device:
+            device.write({**vals, 'state': 'pending'})
+        else:
+            device = Device.create({**vals, 'state': 'pending'})
+        other_name = active_elsewhere.device_name or 'another device'
+        return None, _error(
+            f"This account is already signed in on '{other_name}'. "
+            "Ask your admin to approve this device before you can sign in here.",
+            403,
+        )
+
+    # No other active device for this employee — first-ever login, or
+    # their previously-active device was revoked/reset. Safe to activate
+    # this one directly without needing admin approval.
+    if device:
+        device.write({**vals, 'state': 'active'})
+    else:
+        device = Device.create({**vals, 'state': 'active'})
+    return device, None
 
 
 def _generate_token(user, employee):
@@ -158,7 +213,14 @@ class FlutterLoginController(http.Controller):
         if not employee.mobile_app_access:
             return _error('This employee is not allowed to use the mobile app', 403)
 
-        token, _payload = _generate_token(user, employee)
+        device, device_error = _enforce_device_binding(request.env, employee, data)
+        if device_error:
+            return device_error
+
+        token, payload = _generate_token(user, employee)
+        if device:
+            device.write({'current_jti': payload['jti'], 'last_login': fields.Datetime.now()})
+
         response = {
             'success': True,
             'token': token,

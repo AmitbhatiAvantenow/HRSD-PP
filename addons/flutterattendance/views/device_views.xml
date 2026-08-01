@@ -4,14 +4,17 @@
         <field name="name">flutterattendance.device.list</field>
         <field name="model">flutterattendance.device</field>
         <field name="arch" type="xml">
-            <list string="Mobile Devices">
+            <list string="Mobile Devices" decoration-warning="state == 'pending'" decoration-muted="state == 'revoked'">
                 <field name="employee_id"/>
                 <field name="device_name"/>
                 <field name="device_id"/>
                 <field name="os_version"/>
                 <field name="app_version"/>
+                <field name="state" widget="badge" decoration-success="state == 'active'" decoration-warning="state == 'pending'" decoration-muted="state == 'revoked'"/>
                 <field name="last_login"/>
                 <field name="last_sync"/>
+                <button name="action_approve" type="object" string="Approve" icon="fa-check" invisible="state == 'active'"/>
+                <button name="action_reject" type="object" string="Reject" icon="fa-times" invisible="state != 'pending'"/>
             </list>
         </field>
     </record>
@@ -21,6 +24,11 @@
         <field name="model">flutterattendance.device</field>
         <field name="arch" type="xml">
             <form string="Mobile Device">
+                <header>
+                    <button name="action_approve" type="object" string="Approve this device" class="oe_highlight" invisible="state == 'active'"/>
+                    <button name="action_reject" type="object" string="Reject" invisible="state != 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,active"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="employee_id"/>
@@ -38,9 +46,27 @@
         </field>
     </record>
 
+    <record id="view_flutterattendance_device_search" model="ir.ui.view">
+        <field name="name">flutterattendance.device.search</field>
+        <field name="model">flutterattendance.device</field>
+        <field name="arch" type="xml">
+            <search string="Mobile Devices">
+                <field name="employee_id"/>
+                <field name="device_name"/>
+                <filter name="pending" string="Pending Approval" domain="[('state', '=', 'pending')]"/>
+                <filter name="active_devices" string="Active" domain="[('state', '=', 'active')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_flutterattendance_device" model="ir.actions.act_window">
         <field name="name">Mobile Devices</field>
         <field name="res_model">flutterattendance.device</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_flutterattendance_device_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
     </record>
 </odoo>
