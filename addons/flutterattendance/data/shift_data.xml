@@ -7,5 +7,14 @@
         <field name="grace_minutes">10</field>
         <field name="half_day_hours">4.0</field>
         <field name="full_day_hours">8.0</field>
+        <field name="break_start_time">13.5</field>
+        <field name="break_minutes">75</field>
+        <field name="monday">True</field>
+        <field name="tuesday">True</field>
+        <field name="wednesday">True</field>
+        <field name="thursday">True</field>
+        <field name="friday">True</field>
+        <field name="saturday">False</field>
+        <field name="sunday">False</field>
     </record>
 </odoo>

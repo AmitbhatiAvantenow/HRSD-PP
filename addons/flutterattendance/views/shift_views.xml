@@ -11,6 +11,13 @@
                 <field name="grace_minutes"/>
                 <field name="half_day_hours"/>
                 <field name="full_day_hours"/>
+                <field name="monday" optional="show" string="Mon"/>
+                <field name="tuesday" optional="show" string="Tue"/>
+                <field name="wednesday" optional="show" string="Wed"/>
+                <field name="thursday" optional="show" string="Thu"/>
+                <field name="friday" optional="show" string="Fri"/>
+                <field name="saturday" optional="show" string="Sat"/>
+                <field name="sunday" optional="show" string="Sun"/>
             </list>
         </field>
     </record>
@@ -22,12 +29,29 @@
             <form string="Attendance Shift">
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="start_time" widget="float_time"/>
-                        <field name="end_time" widget="float_time"/>
-                        <field name="grace_minutes"/>
+                        <group string="Timing">
+                            <field name="name"/>
+                            <field name="start_time" widget="float_time"/>
+                            <field name="end_time" widget="float_time"/>
+                            <field name="break_start_time" widget="float_time"/>
+                            <field name="break_minutes"/>
+                            <field name="grace_minutes"/>
+                        </group>
+                        <group string="Working Days">
+                            <field name="monday"/>
+                            <field name="tuesday"/>
+                            <field name="wednesday"/>
+                            <field name="thursday"/>
+                            <field name="friday"/>
+                            <field name="saturday"/>
+                            <field name="sunday"/>
+                        </group>
+                    </group>
+                    <group string="Day Classification">
                         <field name="half_day_hours"/>
                         <field name="full_day_hours"/>
+                    </group>
+                    <group>
                         <field name="company_id" groups="base.group_multi_company"/>
                         <field name="active"/>
                     </group>

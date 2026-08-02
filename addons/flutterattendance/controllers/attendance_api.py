@@ -48,10 +48,13 @@ def _attendance_data(rec):
             'created_at': rec.checkin_created_at.isoformat() if rec.checkin_created_at else False,
         },
         'checkout': {
-            'latitude': rec.checkout_latitude,
-            'longitude': rec.checkout_longitude,
+            # Float fields default to 0.0 rather than False when unset, so
+            # without this check a pending check-out looks like a real
+            # (0, 0) coordinate to any client computing a distance from it.
+            'latitude': rec.checkout_latitude if rec.check_out_time else False,
+            'longitude': rec.checkout_longitude if rec.check_out_time else False,
             'address': rec.checkout_address or False,
-            'accuracy': rec.checkout_accuracy,
+            'accuracy': rec.checkout_accuracy if rec.check_out_time else False,
             'has_photo': bool(rec.checkout_photo),
             'photo_url': f'/api/attendance/{rec.id}/photo/checkout' if rec.checkout_photo else False,
             'created_at': rec.checkout_created_at.isoformat() if rec.checkout_created_at else False,

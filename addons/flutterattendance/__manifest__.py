@@ -31,6 +31,7 @@ authentication.
         'views/attendance_views.xml',
         'views/device_views.xml',
         'views/shift_views.xml',
+        'views/hr_employee_views.xml',
         'views/res_config_settings_views.xml',
         'views/menu.xml',
     ],
