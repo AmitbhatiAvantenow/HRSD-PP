@@ -517,31 +517,84 @@
     &:hover { background: var(--doc-primary-soft); color: var(--doc-ink); }
     &:active { cursor: grabbing; }
 }
+.doc-builder-palette-item-special {
+    cursor: pointer;
+    background: var(--doc-primary-soft);
+}
+.doc-builder-palette-item-caret { margin-left: auto; width: auto !important; font-size: 11px; }
 
-.doc-builder-varpop {
-    margin-top: 14px;
-    border-top: 1px solid var(--doc-line-soft);
-    padding-top: 12px;
+// Swaps in place of the component list (rather than overlaying/floating next
+// to it) -- simplest way to give it real room for the variable list + add
+// form without fighting the palette column's scroll/clipping behavior.
+.doc-builder-varpop-back {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    padding: 4px 2px 12px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--doc-ink-soft);
+    cursor: pointer;
+    border-bottom: 1px solid var(--doc-line-soft);
+    width: 100%;
+
+    &:hover { color: var(--doc-primary); }
 }
 .doc-builder-varpop-title { font-size: 11px; font-weight: 700; color: var(--doc-ink-faint); margin-bottom: 8px; text-transform: uppercase; }
+.doc-builder-varpop-hint { font-size: 10.5px; color: var(--doc-ink-faint); margin: -4px 0 10px; line-height: 1.4; }
 .doc-builder-varpop-item {
     display: flex;
     flex-direction: column;
     gap: 1px;
     padding: 6px 7px;
     border-radius: 6px;
-    cursor: pointer;
+    cursor: grab;
     font-size: 11.5px;
 
     &:hover { background: var(--doc-primary-soft); }
+    &:active { cursor: grabbing; }
 }
-.doc-builder-varpop-add { display: flex; gap: 6px; margin-top: 8px; }
-.doc-builder-varpop-add input {
-    flex: 1;
-    border: 1px solid var(--doc-line);
-    border-radius: 6px;
-    padding: 6px 8px;
-    font-size: 12px;
+.doc-builder-varpop-del {
+    color: var(--doc-ink-faint);
+    font-size: 11px;
+    padding: 2px 4px;
+    &:hover { color: var(--doc-danger); }
+}
+.doc-builder-varpop-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+
+    input[type="text"], select {
+        width: 100%;
+        border: 1px solid var(--doc-line);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 12px;
+        font-family: "IBM Plex Sans", sans-serif;
+        background: var(--doc-card);
+        color: var(--doc-ink);
+        box-sizing: border-box;
+    }
+    .doc-btn-sm { width: 100%; justify-content: center; }
+}
+.doc-builder-varpop-required {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--doc-ink-soft);
+    cursor: pointer;
+
+    input { margin: 0; }
+}
+.doc-builder-varpop-error {
+    font-size: 11px;
+    color: var(--doc-danger);
 }
 
 .doc-builder-canvas-wrap {

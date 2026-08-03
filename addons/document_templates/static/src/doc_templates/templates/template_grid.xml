@@ -55,7 +55,6 @@
                     <div class="doc-tpl-card-body">
                         <span class="doc-tpl-name" t-on-click="() => this.openBuilder(t_)"><t t-esc="t_.name"/></span>
                         <div class="doc-tpl-meta">
-                            <span class="doc-chip" t-attf-class="{{ t_.status === 'published' ? 'doc-c-success' : 'doc-c-muted' }}"><t t-esc="t_.status"/></span>
                             <span class="doc-chip doc-c-info" t-if="t_.is_popular">Popular</span>
                         </div>
                         <div class="doc-tpl-stars">
@@ -66,12 +65,7 @@
                             <span class="doc-tpl-usage" t-if="t_.usage_count">· <t t-esc="t_.usage_count"/> uses</span>
                         </div>
 
-                        <div class="doc-tpl-actions" t-if="props.showApprovalActions and t_.approval_state === 'pending'">
-                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.previewTemplate(t_)"><i class="fa fa-eye"/> Preview</button>
-                            <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.approveTemplate(t_)"><i class="fa fa-check"/> Approve</button>
-                            <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.rejectTemplate(t_)"><i class="fa fa-times"/> Reject</button>
-                        </div>
-                        <div class="doc-tpl-actions" t-else="">
+                        <div class="doc-tpl-actions">
                             <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.previewTemplate(t_)"><i class="fa fa-eye"/> Preview</button>
                             <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.useTemplate(t_)"><i class="fa fa-magic"/> Use</button>
                             <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.openBuilder(t_)" title="Edit"><i class="fa fa-pencil"/></button>
@@ -89,7 +83,6 @@
                     <div class="doc-tpl-kebab-menu" t-if="state.openMenuId === t_.id" t-on-click.stop="">
                         <div class="doc-tpl-kebab-item" t-on-click="() => this.duplicateTemplate(t_)"><i class="fa fa-copy"/> Duplicate</div>
                         <div class="doc-tpl-kebab-item" t-on-click="() => this.shareTemplate(t_)"><i class="fa fa-share-alt"/> Share</div>
-                        <div class="doc-tpl-kebab-item" t-if="t_.approval_state === 'none'" t-on-click="() => this.submitForApproval(t_)"><i class="fa fa-check-square-o"/> Submit for Approval</div>
                     </div>
                 </div>
             </div>
@@ -101,7 +94,6 @@
                         <span class="doc-tpl-name" t-on-click="() => this.openBuilder(t_)"><t t-esc="t_.name"/></span>
                         <div class="doc-tpl-meta">
                             <span class="doc-chip doc-c-muted"><t t-esc="t_.category_name"/></span>
-                            <span class="doc-chip" t-attf-class="{{ t_.status === 'published' ? 'doc-c-success' : 'doc-c-muted' }}"><t t-esc="t_.status"/></span>
                         </div>
                     </div>
                     <div class="doc-tpl-stars">

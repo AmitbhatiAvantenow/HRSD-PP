@@ -1,3 +1,5 @@
+import calendar
+
 from odoo import fields, http
 from odoo.http import request
 
@@ -30,6 +32,7 @@ class FlutterAttendanceDashboardController(http.Controller):
         shift = employee.attendance_shift_id
 
         month_start = today.replace(day=1)
+        month_end = today.replace(day=calendar.monthrange(today.year, today.month)[1])
         month_records = Attendance.search([
             ('employee_id', '=', employee.id),
             ('attendance_date', '>=', month_start),
@@ -40,12 +43,21 @@ class FlutterAttendanceDashboardController(http.Controller):
         # as working days count toward the denominator — a shift with a
         # Tue-Sun week, or Saturdays on, isn't punished for "missing"
         # Mondays it was never scheduled to work.
+        #
+        # "Days Present" is shown against the whole month's working days
+        # (e.g. "2/22"), not just the days elapsed so far, so it reads as
+        # progress through the month rather than resetting to X/X every
+        # single day. The attendance rate below stays elapsed-day-based
+        # instead, since that's the only way it can mean "showed up when
+        # expected" rather than always understating early in the month.
         if shift:
-            total_working_days = shift.working_days_between(month_start, today)
+            working_days_elapsed = shift.working_days_between(month_start, today)
+            total_working_days = shift.working_days_between(month_start, month_end)
         else:
-            total_working_days = (today - month_start).days + 1
+            working_days_elapsed = (today - month_start).days + 1
+            total_working_days = month_end.day
         attendance_percentage = (
-            round((days_present / total_working_days) * 100, 1) if total_working_days else 0.0
+            round((days_present / working_days_elapsed) * 100, 1) if working_days_elapsed else 0.0
         )
         total_hours = sum(month_records.mapped('working_hours'))
         avg_work_per_day = round(total_hours / days_present, 2) if days_present else 0.0

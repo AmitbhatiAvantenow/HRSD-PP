@@ -14,7 +14,6 @@ export class SettingsPage extends Component {
             saving: false,
             saved: false,
             default_access_level: "private",
-            require_approval: false,
         });
 
         onWillStart(async () => {
@@ -35,16 +34,11 @@ export class SettingsPage extends Component {
         this.state.default_access_level = v;
     }
 
-    toggleRequireApproval() {
-        this.state.require_approval = !this.state.require_approval;
-    }
-
     async save() {
         this.state.saving = true;
         try {
             await this.orm.call("document.template", "set_settings", [{
                 default_access_level: this.state.default_access_level,
-                require_approval: this.state.require_approval,
             }]);
             this.state.saved = true;
             setTimeout(() => { this.state.saved = false; }, 2000);

@@ -13,8 +13,6 @@
               action="action_doc_variables" sequence="4"/>
     <menuitem id="menu_doc_generated" name="Generated Documents" parent="menu_document_templates_root"
               action="action_doc_generated" sequence="5"/>
-    <menuitem id="menu_doc_approval_workflow" name="Approval Workflow" parent="menu_document_templates_root"
-              action="action_doc_approval_workflow" sequence="6"/>
     <menuitem id="menu_doc_shared_templates" name="Shared Templates" parent="menu_document_templates_root"
               action="action_doc_shared_templates" sequence="7"/>
     <menuitem id="menu_doc_favourite_templates" name="Favourite Templates" parent="menu_document_templates_root"

@@ -25,14 +25,6 @@
                 <div class="doc-kpi-label">Favourite Templates</div>
                 <div class="doc-kpi-value"><t t-esc="state.stats.favourite_templates"/></div>
             </div>
-            <div class="doc-kpi">
-                <div class="doc-kpi-label">Draft Templates</div>
-                <div class="doc-kpi-value"><t t-esc="state.stats.draft_templates"/></div>
-            </div>
-            <div class="doc-kpi doc-c-success">
-                <div class="doc-kpi-label">Published</div>
-                <div class="doc-kpi-value"><t t-esc="state.stats.published_templates"/></div>
-            </div>
         </div>
 
         <div class="doc-grid" style="grid-template-columns: 1.2fr 1fr;">
@@ -98,16 +90,7 @@
             </div>
         </div>
 
-        <div class="doc-grid" style="grid-template-columns: 1fr 1.2fr;">
-            <div class="doc-card">
-                <div class="doc-card-title">Approval Status</div>
-                <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                    <span class="doc-chip" t-attf-class="{{ approvalChipClass(a.state) }}" t-foreach="state.approval_breakdown" t-as="a" t-key="a.state">
-                        <t t-esc="a.label"/>: <t t-esc="a.count"/>
-                    </span>
-                </div>
-            </div>
-
+        <div class="doc-grid" style="grid-template-columns: 1fr;">
             <div class="doc-card">
                 <div class="doc-card-title">Recently Modified</div>
                 <table class="doc-table" t-if="state.recently_modified.length">
@@ -115,7 +98,6 @@
                         <tr t-foreach="state.recently_modified" t-as="r" t-key="r.id">
                             <td style="font-weight:600;"><t t-esc="r.name"/></td>
                             <td style="color:var(--doc-ink-soft);"><t t-esc="r.write_date"/></td>
-                            <td><span class="doc-chip" t-attf-class="{{ r.status === 'published' ? 'doc-c-success' : 'doc-c-muted' }}"><t t-esc="r.status"/></span></td>
                         </tr>
                     </tbody>
                 </table>

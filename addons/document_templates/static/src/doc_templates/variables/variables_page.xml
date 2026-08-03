@@ -4,24 +4,66 @@
 <t t-name="document_templates.VariablesPage">
     <DocShell activeKey="'variables'" eyebrow="'Document Templates'" title="'Variables'"
               subtitle="'Every dynamic {{ variable }} defined across your templates, in one place.'">
+        <t t-set-slot="headerActions">
+            <button class="doc-btn-primary" t-on-click="() => this.toggleAddForm()">
+                <i class="fa fa-plus"/> Add Variable
+            </button>
+        </t>
+
+        <div class="doc-card" style="max-width:480px; margin-bottom:16px;" t-if="state.showAddForm">
+            <div class="doc-card-title">Add Variable</div>
+            <div class="doc-field">
+                <label>Template</label>
+                <select t-model="state.newVarTemplateId">
+                    <option value="">Select a template…</option>
+                    <option t-foreach="state.templates" t-as="tmpl" t-key="tmpl.id" t-att-value="tmpl.id" t-esc="tmpl.name"/>
+                </select>
+            </div>
+            <div class="doc-field">
+                <label>Name</label>
+                <input type="text" placeholder="e.g. Employee Name" t-model="state.newVarName"/>
+            </div>
+            <div class="doc-field">
+                <label>Type</label>
+                <select t-model="state.newVarType">
+                    <option t-foreach="variableTypes" t-as="vt" t-key="vt.value" t-att-value="vt.value" t-esc="vt.label"/>
+                </select>
+            </div>
+            <div class="doc-field">
+                <label>Default Value (optional)</label>
+                <input type="text" t-model="state.newVarDefault"/>
+            </div>
+            <div class="doc-field">
+                <label style="display:flex; align-items:center; gap:6px; font-weight:600;">
+                    <input type="checkbox" t-model="state.newVarRequired"/> Required when generating
+                </label>
+            </div>
+            <div class="doc-wizard-error" t-if="state.newVarError"><i class="fa fa-exclamation-triangle"/> <t t-esc="state.newVarError"/></div>
+            <button class="doc-btn-primary" t-on-click="() => this.createVariable()"><i class="fa fa-plus"/> Add Variable</button>
+        </div>
+
         <t t-if="groupedByTemplate.length">
             <div class="doc-card" style="margin-bottom:14px;" t-foreach="groupedByTemplate" t-as="grp" t-key="grp.templateId">
                 <div class="doc-card-title"><t t-esc="grp.templateName"/></div>
                 <table class="doc-table">
                     <thead>
-                        <tr><th>Label</th><th>Token</th><th>Type</th></tr>
+                        <tr><th>Label</th><th>Token</th><th>Type</th><th/></tr>
                     </thead>
                     <tbody>
                         <tr t-foreach="grp.items" t-as="v" t-key="v.id">
                             <td><t t-esc="v.name"/></td>
                             <td class="doc-mono">{{ <t t-esc="v.key"/> }}</td>
-                            <td><span class="doc-chip doc-c-muted"><t t-esc="v.variable_type"/></span></td>
+                            <td><span class="doc-chip doc-c-muted"><t t-esc="variableTypeLabel(v.variable_type)"/></span></td>
+                            <td style="text-align:right;">
+                                <i class="fa fa-trash-o" style="cursor:pointer; color:var(--doc-ink-faint);"
+                                   t-on-click="() => this.deleteVariable(v)" title="Delete variable"/>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </t>
-        <div class="doc-empty" t-else="">No variables defined yet -- add some from a template's Builder.</div>
+        <div class="doc-empty" t-else="">No variables defined yet -- click "Add Variable" above, or add one from a template's Builder.</div>
     </DocShell>
 </t>
 

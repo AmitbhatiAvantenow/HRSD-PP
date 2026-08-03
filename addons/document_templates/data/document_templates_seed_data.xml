@@ -63,7 +63,6 @@
         <field name="name">Offer Letter</field>
         <field name="category_id" ref="cat_offer_letters"/>
         <field name="description">Standard offer letter sent to a new candidate.</field>
-        <field name="status">published</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_contract')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {"footer_text": "Confidential -- Offer Letter"},
@@ -97,7 +96,6 @@
         <field name="name">Employment Contract</field>
         <field name="category_id" ref="cat_employment_contracts"/>
         <field name="description">Standard employment contract signed on joining.</field>
-        <field name="status">published</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_contract')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {"footer_text": "Confidential -- Employment Contract"},
@@ -127,7 +125,6 @@
         <field name="name">NDA / Confidentiality Agreement</field>
         <field name="category_id" ref="cat_confidentiality"/>
         <field name="description">Employee confidentiality / non-disclosure agreement.</field>
-        <field name="status">published</field>
         <field name="access_level">company</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_contract'), ref('tag_confidential'), ref('tag_compliance')])]"/>
         <field name="canvas_data"><![CDATA[{
@@ -154,7 +151,6 @@
         <field name="name">Policy Acknowledgment</field>
         <field name="category_id" ref="cat_policy_acknowledgments"/>
         <field name="description">Employee acknowledgment of a company policy or code of conduct.</field>
-        <field name="status">published</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_compliance'), ref('tag_internal')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {},
@@ -180,7 +176,6 @@
         <field name="name">Appraisal Form</field>
         <field name="category_id" ref="cat_appraisal_forms"/>
         <field name="description">Performance review / appraisal summary form.</field>
-        <field name="status">draft</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {},
@@ -210,7 +205,6 @@
         <field name="name">Relieving Letter</field>
         <field name="category_id" ref="cat_relieving_letters"/>
         <field name="description">Confirms an employee's last working day and relieves them of duties.</field>
-        <field name="status">published</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {},
@@ -240,7 +234,6 @@
         <field name="name">Warning Letter</field>
         <field name="category_id" ref="cat_warning_letters"/>
         <field name="description">Formal disciplinary warning letter.</field>
-        <field name="status">draft</field>
         <field name="access_level">team</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_compliance'), ref('tag_confidential')])]"/>
         <field name="canvas_data"><![CDATA[{
@@ -268,7 +261,6 @@
         <field name="name">Promotion / Increment Letter</field>
         <field name="category_id" ref="cat_promotion_increment"/>
         <field name="description">Confirms a promotion and/or salary revision.</field>
-        <field name="status">published</field>
         <field name="tag_ids" eval="[(6, 0, [ref('tag_internal')])]"/>
         <field name="canvas_data"><![CDATA[{
             "page": {},

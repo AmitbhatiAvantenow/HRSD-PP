@@ -16,7 +16,7 @@ class FlutterAttendance(models.Model):
     check_out_time = fields.Datetime()
 
     working_hours = fields.Float(compute='_compute_summary', store=True)
-    distance_km = fields.Float(compute='_compute_summary', store=True, string='Distance (km)')
+    distance_km = fields.Float(compute='_compute_summary', store=True, string='Distance (km)', digits=(10, 3))
     late_minutes = fields.Float(compute='_compute_summary', store=True)
     overtime_hours = fields.Float(compute='_compute_summary', store=True)
     status = fields.Selection([

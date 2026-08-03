@@ -29,27 +29,55 @@
 
             <div class="doc-builder-layout">
             <div class="doc-builder-palette">
-                <div class="doc-builder-palette-title">Components</div>
-                <div class="doc-builder-palette-item" t-foreach="palette" t-as="item" t-key="item.type"
-                     draggable="true"
-                     t-on-dragstart="(ev) => this.onPaletteDragStart(ev, item.type)"
-                     t-on-click="() => this.onPaletteClick(item)">
-                    <i t-attf-class="fa {{ item.icon }}"/>
-                    <span><t t-esc="item.label"/></span>
-                </div>
+                <t t-if="!state.varPopoverOpen">
+                    <div class="doc-builder-palette-title">Components</div>
+                    <div t-foreach="palette" t-as="item" t-key="item.type"
+                         t-attf-class="doc-builder-palette-item {{ item.special ? 'doc-builder-palette-item-special' : '' }}"
+                         t-att-draggable="item.type !== 'dynamic_field'"
+                         t-on-dragstart="(ev) => this.onPaletteDragStart(ev, item.type)"
+                         t-on-click="() => this.onPaletteClick(item)">
+                        <i t-attf-class="fa {{ item.icon }}"/>
+                        <span><t t-esc="item.label"/></span>
+                        <i class="fa fa-caret-right doc-builder-palette-item-caret" t-if="item.special"/>
+                    </div>
+                </t>
 
-                <div class="doc-builder-varpop" t-if="state.varPopoverOpen">
+                <t t-else="">
+                    <button class="doc-builder-varpop-back" t-on-click="() => this.toggleVarPopover()">
+                        <i class="fa fa-arrow-left"/> Components
+                    </button>
+
                     <div class="doc-builder-varpop-title">Insert Variable</div>
-                    <div class="doc-builder-varpop-item" t-foreach="state.variables" t-as="v" t-key="v.key" t-on-click="() => this.insertVariable(v)">
-                        <span class="doc-mono">{{ <t t-esc="v.key"/> }}</span>
-                        <span style="color:var(--doc-ink-faint);"><t t-esc="v.name"/></span>
+                    <p class="doc-builder-varpop-hint">Drag onto the page, or click to insert into the selected text/heading block.</p>
+                    <div class="doc-builder-varpop-item" t-foreach="state.variables" t-as="v" t-key="v.key"
+                         draggable="true"
+                         t-on-dragstart="(ev) => this.onVariableDragStart(ev, v)"
+                         t-on-click="() => this.insertVariable(v)">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                            <span class="doc-mono"><i class="fa fa-arrows" style="margin-right:5px; color:var(--doc-ink-faint);"/>{{ <t t-esc="v.key"/> }}</span>
+                            <i class="fa fa-trash-o doc-builder-varpop-del" t-on-click="(ev) => this.deleteVariable(v, ev)" title="Delete variable"/>
+                        </div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                            <span style="color:var(--doc-ink-faint);"><t t-esc="v.name"/></span>
+                            <span class="doc-chip doc-c-muted" style="font-size:9.5px;"><t t-esc="variableTypeLabel(v.variable_type)"/></span>
+                        </div>
                     </div>
-                    <div class="doc-empty" t-if="!state.variables.length" style="padding:8px 0;">No variables yet.</div>
-                    <div class="doc-builder-varpop-add">
-                        <input type="text" placeholder="New variable name…" t-model="state.newVarName"/>
-                        <button class="doc-btn-outline doc-btn-sm" t-on-click="() => this.createVariable()"><i class="fa fa-plus"/></button>
+                    <div class="doc-empty" t-if="!state.variables.length" style="padding:8px 0;">No variables yet -- add one below.</div>
+
+                    <div class="doc-builder-varpop-title" style="margin-top:14px;">Add Variable</div>
+                    <div class="doc-builder-varpop-form">
+                        <input type="text" placeholder="Variable name (e.g. Employee Name)…" t-model="state.newVarName"/>
+                        <select t-model="state.newVarType">
+                            <option t-foreach="variableTypes" t-as="vt" t-key="vt.value" t-att-value="vt.value" t-esc="vt.label"/>
+                        </select>
+                        <input type="text" placeholder="Default value (optional)" t-model="state.newVarDefault"/>
+                        <label class="doc-builder-varpop-required">
+                            <input type="checkbox" t-model="state.newVarRequired"/> Required when generating
+                        </label>
+                        <div class="doc-builder-varpop-error" t-if="state.newVarError"><t t-esc="state.newVarError"/></div>
+                        <button class="doc-btn-primary doc-btn-sm" t-on-click="() => this.createVariable()"><i class="fa fa-plus"/> Add Variable</button>
                     </div>
-                </div>
+                </t>
             </div>
 
             <div class="doc-builder-canvas-wrap">

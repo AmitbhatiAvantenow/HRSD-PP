@@ -175,6 +175,25 @@
   .ohw-template-card .fa { font-size: 24px; color: var(--ohw-indigo); margin-bottom: 10px; }
   .ohw-template-name { font-size: 12.5px; font-weight: 700; }
   .ohw-template-cat { font-size: 10.5px; color: var(--ohw-text-muted); margin-top: 2px; }
+  .ohw-template-vars-badge {
+    margin-top: 8px; font-size: 10px; font-weight: 700; color: var(--ohw-indigo);
+    background: rgba(79, 70, 229, 0.08); border-radius: 999px; padding: 3px 9px; display: inline-flex;
+    align-items: center; gap: 5px;
+  }
+
+  .ohw-doc-generate-box { margin-bottom: 18px; }
+  .ohw-doc-generate-ready {
+    display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 600;
+    color: var(--ohw-text); background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: var(--ohw-radius-md); padding: 10px 14px;
+  }
+  .ohw-doc-generate-ready .fa-check-circle { color: #22c55e; font-size: 15px; }
+  .ohw-doc-generate-ready span { flex: 1; }
+
+  .ohw-template-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin: -6px 0 18px; }
+  .ohw-template-pager button { padding: 6px 14px; font-size: 11.5px; }
+  .ohw-template-pager button:disabled { opacity: 0.4; cursor: default; }
+  .ohw-template-pager-label { font-size: 11.5px; font-weight: 700; color: var(--ohw-text-muted); }
 
   .ohw-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .ohw-field label { display: block; font-size: 11.5px; font-weight: 700; color: var(--ohw-text-muted); margin-bottom: 6px; }

@@ -4,6 +4,7 @@ import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { loadPDFJSAssets } from "@web/core/utils/pdfjs";
 import { Many2One } from "@web/views/fields/many2one/many2one";
+import { GenerateDialog } from "@document_templates/doc_templates/templates/generate_dialog";
 
 const STEPS = [
     { key: "document", label: _t("Template / Upload"), icon: "fa-file-text-o" },
@@ -70,6 +71,8 @@ const CATEGORIES = [
 
 const AVATAR_COLORS = ["indigo", "violet", "blue", "green", "orange", "pink", "teal"];
 
+const TEMPLATES_PAGE_SIZE = 10;
+
 export class HrEsignCreateWizard extends Component {
     static template = "hrsd.HrEsignCreateWizard";
     static components = { Many2One };
@@ -99,6 +102,7 @@ export class HrEsignCreateWizard extends Component {
             templateSource: "esign",
             fileName: "",
             fileData: false,
+            generatedDoc: null,
             aiSuggestion: null,
             analyzing: false,
             signers: [],
@@ -119,13 +123,15 @@ export class HrEsignCreateWizard extends Component {
             pdfError: "",
             templateFileCache: null,
             signatureFont: SIGNATURE_FONTS[0].value,
+            templatesPage: 0,
+            docTemplatesPage: 0,
         });
 
         onWillStart(async () => {
             this.state.templates = await this.orm.searchRead("hr.esign.template", [], ["id", "name", "category"], { limit: 100 });
             this.state.docTemplates = await this.orm.searchRead(
-                "document.template", [["status", "=", "published"]],
-                ["id", "name", "category_id"], { limit: 100 }
+                "document.template", [],
+                ["id", "name", "category_id", "variable_ids"], { limit: 100 }
             );
         });
     }
@@ -139,7 +145,34 @@ export class HrEsignCreateWizard extends Component {
         }
         return this.state.templates.find((t) => t.id === this.state.templateId);
     }
+    // A "doc" (document_templates) template must be run through the Generate
+    // dialog first — its variables need real values before it's fit to sign —
+    // so the document step isn't "ready" until that's produced a matching result.
+    get docTemplateReady() {
+        if (this.state.templateSource !== "doc") return true;
+        return !!(this.state.generatedDoc && this.state.generatedDoc.templateId === this.state.templateId);
+    }
     get progressPct() { return Math.round(((this.state.stepIndex + 1) / this.steps.length) * 100); }
+
+    // Template grids are paged client-side (10 per page) instead of dumping
+    // the whole library on screen at once — this only grows over time.
+    get templatesPageCount() { return Math.max(1, Math.ceil(this.state.templates.length / TEMPLATES_PAGE_SIZE)); }
+    get pagedTemplates() {
+        const start = this.state.templatesPage * TEMPLATES_PAGE_SIZE;
+        return this.state.templates.slice(start, start + TEMPLATES_PAGE_SIZE);
+    }
+    get docTemplatesPageCount() { return Math.max(1, Math.ceil(this.state.docTemplates.length / TEMPLATES_PAGE_SIZE)); }
+    get pagedDocTemplates() {
+        const start = this.state.docTemplatesPage * TEMPLATES_PAGE_SIZE;
+        return this.state.docTemplates.slice(start, start + TEMPLATES_PAGE_SIZE);
+    }
+
+    setTemplatesPage(page) {
+        this.state.templatesPage = Math.max(0, Math.min(page, this.templatesPageCount - 1));
+    }
+    setDocTemplatesPage(page) {
+        this.state.docTemplatesPage = Math.max(0, Math.min(page, this.docTemplatesPageCount - 1));
+    }
 
     // Props for the "Choose Customer" step's main picker.
     get customerPickerProps() {
@@ -171,7 +204,9 @@ export class HrEsignCreateWizard extends Component {
         const step = this.currentStep;
         if (step === "customer") return !!this.state.partnerId;
         if (step === "document") {
-            return !!this.state.title && (this.state.useTemplate ? !!this.state.templateId : !!this.state.fileData);
+            if (!this.state.title) return false;
+            if (!this.state.useTemplate) return !!this.state.fileData;
+            return !!this.state.templateId && this.docTemplateReady;
         }
         if (step === "signers") return this.state.signers.length > 0 && this.state.signers.every((s) => s.name && s.email);
         return true;
@@ -222,17 +257,55 @@ export class HrEsignCreateWizard extends Component {
         this.state.error = "";
         this.state.pdfPages = [];
         this.state.fields = [];
+        this.state.generatedDoc = null;
     }
 
     selectTemplate(id, source = "esign") {
+        if (this.state.templateId === id && this.state.templateSource === source) return;
         this.state.templateId = id;
         this.state.templateSource = source;
         this.state.pdfPages = [];
         this.state.fields = [];
+        this.state.templateFileCache = null;
+        this.state.generatedDoc = null;
     }
 
     openManageTemplates() {
         this.action.doAction("document_templates.action_doc_dashboard", { newWindow: true });
+    }
+
+    // Opens the same "fill the variables → Generate" dialog used by the
+    // Document Templates app, so a template with {{ tokens }} (offer letter,
+    // NDA, ...) gets those values merged in before it's used as the file to sign
+    // — instead of sending the raw template with unfilled placeholders.
+    openGenerateDialog() {
+        if (!this.state.templateId || this.state.templateSource !== "doc") return;
+        this.dialog.add(GenerateDialog, {
+            templateId: this.state.templateId,
+            initialPartnerId: this.state.partnerId || false,
+            onGenerated: (result) => this.onTemplateGenerated(result),
+        });
+    }
+
+    async onTemplateGenerated(result) {
+        const [rec] = await this.orm.read("document.generated", [result.generated_id], ["file_data_pdf", "file_name_pdf"]);
+        this.state.generatedDoc = {
+            templateId: this.state.templateId,
+            generatedId: result.generated_id,
+            data: rec.file_data_pdf,
+            name: rec.file_name_pdf,
+        };
+        this.state.templateFileCache = {
+            id: this.state.templateId, source: "doc",
+            data: rec.file_data_pdf, name: rec.file_name_pdf,
+        };
+        this.state.pdfPages = [];
+        if (!this.state.title) {
+            const tmpl = this.selectedTemplate;
+            this.state.title = (tmpl && tmpl.name) || this.state.title;
+        }
+        this.notification.add(_t("Document generated from template."), { type: "success" });
+        this.goNext();
     }
 
     async onFileChange(ev) {
@@ -322,9 +395,16 @@ export class HrEsignCreateWizard extends Component {
         }
         let cache;
         if (this.state.templateSource === "doc") {
-            const tmpl = this.state.docTemplates.find((t) => t.id === this.state.templateId);
-            const pdfB64 = await this.orm.call("document.template", "preview_pdf_base64", [[this.state.templateId]]);
-            cache = { id: this.state.templateId, source: "doc", data: pdfB64, name: `${(tmpl && tmpl.name) || "document"}.pdf` };
+            if (this.state.generatedDoc && this.state.generatedDoc.templateId === this.state.templateId) {
+                cache = { id: this.state.templateId, source: "doc", data: this.state.generatedDoc.data, name: this.state.generatedDoc.name };
+            } else {
+                // Shouldn't normally be reached — canProceed() blocks leaving this step
+                // until Generate has run — but fall back to the raw unfilled preview
+                // rather than a hard error if it somehow is.
+                const tmpl = this.state.docTemplates.find((t) => t.id === this.state.templateId);
+                const pdfB64 = await this.orm.call("document.template", "preview_pdf_base64", [[this.state.templateId]]);
+                cache = { id: this.state.templateId, source: "doc", data: pdfB64, name: `${(tmpl && tmpl.name) || "document"}.pdf` };
+            }
         } else {
             const [tmpl] = await this.orm.read("hr.esign.template", [this.state.templateId], ["file_data", "file_name"]);
             cache = { id: this.state.templateId, source: "esign", data: tmpl.file_data, name: tmpl.file_name };

@@ -12,7 +12,6 @@ export const NAV_ITEMS = [
     { key: "variables", label: "Variables", action: "document_templates.action_doc_variables", group: "Library", icon: "fa-code" },
 
     { key: "generated", label: "Generated Documents", action: "document_templates.action_doc_generated", group: "Activity", icon: "fa-download" },
-    { key: "approval_workflow", label: "Approval Workflow", action: "document_templates.action_doc_approval_workflow", group: "Activity", icon: "fa-check-square-o" },
     { key: "shared_templates", label: "Shared Templates", action: "document_templates.action_doc_shared_templates", group: "Activity", icon: "fa-share-alt" },
     { key: "favourite_templates", label: "Favourite Templates", action: "document_templates.action_doc_favourite_templates", group: "Activity", icon: "fa-star" },
 

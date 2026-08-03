@@ -41,13 +41,11 @@ export class TemplateGrid extends Component {
         fetchMethod: { type: String, optional: true },
         domainExtra: { type: Array, optional: true },
         emptyLabel: { type: String, optional: true },
-        showApprovalActions: { type: Boolean, optional: true },
     };
     static defaultProps = {
         fetchMethod: "get_grid_data",
         domainExtra: [],
         emptyLabel: "No templates found.",
-        showApprovalActions: false,
     };
 
     setup() {
@@ -167,21 +165,5 @@ export class TemplateGrid extends Component {
     shareTemplate(t) {
         this.closeMenu();
         this.dialog.add(ShareDialog, { templateId: t.id, templateName: t.name, onShared: () => this.reload() });
-    }
-
-    async submitForApproval(t) {
-        this.closeMenu();
-        await this.orm.call("document.template", "action_submit_for_approval", [[t.id]]);
-        this.reload();
-    }
-
-    async approveTemplate(t) {
-        await this.orm.call("document.template", "action_approve", [[t.id]]);
-        this.reload();
-    }
-
-    async rejectTemplate(t) {
-        await this.orm.call("document.template", "action_reject", [[t.id]]);
-        this.reload();
     }
 }

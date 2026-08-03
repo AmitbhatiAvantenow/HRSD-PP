@@ -49,15 +49,14 @@ class EsignPortalController(http.Controller):
         if signer.status == 'pending':
             signer.action_mark_viewed()
 
-        # Show the evolving signature-block document (with prior signers'
-        # boxes already visible) once it exists, not just the raw upload.
-        pdf_field = 'final_signed_file_data' if doc.final_signed_file_data else 'file_data'
-        pdf_filename = doc.final_signed_file_name if doc.final_signed_file_data else doc.file_name
-
         # Only offer this signer's own not-yet-signed fields as fillable —
         # once they've signed, the portal just shows the flattened preview.
         signer_fields = signer.field_ids.sorted('sequence') if signer.status != 'signed' else signer.env['hr.esign.field']
-        pdf_url = f'/web/content/hr.esign.document/{doc.id}/{pdf_field}/{pdf_filename or "document.pdf"}'
+        # Served by our own token-gated /preview route below, not the generic
+        # /web/content/<model>/... route — the public/portal user has no read
+        # access to hr.esign.document, so that route 404s for every signer
+        # (this signing link's token is the actual authorization here).
+        pdf_url = f'/hrsd/sign/{token}/preview'
 
         return request.render('hrsd.esign_sign_page', {
             'signer': signer,
@@ -84,6 +83,29 @@ class EsignPortalController(http.Controller):
                 } for f in signer_fields],
             })),
         })
+
+    @http.route('/hrsd/sign/<string:token>/preview', type='http', auth='public', website=False, sitemap=False)
+    def esign_sign_preview(self, token, **kw):
+        signer = _get_signer(token)
+        if not signer:
+            return request.not_found()
+
+        # Show the evolving signature-block document (with prior signers'
+        # boxes already visible) once it exists, not just the raw upload.
+        doc = signer.document_id
+        if doc.final_signed_file_data:
+            pdf_bytes = base64.b64decode(doc.final_signed_file_data)
+            filename = doc.final_signed_file_name or 'document.pdf'
+        elif doc.file_data:
+            pdf_bytes = base64.b64decode(doc.file_data)
+            filename = doc.file_name or 'document.pdf'
+        else:
+            return request.not_found()
+
+        return request.make_response(pdf_bytes, headers=[
+            ('Content-Type', 'application/pdf'),
+            ('Content-Disposition', f'inline; filename="{filename}"'),
+        ])
 
     @http.route('/hrsd/sign/<string:token>/submit', type='http', auth='public', methods=['POST'], csrf=True)
     def esign_sign_submit(self, token, **post):

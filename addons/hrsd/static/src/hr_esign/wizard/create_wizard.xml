@@ -56,7 +56,7 @@
               <span class="ohw-palette-label">HR Sign Templates</span>
             </div>
             <div class="ohw-template-grid">
-              <div t-foreach="state.templates" t-as="tmpl" t-key="tmpl.id"
+              <div t-foreach="pagedTemplates" t-as="tmpl" t-key="tmpl.id"
                    t-attf-class="ohw-template-card {{ state.templateId === tmpl.id and state.templateSource === 'esign' ? 'is-selected' : '' }}"
                    t-on-click="() => this.selectTemplate(tmpl.id, 'esign')">
                 <i class="fa fa-file-text-o"/>
@@ -64,6 +64,17 @@
                 <div class="ohw-template-cat" t-esc="categoryLabel(tmpl.category)"/>
               </div>
               <div t-if="!state.templates.length" class="ohw-widget-empty">No HR Sign templates yet.</div>
+            </div>
+            <div t-if="templatesPageCount > 1" class="ohw-template-pager">
+              <button type="button" class="ohw-btn-ghost" t-att-disabled="state.templatesPage === 0"
+                      t-on-click="() => this.setTemplatesPage(state.templatesPage - 1)">
+                <i class="fa fa-chevron-left"/> Prev
+              </button>
+              <span class="ohw-template-pager-label">Page <t t-esc="state.templatesPage + 1"/> of <t t-esc="templatesPageCount"/></span>
+              <button type="button" class="ohw-btn-ghost" t-att-disabled="state.templatesPage >= templatesPageCount - 1"
+                      t-on-click="() => this.setTemplatesPage(state.templatesPage + 1)">
+                Next <i class="fa fa-chevron-right"/>
+              </button>
             </div>
 
             <div class="ohw-template-section-header" style="margin-top:18px;">
@@ -73,14 +84,39 @@
               </button>
             </div>
             <div class="ohw-template-grid">
-              <div t-foreach="state.docTemplates" t-as="tmpl" t-key="tmpl.id"
+              <div t-foreach="pagedDocTemplates" t-as="tmpl" t-key="tmpl.id"
                    t-attf-class="ohw-template-card {{ state.templateId === tmpl.id and state.templateSource === 'doc' ? 'is-selected' : '' }}"
                    t-on-click="() => this.selectTemplate(tmpl.id, 'doc')">
                 <i class="fa fa-file-text-o"/>
                 <div class="ohw-template-name" t-esc="tmpl.name"/>
                 <div class="ohw-template-cat" t-esc="tmpl.category_id and tmpl.category_id[1]"/>
+                <div class="ohw-template-vars-badge" t-if="tmpl.variable_ids and tmpl.variable_ids.length">
+                  <i class="fa fa-sliders"/> <t t-esc="tmpl.variable_ids.length"/> field<t t-if="tmpl.variable_ids.length !== 1">s</t> to fill
+                </div>
               </div>
-              <div t-if="!state.docTemplates.length" class="ohw-widget-empty">No document templates published yet.</div>
+              <div t-if="!state.docTemplates.length" class="ohw-widget-empty">No document templates yet.</div>
+            </div>
+            <div t-if="docTemplatesPageCount > 1" class="ohw-template-pager">
+              <button type="button" class="ohw-btn-ghost" t-att-disabled="state.docTemplatesPage === 0"
+                      t-on-click="() => this.setDocTemplatesPage(state.docTemplatesPage - 1)">
+                <i class="fa fa-chevron-left"/> Prev
+              </button>
+              <span class="ohw-template-pager-label">Page <t t-esc="state.docTemplatesPage + 1"/> of <t t-esc="docTemplatesPageCount"/></span>
+              <button type="button" class="ohw-btn-ghost" t-att-disabled="state.docTemplatesPage >= docTemplatesPageCount - 1"
+                      t-on-click="() => this.setDocTemplatesPage(state.docTemplatesPage + 1)">
+                Next <i class="fa fa-chevron-right"/>
+              </button>
+            </div>
+
+            <div t-if="state.templateSource === 'doc' and state.templateId" class="ohw-doc-generate-box">
+              <div t-if="docTemplateReady" class="ohw-doc-generate-ready">
+                <i class="fa fa-check-circle"/>
+                <span>Document generated from "<t t-esc="selectedTemplate ? selectedTemplate.name : ''"/>".</span>
+                <button type="button" class="ohw-btn-ghost" t-on-click="openGenerateDialog">Regenerate</button>
+              </div>
+              <button t-else="" type="button" class="ohw-btn-primary" t-on-click="openGenerateDialog">
+                <i class="fa fa-magic"/> Fill Details &amp; Generate
+              </button>
             </div>
           </div>
 

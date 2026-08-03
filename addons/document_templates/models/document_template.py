@@ -20,6 +20,15 @@ THUMBNAIL_MAX_BLOCKS = 5
 THUMBNAIL_TEXT_LEN = 160
 
 
+def _safe_filename(name):
+    """Strip path separators from a template name before using it as a
+    generated file's name -- a name like "NDA / Confidentiality Agreement"
+    would otherwise break /web/content/<model>/<id>/<field>/<filename> (its
+    filename segment is a plain `string` route converter that can't contain
+    `/`), so any consumer building a download/preview URL from it 404s."""
+    return re.sub(r'[\\/]+', '-', (name or '').strip())
+
+
 def _thumbnail_preview(canvas_data_str):
     """A lightweight, genuinely-live preview of a template's first few blocks (in
     reading order) for the template card thumbnail -- not a rasterized image, just
@@ -76,9 +85,6 @@ class DocumentTemplate(models.Model):
     ], default='private', required=True)
     tag_ids = fields.Many2many('document.template.tag')
 
-    status = fields.Selection([
-        ('draft', 'Draft'), ('published', 'Published'),
-    ], default='draft', required=True, tracking=True)
     active = fields.Boolean(default=True)
     source_format = fields.Selection([
         ('blank', 'Built from scratch'), ('docx', 'Uploaded Word Doc'),
@@ -97,31 +103,11 @@ class DocumentTemplate(models.Model):
     usage_count = fields.Integer(compute='_compute_usage_count', store=True)
     is_popular = fields.Boolean(compute='_compute_usage_count', store=True)
 
-    approval_state = fields.Selection([
-        ('none', 'Not Submitted'), ('pending', 'Pending Approval'),
-        ('approved', 'Approved'), ('rejected', 'Rejected'),
-    ], default='none', tracking=True)
-    approver_id = fields.Many2one('res.users')
-    approval_note = fields.Text()
-
     @api.depends('generated_ids')
     def _compute_usage_count(self):
         for rec in self:
             rec.usage_count = len(rec.generated_ids)
             rec.is_popular = rec.usage_count >= POPULAR_THRESHOLD
-
-    # ------------------------------------------------------------------
-    # Approval workflow
-    # ------------------------------------------------------------------
-
-    def action_submit_for_approval(self):
-        self.write({'approval_state': 'pending'})
-
-    def action_approve(self, note=False):
-        self.write({'approval_state': 'approved', 'approval_note': note, 'approver_id': self.env.user.id})
-
-    def action_reject(self, note=False):
-        self.write({'approval_state': 'rejected', 'approval_note': note, 'approver_id': self.env.user.id})
 
     def action_toggle_favorite(self):
         self.ensure_one()
@@ -284,9 +270,7 @@ class DocumentTemplate(models.Model):
             'rating': t.rating,
             'is_popular': t.is_popular,
             'usage_count': t.usage_count,
-            'status': t.status,
             'access_level': t.access_level,
-            'approval_state': t.approval_state,
             'is_favorite': uid in t.favorite_user_ids.ids,
             'write_date': fields.Datetime.to_string(t.write_date),
             'updated_by': t.write_uid.name,
@@ -388,12 +372,13 @@ class DocumentTemplate(models.Model):
             'partner_id': partner_id or False,
             'variable_values': json.dumps(variable_values or {}),
         }
+        safe_name = _safe_filename(self.name)
         if 'pdf' in (formats or []):
             vals['file_data_pdf'] = base64.b64encode(self._render_bytes(variable_values, 'pdf'))
-            vals['file_name_pdf'] = f'{self.name}.pdf'
+            vals['file_name_pdf'] = f'{safe_name}.pdf'
         if 'docx' in (formats or []):
             vals['file_data_docx'] = base64.b64encode(self._render_bytes(variable_values, 'docx'))
-            vals['file_name_docx'] = f'{self.name}.docx'
+            vals['file_name_docx'] = f'{safe_name}.docx'
         doc = self.env['document.generated'].create(vals)
         return {
             'generated_id': doc.id,
@@ -417,8 +402,6 @@ class DocumentTemplate(models.Model):
             'generated_this_month': Generated.search_count([('generated_date', '>=', fields.Datetime.to_string(month_start))]),
             'shared_templates': Template.search_count([('access_level', '!=', 'private')]),
             'favourite_templates': Template.search_count([('favorite_user_ids', 'in', [uid])]),
-            'draft_templates': Template.search_count([('status', '=', 'draft')]),
-            'published_templates': Template.search_count([('status', '=', 'published')]),
         }
 
         most_used = Template.search_read([('usage_count', '>', 0)], ['name', 'usage_count'], order='usage_count desc', limit=8)
@@ -452,11 +435,6 @@ class DocumentTemplate(models.Model):
             ])
             generated_trend.append({'month_label': start.strftime('%b'), 'count': count})
 
-        approval_breakdown = []
-        approval_counts = dict(Template._read_group([], ['approval_state'], ['__count']))
-        for key, label in Template._fields['approval_state'].selection:
-            approval_breakdown.append({'state': key, 'label': label, 'count': approval_counts.get(key, 0)})
-
         categories = self.env['document.template.category'].search([])
         cat_counts = dict(Template._read_group([], ['category_id'], ['__count']))
         total_cat = sum(cat_counts.values()) or 1
@@ -472,14 +450,13 @@ class DocumentTemplate(models.Model):
             })
             cumulative += pct
 
-        recently_modified = Template.search_read([], ['name', 'write_date', 'status'], order='write_date desc', limit=8)
+        recently_modified = Template.search_read([], ['name', 'write_date'], order='write_date desc', limit=8)
 
         return {
             'stats': stats,
             'most_used': most_used,
             'by_department': by_department,
             'generated_trend': generated_trend,
-            'approval_breakdown': approval_breakdown,
             'category_breakdown': category_breakdown,
             'recently_modified': recently_modified,
         }
@@ -493,7 +470,6 @@ class DocumentTemplate(models.Model):
         ICP = self.env['ir.config_parameter'].sudo()
         return {
             'default_access_level': ICP.get_param('document_templates.default_access_level', 'private'),
-            'require_approval': ICP.get_param('document_templates.require_approval', 'False') == 'True',
         }
 
     @api.model
@@ -501,6 +477,4 @@ class DocumentTemplate(models.Model):
         ICP = self.env['ir.config_parameter'].sudo()
         if 'default_access_level' in vals:
             ICP.set_param('document_templates.default_access_level', vals['default_access_level'])
-        if 'require_approval' in vals:
-            ICP.set_param('document_templates.require_approval', str(bool(vals['require_approval'])))
         return True

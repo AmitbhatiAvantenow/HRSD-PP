@@ -25,11 +25,6 @@
         <field name="tag">doc_generated</field>
     </record>
 
-    <record id="action_doc_approval_workflow" model="ir.actions.client">
-        <field name="name">Approval Workflow</field>
-        <field name="tag">doc_approval_workflow</field>
-    </record>
-
     <record id="action_doc_shared_templates" model="ir.actions.client">
         <field name="name">Shared Templates</field>
         <field name="tag">doc_shared_templates</field>

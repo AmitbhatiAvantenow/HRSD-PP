@@ -13,9 +13,22 @@ const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.1;
 
+const VARIABLE_TYPES = [
+    { value: "text", label: "Text" },
+    { value: "long_text", label: "Long Text" },
+    { value: "number", label: "Number" },
+    { value: "currency", label: "Currency" },
+    { value: "date", label: "Date" },
+    { value: "boolean", label: "Yes/No" },
+];
+
 const PALETTE = [
     { type: "text", label: "Text", icon: "fa-font" },
     { type: "heading", label: "Heading", icon: "fa-header" },
+    // Placed 3rd (not buried at the bottom of a 15-item scrolling list) since
+    // this is the main way to drop {{ variables }} like Employee Name onto
+    // the document -- it needs to be seen without scrolling to be found at all.
+    { type: "dynamic_field", label: "Variables", icon: "fa-code", special: true },
     { type: "image", label: "Image", icon: "fa-picture-o" },
     { type: "table", label: "Table", icon: "fa-table" },
     { type: "qr", label: "QR Code", icon: "fa-qrcode" },
@@ -25,7 +38,6 @@ const PALETTE = [
     { type: "divider", label: "Divider", icon: "fa-minus" },
     { type: "icon", label: "Icon", icon: "fa-smile-o" },
     { type: "page_break", label: "Page Break", icon: "fa-scissors" },
-    { type: "dynamic_field", label: "Dynamic Fields", icon: "fa-code", special: true },
     { type: "barcode", label: "Barcode", icon: "fa-barcode" },
     { type: "chart", label: "Chart", icon: "fa-bar-chart" },
     { type: "shape", label: "Shapes", icon: "fa-square-o" },
@@ -99,9 +111,14 @@ export class TemplateBuilder extends Component {
             variables: [],
             varPopoverOpen: false,
             newVarName: "",
+            newVarType: "text",
+            newVarRequired: true,
+            newVarDefault: "",
+            newVarError: "",
             zoom: 1,
             fullscreen: false,
         });
+        this.variableTypes = VARIABLE_TYPES;
 
         onWillStart(async () => {
             const templateId = this.props.action?.context?.default_template_id;
@@ -189,6 +206,15 @@ export class TemplateBuilder extends Component {
         ev.dataTransfer.setData("text/block-type", type);
     }
 
+    // Dragging a variable out of the "Insert Variable" flyout drops a new text
+    // block pre-filled with its {{ token }} wherever it's released on the
+    // canvas -- the same drop mechanic as every other palette item, since
+    // click-to-append-into-the-selected-block alone wasn't discoverable.
+    onVariableDragStart(ev, v) {
+        ev.dataTransfer.setData("text/block-type", "variable");
+        ev.dataTransfer.setData("text/variable-key", v.key);
+    }
+
     onPaletteClick(item) {
         if (item.type === "dynamic_field") {
             this.state.varPopoverOpen = !this.state.varPopoverOpen;
@@ -205,7 +231,19 @@ export class TemplateBuilder extends Component {
         const scale = PX_PER_PT * this.state.zoom;
         const x = (ev.clientX - rect.left) / scale;
         const y = (ev.clientY - rect.top) / scale;
+        if (type === "variable") {
+            const key = ev.dataTransfer.getData("text/variable-key");
+            this._addVariableBlock(key, x, y);
+            return;
+        }
         this._addBlock(type, x, y);
+    }
+
+    _addVariableBlock(key, x, y) {
+        const block = defaultBlock("text", x, y);
+        block.props.text = `{{ ${key} }}`;
+        this.state.blocks.push(block);
+        this.state.selectedId = block.id;
     }
 
     _addBlock(type, x, y) {
@@ -345,6 +383,10 @@ export class TemplateBuilder extends Component {
         this.state.varPopoverOpen = !this.state.varPopoverOpen;
     }
 
+    variableTypeLabel(type) {
+        return (this.variableTypes.find((t) => t.value === type) || {}).label || type;
+    }
+
     insertVariable(v) {
         const b = this.selectedBlock;
         if (b && (b.type === "text" || b.type === "heading")) {
@@ -353,14 +395,40 @@ export class TemplateBuilder extends Component {
     }
 
     async createVariable() {
+        this.state.newVarError = "";
         const name = this.state.newVarName.trim();
         if (!name) return;
         const key = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-        const id = await this.orm.create("document.template.variable", [{
-            template_id: this.state.templateId, name, key, variable_type: "text",
-        }]);
-        this.state.variables.push({ id: id[0], name, key, variable_type: "text", default_value: "", is_required: true });
+        if (!key) return;
+        if (this.state.variables.some((v) => v.key === key)) {
+            this.state.newVarError = "A variable with this name already exists on this template.";
+            return;
+        }
+        const vals = {
+            template_id: this.state.templateId,
+            name,
+            key,
+            variable_type: this.state.newVarType,
+            is_required: this.state.newVarRequired,
+            default_value: this.state.newVarDefault || false,
+        };
+        const id = await this.orm.create("document.template.variable", [vals]);
+        this.state.variables.push({
+            id: id[0], name, key,
+            variable_type: this.state.newVarType,
+            default_value: this.state.newVarDefault || "",
+            is_required: this.state.newVarRequired,
+        });
         this.state.newVarName = "";
+        this.state.newVarType = "text";
+        this.state.newVarRequired = true;
+        this.state.newVarDefault = "";
+    }
+
+    async deleteVariable(v, ev) {
+        ev.stopPropagation();
+        await this.orm.unlink("document.template.variable", [v.id]);
+        this.state.variables = this.state.variables.filter((x) => x.id !== v.id);
     }
 
     // ------------------------------------------------------------------

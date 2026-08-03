@@ -5,13 +5,6 @@ import { DocShell } from "../shell/doc_shell";
 
 const RING_COLORS = ["--doc-primary", "--doc-info", "--doc-success", "--doc-warning", "--doc-purple", "--doc-danger"];
 
-const APPROVAL_CHIP_CLASS = {
-    none: "doc-c-muted",
-    pending: "doc-c-warning",
-    approved: "doc-c-success",
-    rejected: "doc-c-danger",
-};
-
 export class Dashboard extends Component {
     static template = "document_templates.Dashboard";
     static components = { DocShell };
@@ -22,12 +15,11 @@ export class Dashboard extends Component {
         this.state = useState({
             stats: {
                 total_templates: 0, generated_this_month: 0, shared_templates: 0,
-                favourite_templates: 0, draft_templates: 0, published_templates: 0,
+                favourite_templates: 0,
             },
             most_used: [],
             by_department: [],
             generated_trend: [],
-            approval_breakdown: [],
             category_breakdown: [],
             recently_modified: [],
         });
@@ -36,10 +28,6 @@ export class Dashboard extends Component {
             const data = await this.orm.call("document.template", "get_dashboard_data", []);
             Object.assign(this.state, data);
         });
-    }
-
-    approvalChipClass(state) {
-        return APPROVAL_CHIP_CLASS[state] || "doc-c-muted";
     }
 
     get maxUsage() {

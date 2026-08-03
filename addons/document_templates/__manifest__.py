@@ -2,7 +2,7 @@
     'name': 'HR Document Templates',
     'version': '19.0.1.0.0',
     'category': 'Human Resources',
-    'summary': 'HR document template engine: build, generate, share and approve HR documents.',
+    'summary': 'HR document template engine: build, generate and share HR documents.',
     'description': """
 HR-focused document template engine.
 Design once with a Canva-like drag-and-drop canvas, merge with per-template
