@@ -1,11 +1,13 @@
 import base64
 import binascii
+import json
 import logging
 
 from odoo import fields, http
 from odoo.http import request
 
 from odoo.addons.flutterlogin.controllers.auth_controller import token_required, _json_body, _json_response, _error
+from odoo.addons.flutterattendance.models import face_engine
 
 _logger = logging.getLogger(__name__)
 
@@ -46,6 +48,8 @@ def _attendance_data(rec):
             'internet': rec.checkin_internet,
             'ip_address': rec.checkin_ip_address or False,
             'created_at': rec.checkin_created_at.isoformat() if rec.checkin_created_at else False,
+            'face_similarity': rec.checkin_face_similarity,
+            'face_verified': rec.checkin_face_verified,
         },
         'checkout': {
             # Float fields default to 0.0 rather than False when unset, so
@@ -58,6 +62,8 @@ def _attendance_data(rec):
             'has_photo': bool(rec.checkout_photo),
             'photo_url': f'/api/attendance/{rec.id}/photo/checkout' if rec.checkout_photo else False,
             'created_at': rec.checkout_created_at.isoformat() if rec.checkout_created_at else False,
+            'face_similarity': rec.checkout_face_similarity if rec.check_out_time else False,
+            'face_verified': rec.checkout_face_verified if rec.check_out_time else False,
         },
         'device': rec.device_id.device_name if rec.device_id else False,
     }
@@ -87,20 +93,27 @@ def _register_device(env, employee, data, touch_field='last_sync'):
     return Device.create(vals)
 
 
-def _check_geofence(env, latitude, longitude):
-    """Reject check-in if office coordinates + radius are configured and the
-    point is outside the allowed radius. Returns an error message, or None."""
-    icp = env['ir.config_parameter'].sudo()
-    office_lat = icp.get_param('flutterattendance.office_latitude')
-    office_lng = icp.get_param('flutterattendance.office_longitude')
-    if not office_lat or not office_lng:
+def _check_geofence(env, employee, latitude, longitude):
+    """Reject check-in if this employee has a configured geofence location
+    (specific or the primary fallback) and the point is outside its
+    radius. Returns an error message, or None if no location is
+    configured / the point is within range."""
+    location = env['flutterattendance.location'].sudo().resolve_for_employee(employee)
+    if not location:
         return None
     from geopy.distance import geodesic
-    radius_m = float(icp.get_param('flutterattendance.gps_radius_meters', '200') or 200)
-    distance_m = geodesic((float(office_lat), float(office_lng)), (float(latitude), float(longitude))).meters
-    if distance_m > radius_m:
-        return f'You are {int(distance_m)}m from the office; check-in is only allowed within {int(radius_m)}m.'
+    distance_m = geodesic((location.latitude, location.longitude), (float(latitude), float(longitude))).meters
+    if distance_m > location.radius:
+        return (f'You are {int(distance_m)}m from {location.name}; '
+                f'check-in is only allowed within {location.radius}m.')
     return None
+
+
+def _face_settings(env):
+    ICP = env['ir.config_parameter'].sudo()
+    threshold = float(ICP.get_param('flutterattendance.face_similarity_threshold', default='0.45'))
+    max_attempts = int(ICP.get_param('flutterattendance.face_max_attempts', default='5'))
+    return threshold, max_attempts
 
 
 class FlutterAttendanceController(http.Controller):
@@ -119,7 +132,7 @@ class FlutterAttendanceController(http.Controller):
         if latitude is None or longitude is None:
             return _error('latitude and longitude are required', 400)
 
-        geofence_error = _check_geofence(request.env, latitude, longitude)
+        geofence_error = _check_geofence(request.env, employee, latitude, longitude)
         if geofence_error:
             return _error(geofence_error, 403)
 
@@ -140,6 +153,10 @@ class FlutterAttendanceController(http.Controller):
             'checkin_network': data.get('network'),
             'checkin_internet': data.get('internet', True),
             'checkin_ip_address': request.httprequest.remote_addr,
+            # Set by the app after a successful /api/face/verify call — absent
+            # entirely when face_recognition is off, so this defaults safely.
+            'checkin_face_similarity': data.get('face_similarity') or 0.0,
+            'checkin_face_verified': bool(data.get('face_verified')),
         })
         return _json_response({'success': True, **_attendance_data(record)})
 
@@ -167,6 +184,8 @@ class FlutterAttendanceController(http.Controller):
             'checkout_accuracy': data.get('accuracy') or 0.0,
             'checkout_photo': base64.b64encode(photo_bytes) if photo_bytes else False,
             'checkout_created_at': fields.Datetime.now(),
+            'checkout_face_similarity': data.get('face_similarity') or 0.0,
+            'checkout_face_verified': bool(data.get('face_verified')),
         })
         return _json_response({'success': True, **_attendance_data(record)})
 
@@ -281,3 +300,99 @@ class FlutterAttendanceController(http.Controller):
         if not photo_b64:
             return request.not_found()
         return request.make_response(base64.b64decode(photo_b64), headers=[('Content-Type', 'image/jpeg')])
+
+    @http.route('/api/face/verify', type='http', auth='public', methods=['POST'], csrf=False, cors='*')
+    @token_required
+    def face_verify(self, employee=None, **kwargs):
+        """Pre-flight face check, called before /api/check-in or
+        /api/check-out. Never blocks by itself — the app decides what to do
+        with match=false (retry, or escalate to /api/face/request-approval
+        after enough attempts); this endpoint only ever reports a score."""
+        data = _json_body()
+        mode = data.get('mode')
+        if mode not in ('check_in', 'check_out'):
+            return _error("mode must be 'check_in' or 'check_out'", 400)
+
+        threshold, max_attempts = _face_settings(request.env)
+        settings = request.env['flutterattendance.security.check'].sudo().get_effective_settings(employee)
+        if not settings.get('face_recognition'):
+            return _json_response({
+                'success': True, 'match': True, 'similarity': 1.0,
+                'threshold': threshold, 'max_attempts': max_attempts, 'skipped': True,
+            })
+
+        photo_bytes = _decode_photo(data.get('photo'))
+        if not photo_bytes:
+            return _error('photo is required', 400)
+
+        if not employee.face_embedding:
+            return _json_response({
+                'success': True, 'match': False, 'similarity': 0.0,
+                'threshold': threshold, 'max_attempts': max_attempts, 'reason': 'no_reference_photo',
+            })
+
+        embedding = face_engine.embed_image_bytes(photo_bytes)
+        if embedding is None:
+            return _json_response({
+                'success': True, 'match': False, 'similarity': 0.0,
+                'threshold': threshold, 'max_attempts': max_attempts, 'reason': 'no_face_detected',
+            })
+
+        stored = json.loads(employee.face_embedding)
+        similarity = face_engine.cosine_similarity(embedding, stored)
+        return _json_response({
+            'success': True,
+            'match': similarity >= threshold,
+            'similarity': round(similarity, 4),
+            'threshold': threshold,
+            'max_attempts': max_attempts,
+        })
+
+    @http.route('/api/face/request-approval', type='http', auth='public', methods=['POST'], csrf=False, cors='*')
+    @token_required
+    def face_request_approval(self, employee=None, **kwargs):
+        data = _json_body()
+        mode = data.get('mode')
+        if mode not in ('check_in', 'check_out'):
+            return _error("mode must be 'check_in' or 'check_out'", 400)
+
+        photo_bytes = _decode_photo(data.get('photo'))
+        device = _register_device(request.env, employee, data)
+
+        FaceApproval = request.env['flutterattendance.face.approval'].sudo()
+        vals = {
+            'employee_id': employee.id,
+            'attendance_mode': mode,
+            'photo': base64.b64encode(photo_bytes) if photo_bytes else False,
+            'attempt_count': int(data.get('attempt_count') or 0),
+            'similarity_score': float(data.get('similarity_score') or 0.0),
+            'latitude': data.get('latitude') or 0.0,
+            'longitude': data.get('longitude') or 0.0,
+            'address': data.get('address'),
+            'device_id': device.id if device else False,
+        }
+        # Reuse a still-pending request for this employee+mode instead of
+        # piling up duplicates if the app retries the call.
+        existing = FaceApproval.search([
+            ('employee_id', '=', employee.id),
+            ('attendance_mode', '=', mode),
+            ('state', '=', 'pending'),
+        ], limit=1)
+        record = existing
+        if existing:
+            existing.write(vals)
+        else:
+            record = FaceApproval.create(vals)
+        return _json_response({'success': True, 'request_id': record.id, 'status': record.state})
+
+    @http.route('/api/face/request-approval/<int:request_id>', type='http', auth='public', methods=['GET'], csrf=False, cors='*')
+    @token_required
+    def face_request_approval_status(self, request_id, employee=None, **kwargs):
+        record = request.env['flutterattendance.face.approval'].sudo().browse(request_id).exists()
+        if not record or record.employee_id.id != employee.id:
+            return _error('Request not found', 404)
+        return _json_response({
+            'success': True,
+            'status': record.state,
+            'attendance_id': record.attendance_id.id if record.attendance_id else False,
+        })

@@ -17,22 +17,27 @@ authentication.
 * GET  /api/dashboard, GET /api/settings
 * POST /api/sync
 * GET  /api/notifications, POST /api/notifications/<id>/read
+* POST /api/face/verify, POST /api/face/request-approval, GET /api/face/request-approval/<id>
 """,
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['base', 'hr', 'flutterlogin'],
+    'depends': ['base', 'hr', 'mail', 'flutterlogin'],
     'external_dependencies': {
-        'python': ['geopy'],
+        'python': ['geopy', 'cv2', 'onnxruntime', 'numpy'],
     },
     'data': [
         'security/ir.model.access.csv',
         'data/shift_data.xml',
+        'data/security_check_data.xml',
         'data/cron.xml',
         'views/attendance_views.xml',
         'views/device_views.xml',
         'views/shift_views.xml',
         'views/hr_employee_views.xml',
         'views/res_config_settings_views.xml',
+        'views/security_check_views.xml',
+        'views/location_views.xml',
+        'views/face_approval_views.xml',
         'views/menu.xml',
     ],
     'license': 'LGPL-3',

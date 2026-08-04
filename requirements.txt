@@ -21,6 +21,9 @@ freezegun==1.2.1 ; python_version >= '3.11' and python_version < '3.13'
 freezegun==1.5.1 ; python_version >= '3.13'
 geoip2==2.9.0
 geopy==2.5.0  # used by flutterattendance to compute check-in/check-out distance
+numpy==2.4.6  # used by flutterattendance's face_engine (embedding vectors)
+opencv-python-headless==5.0.0.93  # used by flutterattendance's face_engine (detect/align faces)
+onnxruntime==1.28.0  # used by flutterattendance's face_engine (runs the vendored ONNX models)
 gevent==21.8.0 ; sys_platform != 'win32' and python_version == '3.10'  # (Jammy)
 gevent==22.10.2; sys_platform != 'win32' and python_version > '3.10' and python_version < '3.12'
 gevent==24.2.1 ; sys_platform != 'win32' and python_version >= '3.12' and python_version < '3.13'  # (Noble)

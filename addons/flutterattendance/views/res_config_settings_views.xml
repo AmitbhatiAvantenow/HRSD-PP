@@ -7,10 +7,8 @@
         <field name="arch" type="xml">
             <xpath expr="//block[@name='employees_setting_container']" position="inside">
                 <setting id="flutterattendance_setting" string="Mobile Attendance"
-                         help="Geofencing and reminder settings for the Flutter mobile attendance app.">
-                    <field name="flutterattendance_gps_radius"/>
-                    <field name="flutterattendance_office_latitude"/>
-                    <field name="flutterattendance_office_longitude"/>
+                         help="Reminder settings for the Flutter mobile attendance app. Geofencing and
+                               security checks are under Mobile Attendance &gt; Settings.">
                     <div class="d-flex">
                         <field name="flutterattendance_notifications_enabled" class="ml16"/>
                         <label for="flutterattendance_notifications_enabled" class="o_light_label"/>
@@ -19,6 +17,12 @@
                         <field name="flutterattendance_checkin_reminder_time" widget="float_time"/>
                         <field name="flutterattendance_checkout_reminder_time" widget="float_time"/>
                     </div>
+                </setting>
+                <setting id="flutterattendance_face_setting" string="Face Recognition"
+                         help="Turn the 'Face Recognition' check on under Mobile Attendance &gt; Settings &gt;
+                               Security Checks to enforce these.">
+                    <field name="flutterattendance_face_similarity_threshold"/>
+                    <field name="flutterattendance_face_max_attempts"/>
                 </setting>
             </xpath>
         </field>

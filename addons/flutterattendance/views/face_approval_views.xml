@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_face_approval_list" model="ir.ui.view">
+        <field name="name">flutterattendance.face.approval.list</field>
+        <field name="model">flutterattendance.face.approval</field>
+        <field name="arch" type="xml">
+            <list string="Face Approvals" decoration-warning="state == 'pending'" decoration-muted="state == 'rejected'" decoration-success="state == 'approved'">
+                <field name="create_date" string="Requested"/>
+                <field name="employee_id"/>
+                <field name="attendance_mode"/>
+                <field name="attempt_count"/>
+                <field name="similarity_score" widget="percentage"/>
+                <field name="state" widget="badge" decoration-success="state == 'approved'" decoration-warning="state == 'pending'" decoration-muted="state == 'rejected'"/>
+                <button name="action_approve" type="object" string="Approve" icon="fa-check" invisible="state != 'pending'"/>
+                <button name="action_reject" type="object" string="Reject" icon="fa-times" invisible="state != 'pending'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_face_approval_kanban" model="ir.ui.view">
+        <field name="name">flutterattendance.face.approval.kanban</field>
+        <field name="model">flutterattendance.face.approval</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="employee_id"/>
+                <field name="attendance_mode"/>
+                <field name="attempt_count"/>
+                <field name="similarity_score"/>
+                <field name="state"/>
+                <field name="photo"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <img t-att-src="'/web/image/flutterattendance.face.approval/' + record.id.raw_value + '/photo'"
+                                 alt="Captured selfie" class="o_kanban_image rounded-circle me-2" style="width:48px;height:48px;object-fit:cover;"/>
+                            <div class="flex-grow-1">
+                                <strong><field name="employee_id"/></strong>
+                                <span class="badge ms-1" t-attf-class="text-bg-{{record.state.raw_value == 'approved' and 'success' or record.state.raw_value == 'rejected' and 'secondary' or 'warning'}}">
+                                    <field name="state"/>
+                                </span>
+                                <div class="text-muted">
+                                    <field name="attendance_mode"/> · failed <field name="attempt_count"/>x ·
+                                    similarity <field name="similarity_score" widget="percentage"/>
+                                </div>
+                            </div>
+                        </div>
+                        <footer invisible="state != 'pending'">
+                            <button name="action_approve" type="object" string="Approve" class="btn btn-primary" icon="fa-check"/>
+                            <button name="action_reject" type="object" string="Reject" class="btn btn-secondary" icon="fa-times"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_face_approval_form" model="ir.ui.view">
+        <field name="name">flutterattendance.face.approval.form</field>
+        <field name="model">flutterattendance.face.approval</field>
+        <field name="arch" type="xml">
+            <form string="Face Approval Request">
+                <header>
+                    <button name="action_approve" type="object" string="Approve" class="oe_highlight" invisible="state != 'pending'"/>
+                    <button name="action_reject" type="object" string="Reject" invisible="state != 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,approved,rejected"/>
+                </header>
+                <sheet>
+                    <field name="photo" widget="image" class="oe_avatar" options="{'size': [180, 180]}"/>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="attendance_mode"/>
+                            <field name="attempt_count"/>
+                            <field name="similarity_score"/>
+                        </group>
+                        <group>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                            <field name="address"/>
+                            <field name="device_id"/>
+                        </group>
+                    </group>
+                    <group invisible="state == 'pending'">
+                        <field name="reviewed_by"/>
+                        <field name="reviewed_at"/>
+                        <field name="attendance_id"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_face_approval_search" model="ir.ui.view">
+        <field name="name">flutterattendance.face.approval.search</field>
+        <field name="model">flutterattendance.face.approval</field>
+        <field name="arch" type="xml">
+            <search string="Face Approvals">
+                <field name="employee_id"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_face_approval" model="ir.actions.act_window">
+        <field name="name">Face Approvals</field>
+        <field name="res_model">flutterattendance.face.approval</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_flutterattendance_face_approval_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+    </record>
+</odoo>

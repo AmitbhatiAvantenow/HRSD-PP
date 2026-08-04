@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_location_list" model="ir.ui.view">
+        <field name="name">flutterattendance.location.list</field>
+        <field name="model">flutterattendance.location</field>
+        <field name="arch" type="xml">
+            <list string="Geofence Locations" decoration-muted="not active">
+                <field name="name"/>
+                <field name="employee_ids" widget="many2many_tags"/>
+                <field name="address"/>
+                <field name="radius"/>
+                <field name="is_primary" widget="boolean_toggle"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_location_form" model="ir.ui.view">
+        <field name="name">flutterattendance.location.form</field>
+        <field name="model">flutterattendance.location</field>
+        <field name="arch" type="xml">
+            <form string="Geofence Location">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="address"/>
+                            <field name="radius"/>
+                            <field name="is_primary"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <!-- Plain lat/lng inputs for now; replaced by an
+                                 interactive map picker in a follow-up pass. -->
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                        </group>
+                    </group>
+                    <group string="Assigned Employees">
+                        <field name="employee_ids" nolabel="1" widget="many2many_tags"
+                               placeholder="Leave empty if this is the primary/fallback location"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_location_search" model="ir.ui.view">
+        <field name="name">flutterattendance.location.search</field>
+        <field name="model">flutterattendance.location</field>
+        <field name="arch" type="xml">
+            <search string="Geofence Locations">
+                <field name="name"/>
+                <field name="employee_ids"/>
+                <filter name="primary" string="Primary" domain="[('is_primary', '=', True)]"/>
+                <filter name="active_locations" string="Active" domain="[('active', '=', True)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_location" model="ir.actions.act_window">
+        <field name="name">Geofence Locations</field>
+        <field name="res_model">flutterattendance.location</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_flutterattendance_location_search"/>
+        <field name="context">{'search_default_active_locations': 1}</field>
+    </record>
+</odoo>

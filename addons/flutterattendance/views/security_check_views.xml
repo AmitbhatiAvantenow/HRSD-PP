@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_security_check_kanban" model="ir.ui.view">
+        <field name="name">flutterattendance.security.check.kanban</field>
+        <field name="model">flutterattendance.security.check</field>
+        <field name="arch" type="xml">
+            <kanban create="false" delete="false">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="enabled"/>
+                <field name="icon"/>
+                <field name="exempt_employee_ids"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_kanban_card_header">
+                            <strong><field name="name"/></strong>
+                            <field name="enabled" widget="boolean_toggle"/>
+                        </div>
+                        <div class="text-muted mb-2">
+                            <field name="description"/>
+                        </div>
+                        <div>
+                            Status:
+                            <span t-attf-class="badge {{record.enabled.raw_value and 'text-bg-success' or 'text-bg-secondary'}}">
+                                <t t-esc="record.enabled.raw_value ? 'Enabled' : 'Disabled'"/>
+                            </span>
+                        </div>
+                        <div class="text-muted mt-1">
+                            Exempted: <field name="exempt_employee_ids" widget="many2many_tags"/>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_security_check_form" model="ir.ui.view">
+        <field name="name">flutterattendance.security.check.form</field>
+        <field name="model">flutterattendance.security.check</field>
+        <field name="arch" type="xml">
+            <form string="Security Check" create="false" delete="false">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="check_type" readonly="1"/>
+                        <field name="description"/>
+                        <field name="enabled"/>
+                    </group>
+                    <group string="Exempted Employees">
+                        <field name="exempt_employee_ids" nolabel="1" widget="many2many_tags"
+                               placeholder="No exemptions - this check applies to every employee"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_security_check_list" model="ir.ui.view">
+        <field name="name">flutterattendance.security.check.list</field>
+        <field name="model">flutterattendance.security.check</field>
+        <field name="arch" type="xml">
+            <list string="Security Checks" create="false" delete="false" editable="bottom">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="enabled" widget="boolean_toggle"/>
+                <field name="exempt_employee_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_security_check" model="ir.actions.act_window">
+        <field name="name">Security Checks</field>
+        <field name="res_model">flutterattendance.security.check</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+</odoo>

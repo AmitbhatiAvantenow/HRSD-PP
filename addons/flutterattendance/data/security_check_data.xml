@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="security_check_mock_location" model="flutterattendance.security.check">
+        <field name="check_type">mock_location</field>
+        <field name="name">Location Spoofing</field>
+        <field name="description">Detect fake GPS / mock location providers.</field>
+        <field name="icon">fa-map-marker</field>
+        <field name="sequence">10</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_vpn" model="flutterattendance.security.check">
+        <field name="check_type">vpn</field>
+        <field name="name">VPN Detection</field>
+        <field name="description">Detect and block check-ins made over a VPN or tunnel connection.</field>
+        <field name="icon">fa-shield</field>
+        <field name="sequence">20</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_root_jailbreak" model="flutterattendance.security.check">
+        <field name="check_type">root_jailbreak</field>
+        <field name="name">Root / Jailbreak Detection</field>
+        <field name="description">Detect rooted Android or jailbroken iOS devices.</field>
+        <field name="icon">fa-terminal</field>
+        <field name="sequence">30</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_dev_mode" model="flutterattendance.security.check">
+        <field name="check_type">dev_mode</field>
+        <field name="name">Developer Mode Detection</field>
+        <field name="description">Detect Android devices with Developer Options enabled.</field>
+        <field name="icon">fa-code</field>
+        <field name="sequence">40</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_real_device" model="flutterattendance.security.check">
+        <field name="check_type">real_device</field>
+        <field name="name">Emulator Detection</field>
+        <field name="description">Detect check-ins from an emulator or simulator instead of a real device.</field>
+        <field name="icon">fa-mobile</field>
+        <field name="sequence">50</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_impossible_travel" model="flutterattendance.security.check">
+        <field name="check_type">impossible_travel</field>
+        <field name="name">Impossible Travel Detection</field>
+        <field name="description">Flag check-ins implying travel speed that isn't physically plausible.</field>
+        <field name="icon">fa-plane</field>
+        <field name="sequence">60</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_face_detection" model="flutterattendance.security.check">
+        <field name="check_type">face_detection</field>
+        <field name="name">Face Detection</field>
+        <field name="description">Require a detected face in the check-in/out selfie.</field>
+        <field name="icon">fa-user</field>
+        <field name="sequence">5</field>
+        <field name="enabled">True</field>
+    </record>
+    <record id="security_check_face_recognition" model="flutterattendance.security.check">
+        <field name="check_type">face_recognition</field>
+        <field name="name">Face Recognition</field>
+        <field name="description">Verify that the captured face matches the employee's registered profile.</field>
+        <field name="icon">fa-id-badge</field>
+        <field name="sequence">6</field>
+        <!-- Off by default: enabling this blocks check-in for every employee
+             without a registered face yet (see hr.employee.face_registered),
+             so HR should turn it on only after registering photos. -->
+        <field name="enabled">False</field>
+    </record>
+</odoo>

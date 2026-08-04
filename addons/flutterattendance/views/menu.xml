@@ -17,9 +17,32 @@
               action="action_flutterattendance_device"
               sequence="20"/>
 
+    <menuitem id="menu_flutterattendance_face_approval"
+              name="Face Approvals"
+              parent="menu_flutterattendance_root"
+              action="action_flutterattendance_face_approval"
+              sequence="25"/>
+
     <menuitem id="menu_flutterattendance_shift"
               name="Shifts"
               parent="menu_flutterattendance_root"
               action="action_flutterattendance_shift"
               sequence="30"/>
+
+    <menuitem id="menu_flutterattendance_settings"
+              name="Settings"
+              parent="menu_flutterattendance_root"
+              sequence="40"/>
+
+    <menuitem id="menu_flutterattendance_security_check"
+              name="Security Checks"
+              parent="menu_flutterattendance_settings"
+              action="action_flutterattendance_security_check"
+              sequence="10"/>
+
+    <menuitem id="menu_flutterattendance_location"
+              name="Locations"
+              parent="menu_flutterattendance_settings"
+              action="action_flutterattendance_location"
+              sequence="20"/>
 </odoo>

@@ -41,6 +41,11 @@ class FlutterAttendance(models.Model):
         default=fields.Datetime.now,
         help="When the record actually reached the server (may lag check_in_time for offline-synced records).",
     )
+    checkin_face_similarity = fields.Float(help="Cosine similarity vs. the employee's registered face, 0-1.")
+    checkin_face_verified = fields.Boolean(
+        help="True if face_engine matched automatically; False if this only exists because HR approved it "
+             "after face_recognition failed (see flutterattendance.face.approval).",
+    )
 
     # Check-out
     checkout_latitude = fields.Float(digits=(10, 7))
@@ -49,6 +54,11 @@ class FlutterAttendance(models.Model):
     checkout_accuracy = fields.Float(help="GPS accuracy in meters")
     checkout_photo = fields.Binary(attachment=True)
     checkout_created_at = fields.Datetime()
+    checkout_face_similarity = fields.Float(help="Cosine similarity vs. the employee's registered face, 0-1.")
+    checkout_face_verified = fields.Boolean(
+        help="True if face_engine matched automatically; False if this only exists because HR approved it "
+             "after face_recognition failed (see flutterattendance.face.approval).",
+    )
 
     _checkout_after_checkin = models.Constraint(
         'CHECK(check_out_time IS NULL OR check_out_time >= check_in_time)',

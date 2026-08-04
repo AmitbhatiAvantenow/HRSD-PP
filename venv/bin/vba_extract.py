@@ -1,4 +1,4 @@
-#!/Users/amit/PS2/odoo/venv/bin/python3.10
+#!/Users/ibm/PS/HRSD-PP/venv/bin/python
 
 ##############################################################################
 #

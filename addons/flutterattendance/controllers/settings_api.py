@@ -13,9 +13,11 @@ class FlutterAttendanceSettingsController(http.Controller):
         company = employee.company_id
         shift = employee.attendance_shift_id
 
+        location = request.env['flutterattendance.location'].sudo().resolve_for_employee(employee)
+        security_checks = request.env['flutterattendance.security.check'].sudo().get_effective_settings(employee)
+
         return _json_response({
             'success': True,
-            'gps_radius_meters': int(icp.get_param('flutterattendance.gps_radius_meters', '200') or 200),
             'company_name': company.name,
             'attendance_rules': {
                 'shift_name': shift.name if shift else False,
@@ -24,6 +26,18 @@ class FlutterAttendanceSettingsController(http.Controller):
                 'grace_minutes': shift.grace_minutes if shift else False,
                 'half_day_hours': shift.half_day_hours if shift else False,
                 'full_day_hours': shift.full_day_hours if shift else False,
+            },
+            'security_checks': security_checks,
+            'face_recognition': {
+                'similarity_threshold': float(icp.get_param('flutterattendance.face_similarity_threshold', '0.45')),
+                'max_attempts': int(icp.get_param('flutterattendance.face_max_attempts', '5')),
+            },
+            'geofence': {
+                'enabled': bool(location),
+                'name': location.name if location else False,
+                'latitude': location.latitude if location else False,
+                'longitude': location.longitude if location else False,
+                'radius_meters': location.radius if location else False,
             },
             'theme': icp.get_param('flutterattendance.theme', 'default'),
             'language': request.env.user.lang or company.partner_id.lang or 'en_US',

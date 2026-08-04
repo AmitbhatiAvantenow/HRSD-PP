@@ -1,6 +1,6 @@
-#!/Users/amit/PS2/odoo/venv/bin/python3.10
+#!/Users/ibm/PS/HRSD-PP/venv/bin/python
 
-# $Id: rst2odt.py 5839 2009-01-07 19:09:28Z dkuhlman $
+# $Id: rst2odt.py 9115 2022-07-28 17:06:24Z milde $
 # Author: Dave Kuhlman <dkuhlman@rexx.com>
 # Copyright: This module has been placed in the public domain.
 
@@ -8,11 +8,10 @@
 A front end to the Docutils Publisher, producing OpenOffice documents.
 """
 
-import sys
 try:
     import locale
     locale.setlocale(locale.LC_ALL, '')
-except:
+except Exception:
     pass
 
 from docutils.core import publish_cmdline_to_binary, default_description
@@ -26,5 +25,4 @@ description = ('Generates OpenDocument/OpenOffice/ODF documents from '
 writer = Writer()
 reader = Reader()
 output = publish_cmdline_to_binary(reader=reader, writer=writer,
-    description=description)
-
+                                   description=description)

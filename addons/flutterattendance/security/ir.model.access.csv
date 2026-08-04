@@ -4,3 +4,6 @@ access_flutterattendance_device_hr,flutterattendance.device.hr,model_flutteratte
 access_flutterattendance_shift_hr,flutterattendance.shift.hr,model_flutterattendance_shift,hr.group_hr_user,1,1,1,1
 access_flutterattendance_notification_hr,flutterattendance.notification.hr,model_flutterattendance_notification,hr.group_hr_user,1,1,1,1
 access_flutterattendance_synclog_hr,flutterattendance.sync.log.hr,model_flutterattendance_sync_log,hr.group_hr_user,1,1,1,1
+access_flutterattendance_security_check_hr,flutterattendance.security.check.hr,model_flutterattendance_security_check,hr.group_hr_user,1,1,0,0
+access_flutterattendance_location_hr,flutterattendance.location.hr,model_flutterattendance_location,hr.group_hr_user,1,1,1,1
+access_flutterattendance_face_approval_hr,flutterattendance.face.approval.hr,model_flutterattendance_face_approval,hr.group_hr_user,1,1,1,1
