@@ -1,6 +1,9 @@
+import logging
 from datetime import timedelta
 
 from odoo import api, fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class FlutterAttendance(models.Model):
@@ -71,6 +74,146 @@ class FlutterAttendance(models.Model):
             ('employee_id', '=', employee.id),
             ('check_out_time', '=', False),
         ], limit=1, order='check_in_time desc')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        # A plain check-in has no check_out_time yet, so there is nothing
+        # complete to roll into the timesheet; only a (rare) creation that
+        # already carries a check-out needs an immediate sync.
+        records.filtered('check_out_time')._sync_to_timesheet()
+        return records
+
+    def write(self, vals):
+        sync_keys = {'check_in_time', 'check_out_time', 'attendance_date', 'remarks', 'employee_id'}
+        to_sync = self if sync_keys & set(vals) else self.browse()
+        # attendance_date/employee_id can move a record's hours out of its old
+        # day/employee bucket, so that bucket needs to be recomputed too, not
+        # just the one the record lands in after the write. Unlike the
+        # current-bucket sync below, this one is allowed to clear a day's
+        # line down to zero since the record genuinely left that bucket.
+        stale = self.filtered(lambda r: r.employee_id and r.attendance_date) if ('attendance_date' in vals or 'employee_id' in vals) else self.browse()
+        stale_keys = [(r.employee_id.id, r.attendance_date) for r in stale]
+        res = super().write(vals)
+        for employee_id, attendance_date in stale_keys:
+            self.browse()._sync_day_to_timesheet(self.env['hr.employee'].browse(employee_id), attendance_date, allow_clear=True)
+        to_sync._sync_to_timesheet()
+        return res
+
+    def unlink(self):
+        day_keys = {(r.employee_id.id, r.attendance_date) for r in self}
+        res = super().unlink()
+        for employee_id, attendance_date in day_keys:
+            self.browse()._sync_day_to_timesheet(self.env['hr.employee'].browse(employee_id), attendance_date, allow_clear=True)
+        return res
+
+    def _sync_to_timesheet(self):
+        for employee_id, attendance_date in {(r.employee_id.id, r.attendance_date) for r in self}:
+            self._sync_day_to_timesheet(self.env['hr.employee'].browse(employee_id), attendance_date)
+
+    def _sync_day_to_timesheet(self, employee, attendance_date, allow_clear=False):
+        """Roll every completed flutterattendance session for `employee` on
+        `attendance_date` into the matching day-line of that employee's
+        weekly hr.timesheet.sheet, creating the week/day if needed.
+
+        `allow_clear` controls what happens when there is no longer any
+        completed session for that day: callers that just removed or moved a
+        record (unlink, or a write changing attendance_date/employee_id) pass
+        True so the day-line is zeroed back out; a routine check-in or
+        in-place edit passes False so an open (not-yet-checked-out) session,
+        or an unrelated field edit, can never wipe hours someone already
+        filled in for that day.
+
+        Best-effort: never lets a timesheet issue (locked week, missing
+        sequence, etc.) break the mobile check-in/check-out API call that
+        triggered it.
+        """
+        if not (employee and attendance_date):
+            return
+        try:
+            self.sudo()._do_sync_day_to_timesheet(employee.sudo(), attendance_date, allow_clear)
+        except Exception:
+            _logger.warning(
+                "flutterattendance: failed to sync attendance for employee %s on %s to timesheet",
+                employee.id, attendance_date, exc_info=True,
+            )
+
+    def _do_sync_day_to_timesheet(self, employee, attendance_date, allow_clear):
+        Sheet = self.env['hr.timesheet.sheet']
+        Line = self.env['hr.timesheet.line']
+
+        day_records = self.search([
+            ('employee_id', '=', employee.id),
+            ('attendance_date', '=', attendance_date),
+            ('check_out_time', '!=', False),
+        ])
+
+        week_start = attendance_date - timedelta(days=attendance_date.weekday())
+        sheet = Sheet.search([
+            ('employee_id', '=', employee.id),
+            ('date_start', '=', week_start),
+        ], limit=1)
+
+        if not day_records:
+            if allow_clear and sheet and sheet.state in ('draft', 'returned'):
+                line = sheet.line_ids.filtered(lambda l: l.date == attendance_date)
+                line.write({'start_time': 0.0, 'end_time': 0.0, 'hours': 0.0})
+            return
+
+        if not sheet:
+            # Deliberately not Sheet._build_week_lines(): that helper is the
+            # "New timesheet" convenience template (09:00-17:00 / 8h on every
+            # weekday) for a human to then fill in by hand. A week created
+            # from mobile attendance must start blank so any day without a
+            # check-in/out stays empty instead of looking like a full day
+            # was worked.
+            sheet = Sheet.create({
+                'employee_id': employee.id,
+                'company_id': employee.company_id.id,
+                'date_start': week_start,
+                'line_ids': [(0, 0, {
+                    'date': week_start + timedelta(days=i),
+                    'start_time': 0.0,
+                    'end_time': 0.0,
+                    'hours': 0.0,
+                    'billable': False,
+                }) for i in range(7)],
+            })
+
+        if sheet.state not in ('draft', 'returned'):
+            _logger.info(
+                "flutterattendance: timesheet %s is locked (state=%s); skipping auto-sync for %s",
+                sheet.name, sheet.state, attendance_date,
+            )
+            return
+
+        total_hours = sum(day_records.mapped('working_hours'))
+        first_in = min(day_records.mapped('check_in_time'))
+        last_out = max(day_records.mapped('check_out_time'))
+        remarks = ' | '.join(r.remarks.strip() for r in day_records if r.remarks and r.remarks.strip())
+
+        # Convert using the employee's own timezone, not whichever user/
+        # context happens to be running the sync (mobile check-in, an HR
+        # edit, a cron, a shell backfill...) - otherwise the same attendance
+        # can convert to a different clock time depending on who triggered it.
+        tz_self = self.with_context(tz=employee.tz or employee.user_id.tz or 'UTC')
+        check_in_local = fields.Datetime.context_timestamp(tz_self, first_in)
+        check_out_local = fields.Datetime.context_timestamp(tz_self, last_out)
+
+        line_vals = {
+            'start_time': check_in_local.hour + check_in_local.minute / 60.0,
+            'end_time': check_out_local.hour + check_out_local.minute / 60.0,
+            'hours': round(total_hours, 2),
+            'billable': True,
+        }
+        if remarks:
+            line_vals['comments'] = remarks
+
+        line = sheet.line_ids.filtered(lambda l: l.date == attendance_date)
+        if line:
+            line.write(line_vals)
+        else:
+            Line.create({**line_vals, 'sheet_id': sheet.id, 'date': attendance_date})
 
     @api.depends('check_in_time', 'check_out_time',
                  'checkin_latitude', 'checkin_longitude', 'checkout_latitude', 'checkout_longitude')

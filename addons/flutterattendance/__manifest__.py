@@ -21,7 +21,7 @@ authentication.
 """,
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
-    'depends': ['base', 'hr', 'mail', 'flutterlogin'],
+    'depends': ['base', 'hr', 'mail', 'flutterlogin', 'hr_timesheet_pro'],
     'external_dependencies': {
         'python': ['geopy', 'cv2', 'onnxruntime', 'numpy'],
     },
