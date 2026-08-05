@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="homepage" name="HRSD Landing Homepage" inherit_id="website.homepage">
+
+        <xpath expr="//div[@id='wrap']" position="before">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+        </xpath>
+
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="o_hrsd_landing">
+
+                    <div class="o_hrsd_blob o_hrsd_blob--tl" data-hrsd-depth="1"/>
+                    <div class="o_hrsd_blob o_hrsd_blob--br" data-hrsd-depth="-0.8"/>
+                    <div class="o_hrsd_dotgrid o_hrsd_dotgrid--tl" data-hrsd-depth="0.45"/>
+                    <div class="o_hrsd_dotgrid o_hrsd_dotgrid--br" data-hrsd-depth="-0.45"/>
+
+                    <div class="o_hrsd_stage">
+
+                        <div class="o_hrsd_col o_hrsd_col--left" data-hrsd-depth="0.22">
+                            <div class="o_hrsd_feature" data-hrsd-delay=".15" style="--hrsd-delay:.15s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
+                                        <path d="M16 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                                        <path d="M2 20c0-3 2.7-5 6-5s6 2 6 5"/>
+                                        <path d="M14.5 15.2c2.7.4 4.5 2.2 4.5 4.8"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">Employees</span>
+                            </div>
+                            <div class="o_hrsd_feature" data-hrsd-delay=".35" style="--hrsd-delay:.35s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="5" width="18" height="16" rx="3"/>
+                                        <path d="M8 3v4M16 3v4M3 10h18"/>
+                                        <path d="m8.5 15 2 2 4-4"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">Attendance</span>
+                            </div>
+                            <div class="o_hrsd_feature" data-hrsd-delay=".55" style="--hrsd-delay:.55s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/>
+                                        <path d="M14 3v6h6"/>
+                                        <path d="M9 13h6M9 17h6"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">Leave</span>
+                            </div>
+                        </div>
+
+                        <div class="o_hrsd_center" data-hrsd-depth="0.08">
+                            <div class="o_hrsd_kicker o_hrsd_reveal" data-hrsd-delay="0" style="--hrsd-delay:0s">HR Service Delivery Platform</div>
+
+                            <div class="o_hrsd_brand o_hrsd_reveal" data-hrsd-delay=".1" style="--hrsd-delay:.1s">
+                                <svg class="o_hrsd_mark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="hrsdMarkGradient" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0" stop-color="#2f5eea"/>
+                                            <stop offset="1" stop-color="#7b3fe4"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <circle cx="30" cy="26" r="18" fill="url(#hrsdMarkGradient)"/>
+                                    <rect x="2" y="14" width="14" height="3.4" rx="1.7" fill="url(#hrsdMarkGradient)" opacity=".35"/>
+                                    <rect x="6" y="20.5" width="16" height="3.4" rx="1.7" fill="url(#hrsdMarkGradient)" opacity=".6"/>
+                                    <rect x="10" y="27" width="18" height="3.4" rx="1.7" fill="url(#hrsdMarkGradient)" opacity=".85"/>
+                                    <path d="M23 26.5 28.4 32l8-11" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="o_hrsd_wordmark">
+                                    <strong>QA AGILITY</strong>
+                                    <span>Quant Analytics with Agility</span>
+                                </div>
+                            </div>
+
+                            <h1 class="o_hrsd_headline o_hrsd_reveal" data-hrsd-delay=".2" style="--hrsd-delay:.2s">
+                                <span class="o_hrsd_accent">HRSD</span> Solution
+                            </h1>
+                            <p class="o_hrsd_subtitle o_hrsd_reveal" data-hrsd-delay=".3" style="--hrsd-delay:.3s">
+                                A unified platform where HR and Employees collaborate, manage and grow together.
+                            </p>
+                            <div class="o_hrsd_divider o_hrsd_reveal" data-hrsd-delay=".35" style="--hrsd-delay:.35s"/>
+
+                            <a class="o_hrsd_cta o_hrsd_reveal" data-hrsd-delay=".4" style="--hrsd-delay:.4s" href="/web/login">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="4" y="11" width="16" height="9" rx="2"/>
+                                    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                                </svg>
+                                Login to HRSD Solution
+                            </a>
+                        </div>
+
+                        <div class="o_hrsd_col o_hrsd_col--right" data-hrsd-depth="-0.22">
+                            <div class="o_hrsd_feature" data-hrsd-delay=".2" style="--hrsd-delay:.2s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="8" r="4"/>
+                                        <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">HR Management</span>
+                            </div>
+                            <div class="o_hrsd_feature" data-hrsd-delay=".4" style="--hrsd-delay:.4s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="7" width="18" height="13" rx="2"/>
+                                        <path d="M3 11h18"/>
+                                        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        <path d="M15.5 15.2a2.2 2.2 0 1 1-4.4 0 2.2 2.2 0 0 1 4.4 0Z"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">Payroll</span>
+                            </div>
+                            <div class="o_hrsd_feature" data-hrsd-delay=".6" style="--hrsd-delay:.6s">
+                                <div class="o_hrsd_feature_icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 19V5a1 1 0 0 1 1-1h9l6 6v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
+                                        <path d="M14 4v6h6"/>
+                                        <path d="M8 15v-3M12 15v-5M16 15v-2"/>
+                                    </svg>
+                                </div>
+                                <span class="o_hrsd_feature_label">Reports</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="o_hrsd_marquee o_hrsd_reveal" data-hrsd-delay=".5" style="--hrsd-delay:.5s">
+                        <div class="o_hrsd_marquee_track">
+                            <span class="o_hrsd_tag">Employee Self Service</span>
+                            <span class="o_hrsd_tag">HR Management</span>
+                            <span class="o_hrsd_tag">Attendance Tracking</span>
+                            <span class="o_hrsd_tag">Payroll</span>
+                            <span class="o_hrsd_tag">Leave &amp; Approvals</span>
+                            <span class="o_hrsd_tag">Reports &amp; Analytics</span>
+                            <span class="o_hrsd_tag">Recruitment</span>
+                            <span class="o_hrsd_tag">Appraisals</span>
+                            <span class="o_hrsd_tag">Employee Self Service</span>
+                            <span class="o_hrsd_tag">HR Management</span>
+                            <span class="o_hrsd_tag">Attendance Tracking</span>
+                            <span class="o_hrsd_tag">Payroll</span>
+                            <span class="o_hrsd_tag">Leave &amp; Approvals</span>
+                            <span class="o_hrsd_tag">Reports &amp; Analytics</span>
+                            <span class="o_hrsd_tag">Recruitment</span>
+                            <span class="o_hrsd_tag">Appraisals</span>
+                        </div>
+                    </div>
+
+                    <div class="o_hrsd_footer">
+                        © <span class="o_hrsd_year">2026</span> QA Agility Technologies. All rights reserved.
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>

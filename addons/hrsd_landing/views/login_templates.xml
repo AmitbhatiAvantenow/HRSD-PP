@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Reskin of Odoo's login page: background, decorative brand icons and
+        colours only. The form fields, submit action, superuser link,
+        passkey / oauth options and all authentication logic are untouched
+        (still rendered as-is via the original "0" content slot below).
+
+        Note: with the "website" app installed, website.login_layout
+        (priority 20) already replaces web.login_layout's card/logo wrapper
+        with a bare "oe_website_login_container" div, so we build our own
+        card/logo/background on top of THAT container rather than patching
+        web.login_layout directly (a lower-priority patch there would be
+        discarded by website's replace).
+    -->
+    <template id="login_layout_theme" name="HRSD Login Theme" inherit_id="website.login_layout">
+
+        <xpath expr="//div[hasclass('oe_website_login_container')]" position="replace">
+            <div class="oe_website_login_container o_hrsd_login_page">
+
+                <div class="o_hrsd_login_bg">
+                    <div class="o_hrsd_blob o_hrsd_blob--tl" data-hrsd-depth="1"/>
+                    <div class="o_hrsd_blob o_hrsd_blob--br" data-hrsd-depth="-0.8"/>
+                    <div class="o_hrsd_dotgrid o_hrsd_dotgrid--tl" data-hrsd-depth="0.4"/>
+                    <div class="o_hrsd_dotgrid o_hrsd_dotgrid--br" data-hrsd-depth="-0.4"/>
+                </div>
+
+                <div class="o_hrsd_login_badge o_hrsd_login_badge--1" data-hrsd-delay=".15" style="--hrsd-delay:.15s">
+                    <div class="o_hrsd_login_badge_icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
+                            <path d="M2 20c0-3 2.7-5 6-5s6 2 6 5"/>
+                        </svg>
+                    </div>
+                    Employees
+                </div>
+                <div class="o_hrsd_login_badge o_hrsd_login_badge--2" data-hrsd-delay=".3" style="--hrsd-delay:.3s">
+                    <div class="o_hrsd_login_badge_icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+                        </svg>
+                    </div>
+                    HR Management
+                </div>
+                <div class="o_hrsd_login_badge o_hrsd_login_badge--3" data-hrsd-delay=".45" style="--hrsd-delay:.45s">
+                    <div class="o_hrsd_login_badge_icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="16" rx="3"/>
+                            <path d="M8 3v4M16 3v4M3 10h18"/>
+                            <path d="m8.5 15 2 2 4-4"/>
+                        </svg>
+                    </div>
+                    Attendance
+                </div>
+                <div class="o_hrsd_login_badge o_hrsd_login_badge--4" data-hrsd-delay=".6" style="--hrsd-delay:.6s">
+                    <div class="o_hrsd_login_badge_icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19V5a1 1 0 0 1 1-1h9l6 6v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
+                            <path d="M14 4v6h6"/>
+                            <path d="M8 15v-3M12 15v-5M16 15v-2"/>
+                        </svg>
+                    </div>
+                    Reports
+                </div>
+
+                <div class="container py-5">
+                    <div class="o_hrsd_login_brand">
+                        <img t-attf-src="/web/binary/company_logo{{ '?dbname='+db if db else '' }}" alt="Logo"/>
+                    </div>
+                    <div class="o_hrsd_login_tagline">
+                        <div class="o_hrsd_login_title"><span class="o_hrsd_accent">HRSD</span> Solution</div>
+                        <p>Sign in to access your HRSD Solution</p>
+                    </div>
+
+                    <div class="card border-0 mx-auto bg-100 o_database_list o_hrsd_login_card" style="max-width: 380px;">
+                        <div class="card-body">
+                            <t t-out="0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>

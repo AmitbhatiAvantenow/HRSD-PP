@@ -1,0 +1,205 @@
+// The website layout's standard header/footer chrome is suppressed only when
+// the HRSD login page is present, mirroring the homepage treatment, without
+// touching any other page that reuses website.layout.
+#wrapwrap:has(.o_hrsd_login_page) {
+    #top, #bottom { display: none !important; }
+}
+
+.o_hrsd_login_page {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(160deg, $hrsd-bg-from 0%, $hrsd-bg-via 45%, $hrsd-bg-to 100%);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden;
+
+    .o_hrsd_login_bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+
+        .o_hrsd_blob {
+            position: absolute;
+            border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+            opacity: .18;
+        }
+        .o_hrsd_blob--tl {
+            top: -16vw; left: -16vw; width: 40vw; height: 40vw;
+            background: linear-gradient(135deg, $hrsd-blue 0%, $hrsd-purple 100%);
+            animation: hrsd-login-drift-a 24s ease-in-out infinite;
+        }
+        .o_hrsd_blob--br {
+            bottom: -18vw; right: -18vw; width: 44vw; height: 44vw;
+            background: linear-gradient(135deg, $hrsd-purple 0%, $hrsd-blue 100%);
+            animation: hrsd-login-drift-b 28s ease-in-out infinite;
+        }
+        .o_hrsd_dotgrid {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            background-image: radial-gradient(circle, rgba($hrsd-blue, .35) 1.6px, transparent 1.6px);
+            background-size: 16px 16px;
+            opacity: .5;
+        }
+        .o_hrsd_dotgrid--tl { top: 4%; left: 3%; }
+        .o_hrsd_dotgrid--br { bottom: 5%; right: 3%; }
+    }
+
+    .o_hrsd_login_badge {
+        position: fixed;
+        z-index: 0;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .6rem .9rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .75);
+        border: 1px solid rgba(255, 255, 255, .9);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 10px 26px -14px rgba(43, 63, 160, .3);
+        font-size: .8rem;
+        font-weight: 600;
+        color: $hrsd-ink;
+        opacity: 0;
+        animation: hrsd-fade-up .7s ease forwards;
+        animation-delay: var(--hrsd-delay, 0s);
+
+        .o_hrsd_login_badge_icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: $hrsd-gradient;
+            color: #fff;
+            animation: hrsd-bob 5s ease-in-out infinite;
+            animation-delay: var(--hrsd-delay, 0s);
+        }
+        svg { width: 16px; height: 16px; }
+        @media (max-width: 991.98px) { display: none; }
+    }
+    .o_hrsd_login_badge--1 { top: 14%; left: 6%; }
+    .o_hrsd_login_badge--2 { top: 12%; right: 6%; }
+    .o_hrsd_login_badge--3 { bottom: 16%; left: 8%; }
+    .o_hrsd_login_badge--4 { bottom: 14%; right: 8%; }
+
+    .container.py-5 {
+        position: relative;
+        z-index: 1;
+    }
+
+    .o_hrsd_login_brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .65rem;
+        margin: 0 0 1rem;
+
+        img { max-height: 56px; width: auto; }
+    }
+    .o_hrsd_login_wordmark {
+        text-align: left;
+        line-height: 1.05;
+        strong {
+            display: block;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            background: $hrsd-gradient;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        span {
+            display: block;
+            font-size: .68rem;
+            color: $hrsd-muted;
+        }
+    }
+
+    .o_hrsd_login_tagline {
+        text-align: center;
+        margin-bottom: 1.25rem;
+
+        .o_hrsd_login_title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: $hrsd-ink;
+            .o_hrsd_accent {
+                background: $hrsd-gradient;
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+        }
+        p {
+            margin: .2rem 0 0;
+            font-size: .85rem;
+            color: $hrsd-muted;
+        }
+    }
+
+    .card.o_database_list {
+        border-radius: 22px !important;
+        box-shadow: $hrsd-shadow;
+        border: 1px solid rgba(255, 255, 255, .6) !important;
+        max-width: 360px !important;
+        opacity: 0;
+        transform: translateY(14px);
+        animation: hrsd-fade-up .7s ease forwards;
+        animation-delay: .1s;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: $hrsd-gradient;
+        }
+    }
+
+    .oe_login_form {
+        .form-control {
+            border-radius: 12px;
+            padding: .65rem .9rem;
+            border-color: rgba($hrsd-blue, .18);
+            &:focus {
+                border-color: $hrsd-blue;
+                box-shadow: 0 0 0 .2rem rgba($hrsd-blue, .15);
+            }
+        }
+        .btn-primary {
+            background: $hrsd-gradient;
+            border: none;
+            border-radius: 12px;
+            padding: .7rem 1rem;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: transform .25s ease, box-shadow .25s ease;
+            box-shadow: 0 14px 30px -10px rgba(43, 63, 160, .45);
+
+            &:hover, &:focus {
+                transform: translateY(-2px);
+                box-shadow: 0 18px 36px -8px rgba(43, 63, 160, .55);
+            }
+        }
+    }
+}
+
+@keyframes hrsd-login-drift-a {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(2.5vw, 2vw) rotate(6deg); }
+}
+@keyframes hrsd-login-drift-b {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(-2.5vw, -2vw) rotate(-5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .o_hrsd_login_page * { animation: none !important; transition: none !important; }
+}

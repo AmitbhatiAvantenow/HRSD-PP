@@ -1,0 +1,14 @@
+// HRSD Solution / QA Agility brand palette
+$hrsd-blue: #2f5eea;
+$hrsd-blue-dark: #1a3fc4;
+$hrsd-purple: #7b3fe4;
+$hrsd-purple-light: #9b6bf2;
+$hrsd-bg-from: #eef2ff;
+$hrsd-bg-via: #f6f8ff;
+$hrsd-bg-to: #eae6fb;
+$hrsd-ink: #0f1b3d;
+$hrsd-muted: #5b6478;
+
+$hrsd-gradient: linear-gradient(135deg, $hrsd-blue 0%, $hrsd-purple 100%);
+$hrsd-gradient-soft: linear-gradient(135deg, rgba($hrsd-blue, .12) 0%, rgba($hrsd-purple, .12) 100%);
+$hrsd-shadow: 0 20px 50px -12px rgba(43, 63, 160, .28);
