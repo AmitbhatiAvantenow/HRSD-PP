@@ -60,7 +60,7 @@
                 </button>
                 <div class="ocr-brand-chip">
                   <t t-if="brand['logo_url']">
-                    <img t-attf-src="#{brand['logo_url']}" alt="logo" class="ocr-brand-mark" style="object-fit: cover;"/>
+                    <img t-attf-src="#{brand['logo_url']}" alt="logo" class="ocr-brand-mark" style="object-fit: contain; background: #fff; padding: 3px; border-radius: 6px;"/>
                   </t>
                   <t t-else="">
                     <div class="ocr-brand-mark"><t t-esc="brand['initial']"/></div>

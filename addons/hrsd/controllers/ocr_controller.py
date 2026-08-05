@@ -8,7 +8,7 @@ import re
 from odoo import http
 from odoo.http import request
 
-from .controllers import get_hrsd_branding
+from .controllers import get_hrsd_branding, require_hrsd_confidential_access
 
 _logger = logging.getLogger(__name__)
 
@@ -219,6 +219,7 @@ class HrsdOcrController(http.Controller):
     def ocr_page(self, **kw):
         if not request.env.user._is_internal():
             return request.redirect('/web/login')
+        require_hrsd_confidential_access()
 
         scans = request.env['hr.document.ocr'].sudo().search(
             [], limit=20, order='create_date desc'
@@ -257,6 +258,8 @@ class HrsdOcrController(http.Controller):
     @http.route('/hrsd/ocr/scan', type='http', auth='user', methods=['POST'], csrf=True)
     def ocr_scan(self, **post):
         """Receive uploaded file, run OCR, persist record, return JSON."""
+        require_hrsd_confidential_access()
+
         def _json(data, status=200):
             resp = request.make_response(
                 json.dumps(data),
@@ -351,6 +354,7 @@ class HrsdOcrController(http.Controller):
     @http.route('/hrsd/ocr/load/<int:scan_id>', type='http', auth='user', methods=['GET'])
     def ocr_load(self, scan_id, **kw):
         """Return saved scan data as JSON for re-display."""
+        require_hrsd_confidential_access()
         rec = request.env['hr.document.ocr'].sudo().browse(scan_id)
         if not rec.exists():
             return request.make_response(
@@ -379,6 +383,7 @@ class HrsdOcrController(http.Controller):
 
     @http.route('/hrsd/ocr/delete/<int:scan_id>', type='http', auth='user', methods=['POST'], csrf=True)
     def ocr_delete(self, scan_id, **kw):
+        require_hrsd_confidential_access()
         rec = request.env['hr.document.ocr'].sudo().browse(scan_id)
         if rec.exists():
             rec.unlink()

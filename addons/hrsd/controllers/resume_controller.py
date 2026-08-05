@@ -9,7 +9,7 @@ import csv
 from odoo import http
 from odoo.http import request
 
-from .controllers import get_hrsd_branding
+from .controllers import get_hrsd_branding, require_hrsd_confidential_access
 
 _logger = logging.getLogger(__name__)
 
@@ -389,6 +389,7 @@ class HrsdResumeController(http.Controller):
     def resume_page(self, job_id=None, **kw):
         if not request.env.user._is_internal():
             return request.redirect('/web/login')
+        require_hrsd_confidential_access()
 
         missing = _check_imports()
         jobs    = request.env['hr.resume.job'].sudo().search([], order='create_date desc')
@@ -423,6 +424,7 @@ class HrsdResumeController(http.Controller):
     # ── Create / update job profile ───────────────────────────────────────────
     @http.route('/hrsd/resume/job/save', type='http', auth='user', methods=['POST'], csrf=False)
     def job_save(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         name = (body.get('name') or '').strip()
         if not name:
@@ -456,6 +458,7 @@ class HrsdResumeController(http.Controller):
     # ── Upload resume (base64 JSON, one file at a time) ───────────────────────
     @http.route('/hrsd/resume/upload', type='http', auth='user', methods=['POST'], csrf=False)
     def resume_upload(self, **kw):
+        require_hrsd_confidential_access()
         missing = _check_imports()
         if missing:
             return _err(f"Missing packages: {', '.join(missing)}")
@@ -530,6 +533,7 @@ class HrsdResumeController(http.Controller):
     # ── Re-rank ───────────────────────────────────────────────────────────────
     @http.route('/hrsd/resume/rerank', type='http', auth='user', methods=['POST'], csrf=False)
     def resume_rerank(self, **kw):
+        require_hrsd_confidential_access()
         body   = _json_body()
         job_id = int(body.get('job_id') or 0)
         job    = request.env['hr.resume.job'].sudo().browse(job_id)
@@ -541,6 +545,7 @@ class HrsdResumeController(http.Controller):
     # ── Update candidate status ───────────────────────────────────────────────
     @http.route('/hrsd/resume/candidate/status', type='http', auth='user', methods=['POST'], csrf=False)
     def candidate_status(self, **kw):
+        require_hrsd_confidential_access()
         body   = _json_body()
         cid    = int(body.get('id') or 0)
         status = body.get('status') or 'scored'
@@ -554,6 +559,7 @@ class HrsdResumeController(http.Controller):
     # ── Delete candidate ──────────────────────────────────────────────────────
     @http.route('/hrsd/resume/candidate/delete', type='http', auth='user', methods=['POST'], csrf=False)
     def candidate_delete(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         cid  = int(body.get('id') or 0)
         rec  = request.env['hr.resume.candidate'].sudo().browse(cid)
@@ -564,6 +570,7 @@ class HrsdResumeController(http.Controller):
     # ── Candidate detail (raw text) ───────────────────────────────────────────
     @http.route('/hrsd/resume/candidate/detail', type='http', auth='user', methods=['GET'])
     def candidate_detail(self, id=None, **kw):
+        require_hrsd_confidential_access()
         cid = int(id or 0)
         rec = request.env['hr.resume.candidate'].sudo().browse(cid)
         if not rec.exists():
@@ -578,6 +585,7 @@ class HrsdResumeController(http.Controller):
     # ── History (all candidates across all jobs) ──────────────────────────────
     @http.route('/hrsd/resume/history', type='http', auth='user', methods=['GET'])
     def resume_history(self, **kw):
+        require_hrsd_confidential_access()
         candidates = request.env['hr.resume.candidate'].sudo().search(
             [], order='create_date desc', limit=1000
         )
@@ -614,6 +622,7 @@ class HrsdResumeController(http.Controller):
     # ── Export CSV ────────────────────────────────────────────────────────────
     @http.route('/hrsd/resume/export/<int:job_id>', type='http', auth='user', methods=['GET'])
     def resume_export(self, job_id, **kw):
+        require_hrsd_confidential_access()
         job = request.env['hr.resume.job'].sudo().browse(job_id)
         if not job.exists():
             return request.not_found()

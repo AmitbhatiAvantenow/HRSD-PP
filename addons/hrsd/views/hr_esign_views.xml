@@ -270,6 +270,7 @@
     <menuitem id="menu_hr_esign_root"
               name="HR Sign"
               action="action_hr_esign_dashboard"
+              groups="hrsd.group_hrsd_confidential"
               sequence="6"/>
 
     <menuitem id="menu_hr_esign_dashboard"

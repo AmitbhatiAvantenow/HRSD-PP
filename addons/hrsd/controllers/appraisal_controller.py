@@ -6,7 +6,7 @@ from markupsafe import Markup
 from odoo import http, fields
 from odoo.http import request
 
-from .controllers import get_hrsd_branding
+from .controllers import get_hrsd_branding, require_hrsd_confidential_access
 
 
 COMPETENCY_LABELS = {
@@ -123,6 +123,7 @@ class AppraisalController(http.Controller):
 
     @http.route('/hrsd/appraisal', type='http', auth='user', website=False, sitemap=False)
     def appraisal_page(self, **kw):
+        require_hrsd_confidential_access()
         env = request.env
         today = date.today()
 
@@ -201,6 +202,7 @@ class AppraisalController(http.Controller):
     @http.route('/hrsd/appraisal/start', type='http', auth='user',
                 methods=['POST'], csrf=False)
     def start_review(self, **kw):
+        require_hrsd_confidential_access()
         try:
             payload = json.loads(request.httprequest.get_data(as_text=True) or '{}')
             appraisal_id = int(payload.get('appraisal_id', 0))
@@ -223,6 +225,7 @@ class AppraisalController(http.Controller):
     @http.route('/hrsd/appraisal/self-assess/save', type='http', auth='user',
                 methods=['POST'], csrf=False)
     def self_assess_save(self, **kw):
+        require_hrsd_confidential_access()
         try:
             payload = json.loads(request.httprequest.get_data(as_text=True) or '{}')
             appraisal_id = int(payload.get('appraisal_id', 0))
@@ -264,6 +267,7 @@ class AppraisalController(http.Controller):
     @http.route('/hrsd/appraisal/manager-review/save', type='http', auth='user',
                 methods=['POST'], csrf=False)
     def manager_review_save(self, **kw):
+        require_hrsd_confidential_access()
         try:
             payload = json.loads(request.httprequest.get_data(as_text=True) or '{}')
             appraisal_id = int(payload.get('appraisal_id', 0))

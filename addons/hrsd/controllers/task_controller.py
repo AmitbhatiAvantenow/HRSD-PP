@@ -5,6 +5,8 @@ from markupsafe import Markup
 from odoo import http, fields
 from odoo.http import request
 
+from .controllers import get_hrsd_branding
+
 _logger = logging.getLogger(__name__)
 
 STAGE_SELECTION = [
@@ -130,6 +132,7 @@ class TaskController(http.Controller):
         if not employee:
             return request.render('hrsd.hrsd_tasks_page', {
                 'page_data_json': Markup(json.dumps({'no_employee': True})),
+                'brand': get_hrsd_branding(request.env),
             })
 
         visible = _all_subordinates(employee)
@@ -156,6 +159,7 @@ class TaskController(http.Controller):
             'page_data_json': Markup(json.dumps(page_data)),
             'priority_options': PRIORITY_SELECTION,
             'stage_options': STAGE_SELECTION,
+            'brand': get_hrsd_branding(request.env),
         })
 
     # -----------------------------------------------------------------------

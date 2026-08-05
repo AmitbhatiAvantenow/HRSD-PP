@@ -53,7 +53,7 @@
                     <div t-foreach="state.needsAttention" t-as="item" t-key="item.label"
                          t-attf-class="o_payroll_attention_row o_payroll_attention_#{item.severity}"
                          t-att-style="'animation-delay: ' + (item_index * 0.06) + 's'"
-                         t-on-click="() => this.openEmployees()">
+                         t-on-click="() => this.openAttentionItem(item)">
                         <div t-attf-class="o_payroll_attention_icon o_payroll_attention_icon_#{item.severity}">
                             <i t-attf-class="fa #{item.icon}"/>
                         </div>

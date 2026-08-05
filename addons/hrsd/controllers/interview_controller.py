@@ -12,7 +12,7 @@ from datetime import datetime
 from odoo import http
 from odoo.http import request
 
-from .controllers import get_hrsd_branding
+from .controllers import get_hrsd_branding, require_hrsd_confidential_access
 
 _logger = logging.getLogger(__name__)
 
@@ -1425,6 +1425,7 @@ class HrsdInterviewController(http.Controller):
     def interview_page(self, **kw):
         if not request.env.user._is_internal():
             return request.redirect('/web/login')
+        require_hrsd_confidential_access()
         sessions = request.env['hr.interview.session'].sudo().search([], order='create_date desc', limit=20)
         sessions_data = [s.session_summary() for s in sessions]
         return request.render('hrsd.interview_page', {
@@ -1436,6 +1437,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/generate', type='http', auth='user', methods=['POST'], csrf=False)
     def interview_generate(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         job_title = (body.get('job_title') or '').strip()
         if not job_title:
@@ -1517,6 +1519,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/ai-status', type='http', auth='user', methods=['GET'])
     def interview_ai_status(self, **kw):
+        require_hrsd_confidential_access()
         api_key = _get_claude_api_key()
         return request.make_response(
             json.dumps({'ok': True, 'ai_enabled': bool(api_key), 'has_key': bool(api_key)}),
@@ -1525,6 +1528,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/save-api-key', type='http', auth='user', methods=['POST'], csrf=False)
     def interview_save_api_key(self, **kw):
+        require_hrsd_confidential_access()
         if not request.env.user._is_admin():
             return _err('Only administrators can update the API key.', 403)
         body = _json_body()
@@ -1534,6 +1538,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/session/save', type='http', auth='user', methods=['POST'], csrf=False)
     def session_save(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         job_title = (body.get('job_title') or '').strip()
         if not job_title:
@@ -1562,6 +1567,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/history', type='http', auth='user', methods=['GET'])
     def interview_history(self, **kw):
+        require_hrsd_confidential_access()
         sessions = request.env['hr.interview.session'].sudo().search([], order='create_date desc', limit=100)
         data = [s.session_summary() for s in sessions]
         return request.make_response(
@@ -1571,6 +1577,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/session/<int:session_id>', type='http', auth='user', methods=['GET'])
     def session_detail(self, session_id, **kw):
+        require_hrsd_confidential_access()
         session = request.env['hr.interview.session'].sudo().browse(session_id)
         if not session.exists():
             return _err('Session not found.', 404)
@@ -1583,6 +1590,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/session/delete', type='http', auth='user', methods=['POST'], csrf=False)
     def session_delete(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         sid = int(body.get('id') or 0)
         rec = request.env['hr.interview.session'].sudo().browse(sid)
@@ -1592,6 +1600,7 @@ class HrsdInterviewController(http.Controller):
 
     @http.route('/hrsd/interview/export/<int:session_id>', type='http', auth='user', methods=['GET'])
     def session_export(self, session_id, **kw):
+        require_hrsd_confidential_access()
         session = request.env['hr.interview.session'].sudo().browse(session_id)
         if not session.exists():
             return request.not_found()

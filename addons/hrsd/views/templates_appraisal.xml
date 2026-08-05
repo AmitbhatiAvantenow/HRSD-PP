@@ -27,7 +27,7 @@
   <aside class="pa-sidebar">
     <div class="pa-brand">
       <t t-if="brand['logo_url']">
-        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="pa-brand-mark" style="object-fit: cover;"/>
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="pa-brand-mark" style="object-fit: contain; background: #fff; padding: 3px;"/>
       </t>
       <t t-else="">
         <div class="pa-brand-mark"><t t-esc="brand['initial']"/></div>

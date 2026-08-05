@@ -20,7 +20,7 @@
   <div class="rcp-app-header">
     <a href="/hrsd/dashboard" class="rcp-brand">
       <t t-if="brand['logo_url']">
-        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="rcp-brand-mark" style="object-fit: cover;"/>
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="rcp-brand-mark" style="object-fit: contain; background: #fff; padding: 3px;"/>
       </t>
       <t t-else="">
         <span class="rcp-brand-mark"><t t-esc="brand['initial']"/></span>

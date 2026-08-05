@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>To-Do Workspace Board</title>
+  <title>To-Do Workspace Board · <t t-esc="brand['name']"/></title>
   <script type="text/javascript">
     (function () {
       try {
@@ -27,8 +27,13 @@
 
   <header class="tsk-topbar">
     <a href="/hrsd/dashboard" class="tsk-brand">
-      <span class="tsk-brand-mark">N</span>
-      <span class="tsk-brand-name">Avante<span class="tsk-brand-accent">Now</span></span>
+      <t t-if="brand['logo_url']">
+        <img t-attf-src="#{brand['logo_url']}" alt="logo" class="tsk-brand-mark" style="object-fit: contain; background: #fff; padding: 3px;"/>
+      </t>
+      <t t-else="">
+        <span class="tsk-brand-mark"><t t-esc="brand['initial']"/></span>
+      </t>
+      <span class="tsk-brand-name"><t t-esc="brand['name']"/></span>
     </a>
     <div class="tsk-topbar-right">
       <a href="#" class="tsk-timesheet-link" id="tsk-timesheet-link" style="display:none;">

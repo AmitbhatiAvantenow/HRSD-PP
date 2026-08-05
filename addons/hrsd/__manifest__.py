@@ -28,6 +28,7 @@
         'document_templates',
     ],
     'data': [
+        'security/hrsd_security_groups.xml',
         'security/ir.model.access.csv',
         'data/hr_recruitment_sequence.xml',
         'data/hr_recruitment_mail_alias.xml',

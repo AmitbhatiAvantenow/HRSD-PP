@@ -85,24 +85,36 @@ export class HrPayrollDashboard extends Component {
                 hint: "Required for direct salary disbursement.",
                 severity: "danger",
                 icon: "fa-university",
+                resModel: "hr.employee",
+                domain: [["id", "in", missingBank.map((e) => e.id)]],
+                actionName: _t("Employees missing bank account"),
             },
             noContract.length && {
                 label: `${noContract.length} payslip(s) without a running contract`,
                 hint: "Payslips can't be validated correctly until one is configured.",
                 severity: "danger",
                 icon: "fa-exclamation-triangle",
+                resModel: "hr.payslip",
+                domain: [["id", "in", noContract.map((p) => p.id)]],
+                actionName: _t("Payslips without a running contract"),
             },
             missingPan.length && {
                 label: `${missingPan.length} employee(s) without PAN number`,
                 hint: "Required for TDS deduction and Form 16 filing.",
                 severity: "info",
                 icon: "fa-address-card-o",
+                resModel: "hr.employee",
+                domain: [["id", "in", missingPan.map((e) => e.id)]],
+                actionName: _t("Employees without PAN number"),
             },
             missingUan.length && {
                 label: `${missingUan.length} employee(s) without UAN number`,
                 hint: "Needed to track Provident Fund contributions.",
                 severity: "info",
                 icon: "fa-shield",
+                resModel: "hr.employee",
+                domain: [["id", "in", missingUan.map((e) => e.id)]],
+                actionName: _t("Employees without UAN number"),
             },
         ].filter(Boolean);
 
@@ -114,8 +126,31 @@ export class HrPayrollDashboard extends Component {
         return { draft: "muted", validated: "info", paid: "success", cancel: "muted" }[state] || "muted";
     }
 
-    openEmployees() {
-        this.action.doAction("hr.open_view_employee_list");
+    openEmployees(domain = [], name = _t("Employees")) {
+        // Built inline (list view first) instead of via hr.open_view_employee_list:
+        // that action's view_mode is "form,list", which opens straight into a
+        // blank "create new employee" form instead of the employee list.
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name,
+            res_model: "hr.employee",
+            view_mode: "list,form",
+            views: [[false, "list"], [false, "form"]],
+            domain,
+            target: "current",
+        });
+    }
+
+    openAttentionItem(item) {
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: item.actionName,
+            res_model: item.resModel,
+            view_mode: "list,form",
+            views: [[false, "list"], [false, "form"]],
+            domain: item.domain,
+            target: "current",
+        });
     }
 
     openPayslips() {

@@ -24,6 +24,7 @@ A premium timesheet management workspace:
         'security/hr_timesheet_pro_security.xml',
         'data/hr_timesheet_pro_sequence.xml',
         'views/hr_timesheet_sheet_views.xml',
+        'views/hr_employee_views.xml',
         'views/res_company_views.xml',
         'views/hr_timesheet_pro_menus.xml',
     ],

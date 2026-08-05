@@ -2,12 +2,21 @@
 import json
 
 from markupsafe import Markup
+from werkzeug.exceptions import Forbidden
 from werkzeug.utils import redirect
 
 from odoo import http
 from odoo.http import request
 from odoo.addons.web.controllers.home import Home
 from odoo.addons.web.controllers.utils import is_user_internal
+
+
+def require_hrsd_confidential_access():
+    """Gate the confidential HRSD features (E-Sign, Recruitment, Resume Screening,
+    Interview Questions, Appraisal, Document OCR) to Administrators and HR Managers.
+    Call at the top of every internal-facing route in those areas."""
+    if not request.env.user.has_group('hrsd.group_hrsd_confidential'):
+        raise Forbidden()
 
 
 def get_hrsd_branding(env):

@@ -52,7 +52,7 @@
               </button>
               <div class="iq-brand-chip">
                 <t t-if="brand['logo_url']">
-                  <img t-attf-src="#{brand['logo_url']}" alt="logo" class="iq-brand-mark" style="object-fit: cover;"/>
+                  <img t-attf-src="#{brand['logo_url']}" alt="logo" class="iq-brand-mark" style="object-fit: contain; background: #fff; padding: 3px;"/>
                 </t>
                 <t t-else="">
                   <div class="iq-brand-mark"><t t-esc="brand['initial']"/></div>

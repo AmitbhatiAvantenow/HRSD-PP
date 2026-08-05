@@ -233,12 +233,14 @@
               name="Resume Screening"
               parent="menu_hrsd_root"
               action="action_hr_resume_job"
+              groups="hrsd.group_hrsd_confidential"
               sequence="30"/>
 
     <menuitem id="menu_hrsd_resume_candidates"
               name="All Candidates"
               parent="menu_hrsd_root"
               action="action_hr_resume_candidate"
+              groups="hrsd.group_hrsd_confidential"
               sequence="31"/>
 
   </data>

@@ -1,44 +1,28 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hr_document_ocr_user,hr.document.ocr user,model_hr_document_ocr,base.group_user,1,1,1,1
-access_hr_document_ocr_manager,hr.document.ocr manager,model_hr_document_ocr,base.group_system,1,1,1,1
-access_hr_resume_job_user,hr.resume.job user,model_hr_resume_job,base.group_user,1,1,1,1
-access_hr_resume_job_manager,hr.resume.job manager,model_hr_resume_job,base.group_system,1,1,1,1
-access_hr_resume_candidate_user,hr.resume.candidate user,model_hr_resume_candidate,base.group_user,1,1,1,1
-access_hr_resume_candidate_manager,hr.resume.candidate manager,model_hr_resume_candidate,base.group_system,1,1,1,1
-access_hr_interview_session_user,hr.interview.session user,model_hr_interview_session,base.group_user,1,1,1,1
-access_hr_interview_session_manager,hr.interview.session manager,model_hr_interview_session,base.group_system,1,1,1,1
+access_hr_document_ocr_hrsd,hr.document.ocr hrsd confidential,model_hr_document_ocr,group_hrsd_confidential,1,1,1,1
+access_hr_resume_job_hrsd,hr.resume.job hrsd confidential,model_hr_resume_job,group_hrsd_confidential,1,1,1,1
+access_hr_resume_candidate_hrsd,hr.resume.candidate hrsd confidential,model_hr_resume_candidate,group_hrsd_confidential,1,1,1,1
+access_hr_interview_session_hrsd,hr.interview.session hrsd confidential,model_hr_interview_session,group_hrsd_confidential,1,1,1,1
 access_hr_attrition_snapshot_user,hr.attrition.snapshot user,model_hr_attrition_snapshot,base.group_user,1,1,1,1
 access_hr_attrition_snapshot_manager,hr.attrition.snapshot manager,model_hr_attrition_snapshot,base.group_system,1,1,1,1
 access_hr_attrition_assessment_user,hr.attrition.assessment user,model_hr_attrition_assessment,base.group_user,1,1,1,1
 access_hr_attrition_assessment_manager,hr.attrition.assessment manager,model_hr_attrition_assessment,base.group_system,1,1,1,1
-access_hr_appraisal_user,hr.appraisal user,model_hr_appraisal,base.group_user,1,1,1,1
-access_hr_appraisal_manager,hr.appraisal manager,model_hr_appraisal,base.group_system,1,1,1,1
-access_hr_appraisal_goal_user,hr.appraisal.goal user,model_hr_appraisal_goal,base.group_user,1,1,1,1
-access_hr_appraisal_goal_manager,hr.appraisal.goal manager,model_hr_appraisal_goal,base.group_system,1,1,1,1
-access_hr_appraisal_competency_user,hr.appraisal.competency user,model_hr_appraisal_competency,base.group_user,1,1,1,1
-access_hr_appraisal_competency_manager,hr.appraisal.competency manager,model_hr_appraisal_competency,base.group_system,1,1,1,1
-access_hr_appraisal_feedback_user,hr.appraisal.feedback user,model_hr_appraisal_feedback,base.group_user,1,1,1,1
-access_hr_appraisal_feedback_manager,hr.appraisal.feedback manager,model_hr_appraisal_feedback,base.group_system,1,1,1,1
-access_hr_recruitment_user,hr.recruitment user,model_hr_recruitment,base.group_user,1,1,1,1
-access_hr_recruitment_manager,hr.recruitment manager,model_hr_recruitment,base.group_system,1,1,1,1
-access_hr_recruitment_candidate_user,hr.recruitment.candidate user,model_hr_recruitment_candidate,base.group_user,1,1,1,1
-access_hr_recruitment_candidate_manager,hr.recruitment.candidate manager,model_hr_recruitment_candidate,base.group_system,1,1,1,1
-access_hr_recruitment_note_user,hr.recruitment.note user,model_hr_recruitment_note,base.group_user,1,1,1,1
-access_hr_recruitment_note_manager,hr.recruitment.note manager,model_hr_recruitment_note,base.group_system,1,1,1,1
+access_hr_appraisal_hrsd,hr.appraisal hrsd confidential,model_hr_appraisal,group_hrsd_confidential,1,1,1,1
+access_hr_appraisal_goal_hrsd,hr.appraisal.goal hrsd confidential,model_hr_appraisal_goal,group_hrsd_confidential,1,1,1,1
+access_hr_appraisal_competency_hrsd,hr.appraisal.competency hrsd confidential,model_hr_appraisal_competency,group_hrsd_confidential,1,1,1,1
+access_hr_appraisal_feedback_hrsd,hr.appraisal.feedback hrsd confidential,model_hr_appraisal_feedback,group_hrsd_confidential,1,1,1,1
+access_hr_recruitment_hrsd,hr.recruitment hrsd confidential,model_hr_recruitment,group_hrsd_confidential,1,1,1,1
+access_hr_recruitment_candidate_hrsd,hr.recruitment.candidate hrsd confidential,model_hr_recruitment_candidate,group_hrsd_confidential,1,1,1,1
+access_hr_recruitment_note_hrsd,hr.recruitment.note hrsd confidential,model_hr_recruitment_note,group_hrsd_confidential,1,1,1,1
 access_hr_task_user,hr.task user,model_hr_task,base.group_user,1,1,1,1
 access_hr_task_manager,hr.task manager,model_hr_task,base.group_system,1,1,1,1
 access_hr_timesheet_entry_user,hr.timesheet.entry user,model_hr_timesheet_entry,base.group_user,1,1,1,1
 access_hr_timesheet_entry_manager,hr.timesheet.entry manager,model_hr_timesheet_entry,base.group_system,1,1,1,1
-access_hr_esign_document_user,hr.esign.document user,model_hr_esign_document,base.group_user,1,1,1,1
-access_hr_esign_document_manager,hr.esign.document manager,model_hr_esign_document,base.group_system,1,1,1,1
-access_hr_esign_signer_user,hr.esign.signer user,model_hr_esign_signer,base.group_user,1,1,1,1
-access_hr_esign_signer_manager,hr.esign.signer manager,model_hr_esign_signer,base.group_system,1,1,1,1
-access_hr_esign_template_user,hr.esign.template user,model_hr_esign_template,base.group_user,1,1,1,1
-access_hr_esign_template_manager,hr.esign.template manager,model_hr_esign_template,base.group_system,1,1,1,1
-access_hr_esign_audit_log_user,hr.esign.audit.log user,model_hr_esign_audit_log,base.group_user,1,1,1,1
-access_hr_esign_audit_log_manager,hr.esign.audit.log manager,model_hr_esign_audit_log,base.group_system,1,1,1,1
-access_hr_esign_field_user,hr.esign.field user,model_hr_esign_field,base.group_user,1,1,1,1
-access_hr_esign_field_manager,hr.esign.field manager,model_hr_esign_field,base.group_system,1,1,1,1
+access_hr_esign_document_hrsd,hr.esign.document hrsd confidential,model_hr_esign_document,group_hrsd_confidential,1,1,1,1
+access_hr_esign_signer_hrsd,hr.esign.signer hrsd confidential,model_hr_esign_signer,group_hrsd_confidential,1,1,1,1
+access_hr_esign_template_hrsd,hr.esign.template hrsd confidential,model_hr_esign_template,group_hrsd_confidential,1,1,1,1
+access_hr_esign_audit_log_hrsd,hr.esign.audit.log hrsd confidential,model_hr_esign_audit_log,group_hrsd_confidential,1,1,1,1
+access_hr_esign_field_hrsd,hr.esign.field hrsd confidential,model_hr_esign_field,group_hrsd_confidential,1,1,1,1
 access_hrsd_dashboard_menu_user,hrsd.dashboard.menu user,model_hrsd_dashboard_menu,base.group_user,1,0,0,0
 access_hrsd_dashboard_menu_manager,hrsd.dashboard.menu manager,model_hrsd_dashboard_menu,base.group_system,1,1,1,1
 access_hrsd_dashboard_submenu_user,hrsd.dashboard.submenu user,model_hrsd_dashboard_submenu,base.group_user,1,0,0,0

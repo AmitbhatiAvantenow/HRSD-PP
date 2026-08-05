@@ -228,12 +228,14 @@
               name="Performance Appraisals"
               parent="menu_hrsd_root"
               action="action_hr_appraisal"
+              groups="hrsd.group_hrsd_confidential"
               sequence="25"/>
 
     <menuitem id="menu_hrsd_appraisal_dashboard"
               name="Appraisal Dashboard"
               parent="menu_hrsd_root"
               action="action_hrsd_appraisal_dashboard_url"
+              groups="hrsd.group_hrsd_confidential"
               sequence="26"/>
 
   </data>

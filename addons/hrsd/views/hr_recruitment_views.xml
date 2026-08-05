@@ -260,6 +260,7 @@
     <menuitem id="menu_hrsd_recruitment"
               name="Recruitment"
               parent="menu_hrsd_root"
+              groups="hrsd.group_hrsd_confidential"
               sequence="15"/>
 
     <menuitem id="menu_hrsd_recruitment_requirements"

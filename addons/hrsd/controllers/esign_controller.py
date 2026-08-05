@@ -6,6 +6,8 @@ from markupsafe import Markup
 from odoo import http
 from odoo.http import request
 
+from .controllers import require_hrsd_confidential_access
+
 _logger = logging.getLogger(__name__)
 
 
@@ -180,6 +182,7 @@ class EsignPortalController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/sign/document/<int:document_id>/download', type='http', auth='user', website=False)
     def esign_document_download(self, document_id, **kw):
+        require_hrsd_confidential_access()
         doc = request.env['hr.esign.document'].sudo().browse(document_id)
         if not doc.exists() or not doc.file_data:
             return request.not_found()

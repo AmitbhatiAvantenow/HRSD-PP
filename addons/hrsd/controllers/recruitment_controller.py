@@ -8,7 +8,7 @@ from markupsafe import Markup
 from odoo import http, fields
 from odoo.http import request
 
-from .controllers import get_hrsd_branding
+from .controllers import get_hrsd_branding, require_hrsd_confidential_access
 from .resume_controller import _extract_text, _extract_skills, _parse_resume
 
 _logger = logging.getLogger(__name__)
@@ -242,6 +242,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment', type='http', auth='user', website=False, sitemap=False)
     def recruitment_page(self, **kw):
+        require_hrsd_confidential_access()
         return request.render('hrsd.hrsd_recruitment_page', {
             'user_name': request.env.user.name,
             'brand': get_hrsd_branding(request.env),
@@ -252,6 +253,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements', type='http', auth='user', website=False, sitemap=False)
     def requirements_page(self, **kw):
+        require_hrsd_confidential_access()
         Requirement = request.env['hr.recruitment'].sudo()
         domain = []
         total = Requirement.search_count(domain)
@@ -293,6 +295,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/list', type='http', auth='user', methods=['POST'], csrf=False)
     def requirements_list(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         status = body.get('status') or 'all'
         search = (body.get('search') or '').strip()
@@ -319,6 +322,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/save', type='http', auth='user', methods=['POST'], csrf=False)
     def requirement_save(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         job_title = (body.get('job_title') or '').strip()
         skill = (body.get('skill') or '').strip()
@@ -370,6 +374,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/delete', type='http', auth='user', methods=['POST'], csrf=False)
     def requirement_delete(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         req_id = body.get('id')
         if not req_id:
@@ -387,6 +392,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/upload', type='http', auth='user', methods=['POST'], csrf=True)
     def requirement_upload(self, **post):
+        require_hrsd_confidential_access()
         files = request.httprequest.files.getlist('files')
         if not files:
             return _err('No files uploaded.')
@@ -431,6 +437,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/detail', type='http', auth='user', methods=['GET'])
     def requirement_detail(self, id=None, **kw):
+        require_hrsd_confidential_access()
         rec = request.env['hr.recruitment'].sudo().browse(int(id or 0))
         if not rec.exists():
             return _err('Requirement not found.', 404)
@@ -446,6 +453,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/candidate/save', type='http', auth='user', methods=['POST'], csrf=False)
     def candidate_save(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         requirement_id = int(body.get('requirement_id') or 0)
         name = (body.get('name') or '').strip()
@@ -512,6 +520,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/candidate/upload', type='http', auth='user', methods=['POST'], csrf=True)
     def candidate_upload(self, **post):
+        require_hrsd_confidential_access()
         requirement_id = int(post.get('requirement_id') or 0)
         if not requirement_id:
             return _err('Missing requirement_id.')
@@ -556,6 +565,7 @@ class RecruitmentController(http.Controller):
     # -----------------------------------------------------------------------
     @http.route('/hrsd/recruitment/requirements/note/add', type='http', auth='user', methods=['POST'], csrf=False)
     def note_add(self, **kw):
+        require_hrsd_confidential_access()
         body = _json_body()
         requirement_id = int(body.get('requirement_id') or 0)
         text = (body.get('body') or '').strip()

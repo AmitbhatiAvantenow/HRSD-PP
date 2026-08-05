@@ -696,6 +696,7 @@ class HrPayslip(models.Model):
             scheduled = contract.employee_id.get_work_days_data(
                 month_from, month_to, calendar=calendar, compute_leaves=False)
             leave_days = sum(line['number_of_days'] for line in leaves.values())
+            leave_hours = sum(line['number_of_hours'] for line in leaves.values())
             res.append({
                 'name': _("Working Days in Period"),
                 'sequence': 0,
@@ -708,8 +709,8 @@ class HrPayslip(models.Model):
                 'name': _("Total Paid Days"),
                 'sequence': 30,
                 'code': 'PAID_DAYS',
-                'number_of_days': work_data['days'] + leave_days,
-                'number_of_hours': work_data['hours'],
+                'number_of_days': work_data['days'] - leave_days,
+                'number_of_hours': work_data['hours'] - leave_hours,
                 'contract_id': contract.id,
             })
         return res

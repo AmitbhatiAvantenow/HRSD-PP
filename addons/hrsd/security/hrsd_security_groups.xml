@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="group_hrsd_confidential" model="res.groups">
+        <field name="name">HRSD: Confidential HR Access</field>
+        <field name="privilege_id" ref="hr.res_groups_privilege_employees"/>
+        <field name="comment">Grants access to confidential HRSD features: E-Sign, Recruitment, Resume Screening, Interview Questions, Appraisal and Document OCR. Restricted to Administrators and HR Managers.</field>
+    </record>
+
+    <!-- HR Managers (the "Administrator" role within HR) automatically get access -->
+    <record id="hr.group_hr_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_hrsd_confidential'))]"/>
+    </record>
+
+    <!-- Odoo Administrators (Settings/Technical) automatically get access -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_hrsd_confidential'))]"/>
+    </record>
+
+</odoo>
