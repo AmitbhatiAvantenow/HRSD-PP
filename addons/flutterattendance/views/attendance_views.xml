@@ -15,6 +15,7 @@
                        decoration-success="status == 'present'"
                        decoration-warning="status == 'late'"
                        decoration-danger="status == 'half_day'"/>
+                <field name="remarks" string="Comment" optional="show"/>
             </list>
         </field>
     </record>

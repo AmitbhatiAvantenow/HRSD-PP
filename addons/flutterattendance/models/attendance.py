@@ -24,7 +24,7 @@ class FlutterAttendance(models.Model):
         ('late', 'Late'),
         ('half_day', 'Half Day'),
     ], compute='_compute_summary', store=True)
-    remarks = fields.Char()
+    remarks = fields.Text(string='Work Comment', help="Employee's work summary, collected right after check-out.")
 
     # Check-in
     checkin_latitude = fields.Float(digits=(10, 7))

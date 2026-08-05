@@ -176,7 +176,7 @@ class FlutterAttendanceController(http.Controller):
 
         _register_device(request.env, employee, data)
         photo_bytes = _decode_photo(data.get('photo'))
-        record.write({
+        vals = {
             'check_out_time': fields.Datetime.now(),
             'checkout_latitude': latitude,
             'checkout_longitude': longitude,
@@ -186,7 +186,13 @@ class FlutterAttendanceController(http.Controller):
             'checkout_created_at': fields.Datetime.now(),
             'checkout_face_similarity': data.get('face_similarity') or 0.0,
             'checkout_face_verified': bool(data.get('face_verified')),
-        })
+        }
+        # Work comment collected from the app right after the check-out
+        # selfie — optional so older app builds that don't send it yet
+        # don't blank out anything.
+        if data.get('remarks'):
+            vals['remarks'] = data.get('remarks')
+        record.write(vals)
         return _json_response({'success': True, **_attendance_data(record)})
 
     @http.route('/api/today', type='http', auth='public', methods=['GET'], csrf=False, cors='*')
