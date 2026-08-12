@@ -273,12 +273,10 @@
   .opw-badge-paid { background: rgba(79, 70, 229, 0.12); color: var(--opw-indigo); }
 
   .opw-success-layout { display: grid; grid-template-columns: 220px 1fr; gap: 18px; text-align: left; max-height: 48vh; }
+  .opw-success-layout-centered { display: flex; justify-content: center; max-height: none; }
   .opw-success-actions { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .opw-success-layout-centered .opw-success-actions { width: 260px; }
   .opw-success-actions button { justify-content: center; flex-shrink: 0; }
-  .opw-success-preview { border: 1px solid var(--opw-border); border-radius: 12px; overflow-y: auto; height: 48vh; background: #525659; padding: 8px; }
-  .opw-preview-status { color: #fff; text-align: center; padding: 20px; font-size: 12.5px; }
-  .opw-preview-page { margin-bottom: 8px; }
-  .opw-preview-img { width: 100%; display: block; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
   .opw-body:has(.opw-success) { max-height: 74vh; }
 }

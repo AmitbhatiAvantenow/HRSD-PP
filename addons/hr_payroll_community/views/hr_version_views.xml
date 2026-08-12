@@ -62,35 +62,17 @@
                         <span>/ month</span>
                     </div>
                 </group>
-                <group string="Compensation Structure (% of Gross Wage)" name="in_regular_structure">
-                    <label for="ctc_basic_percentage"/>
-                    <div class="o_row">
-                        <field name="ctc_basic_percentage" nolabel="1"/>
-                        <span>% of Gross</span>
-                    </div>
-                    <label for="hra_percentage_of_basic"/>
-                    <div class="o_row">
-                        <field name="hra_percentage_of_basic" nolabel="1"/>
-                        <span>% of Basic</span>
-                    </div>
-                    <label for="cca_percentage_of_basic"/>
-                    <div class="o_row">
-                        <field name="cca_percentage_of_basic" nolabel="1"/>
-                        <span>% of Basic</span>
-                    </div>
-                    <span class="text-muted" colspan="2">
-                        Project/Special Allowance is auto-computed as the
-                        balancing figure (Gross - Basic - HRA - CCA - Medical).
-                    </span>
+                <group string="Salary Components (this month's full amount)" name="in_regular_structure">
+                    <field name="basic_amount"/>
+                    <field name="hra_cca_amount" string="City Compensatory Allowance + HRA"/>
+                    <field name="project_allowance_amount" string="Project &amp; Special Allowance"/>
                 </group>
                 <group string="Statutory Contributions (EPF / LWF)" name="in_statutory">
-                    <field name="epf_wage_ceiling"/>
-                    <field name="epf_employee_rate"/>
-                    <field name="epf_employer_rate"/>
-                    <field name="epf_admin_rate"/>
-                    <field name="lwf_employee"/>
-                    <field name="lwf_employer"/>
-                    <field name="gratuity_rate"/>
+                    <field name="epf_employee_amount" string="EPF Deduction (Employee)"/>
+                    <field name="epf_employer_amount" string="Company EPF Share (12%)"/>
+                    <field name="epf_admin_amount" string="EPF Exp (1%) 0.5% EDLI+ 0.5% EPF ADMIN"/>
+                    <field name="lwf_employee" string="LWF Deduction (Employee)"/>
+                    <field name="ctc_amount" readonly="1"/>
                 </group>
             </xpath>
         </field>

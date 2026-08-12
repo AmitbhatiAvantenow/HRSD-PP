@@ -10,12 +10,44 @@
          once converted to PDF via wkhtmltopdf, even though the exact
          same template renders the value fine as HTML - so the report
          deliberately avoids that widget system entirely, using
-         hr.payslip.format_currency() and strftime() for formatting. -->
+         hr.payslip.format_currency() and strftime() for formatting.
+
+         Same story with <strong>: on this setup, wkhtmltopdf silently
+         drops text wrapped in <strong> (blank in the printed PDF, even
+         though the exact same tag renders fine as HTML and in the
+         wizard's pdf.js preview - <th> and <h4> bold text are NOT
+         affected, only <strong>). So this template never uses <strong>
+         - emphasis is done with color/underline instead.
+
+         The logo/company block below is deliberately NOT rendered via
+         web.external_layout's standard .header mechanism. wkhtmltopdf
+         renders that div as a totally separate, isolated document (see
+         ir.actions.report._prepare_html) positioned using its own
+         margin-top/header-spacing math, which in this environment does
+         not reserve space based on the header's actual content height -
+         a header taller than expected just silently overlaps the body
+         instead of pushing it down. Since this report is always a
+         single page, there's no real need for a repeating per-page
+         header anyway, so the logo/company name are just rendered as
+         ordinary body content instead - normal box flow, no separate
+         document, no surprises. -->
     <template id="report_payslip">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
+                <t t-call="web.basic_layout">
+                    <style>
+                        .payslip-report td.text-end, .payslip-report th.text-end { padding-right: 8px !important; }
+                    </style>
                     <div class="page payslip-report">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                 alt="Logo" style="max-height:30mm; max-width:90mm;"/>
+                            <div class="text-end">
+                                <div t-esc="o.company_id.name"/>
+                                <div t-esc="o.company_id.country_id.name"/>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <h2 class="mb-0">Salary Slip <t t-esc="o.date_from.strftime('%B %Y')"/></h2>
                             <span t-if="o.state == 'done'" class="badge rounded-pill text-bg-success">Paid</span>
@@ -23,49 +55,39 @@
                             <span t-else="" class="badge rounded-pill text-bg-warning">Draft</span>
                         </div>
 
-                        <table class="table table-sm table-borderless mb-2">
+                        <table class="table table-sm table-borderless mb-2" style="width:auto;">
                             <tr>
-                                <td style="width:25%;"><strong>Name</strong></td>
-                                <td style="width:25%;"><t t-esc="o.employee_id.name"/></td>
-                                <td style="width:25%;"><strong>Pay Period</strong></td>
-                                <td style="width:25%;">
-                                    <t t-esc="o.date_from.strftime('%d/%m/%Y')"/> - <t t-esc="o.date_to.strftime('%d/%m/%Y')"/>
-                                </td>
+                                <td class="text-end" style="width:140px;">Employee Name:</td>
+                                <td><t t-esc="o.employee_id.name"/></td>
                             </tr>
                             <tr>
-                                <td><strong>Designation</strong></td>
+                                <td class="text-end">Employee SID:</td>
+                                <td><t t-esc="o.employee_id.employee_sid or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td class="text-end">Pay Mode:</td>
+                                <td><t t-esc="o.employee_id.pay_mode or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td class="text-end">Designation:</td>
                                 <td><t t-esc="o.employee_id.job_title or ''"/></td>
-                                <td><strong>Pay Date</strong></td>
-                                <td><t t-esc="o.date_to.strftime('%d/%m/%Y')"/></td>
-                            </tr>
-                            <tr>
-                                <td><strong>PAN</strong></td>
-                                <td><t t-esc="o.employee_id.pan_number or ''"/></td>
-                                <td><strong>UAN</strong></td>
-                                <td><t t-esc="o.employee_id.uan_number or ''"/></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Bank Account</strong></td>
-                                <td><t t-esc="o.employee_id.primary_bank_account_id.acc_number or ''"/></td>
-                                <td><strong>Reference</strong></td>
-                                <td><t t-esc="o.number or ''"/></td>
                             </tr>
                         </table>
 
-                        <table class="table table-sm table-bordered mb-1">
+                        <table class="table table-sm table-bordered mb-1" style="table-layout:fixed; width:100%;">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="width:50%;">Earnings</th>
-                                    <th class="text-end">Amount</th>
-                                    <th style="width:50%;">Deductions</th>
-                                    <th class="text-end">Amount</th>
+                                    <th style="width:33%;">Earnings</th>
+                                    <th class="text-end" style="width:17%;">Amount</th>
+                                    <th style="width:33%;">Deductions</th>
+                                    <th class="text-end" style="width:17%;">Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-set="earning_lines"
-                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.category_id.code not in ('DED', 'COMP') and l.code not in ('GROSS', 'NET', 'CTC'))"/>
+                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.total and l.category_id.code not in ('DED', 'COMP') and l.code not in ('GROSS', 'NET', 'CTC'))"/>
                                 <t t-set="deduction_lines"
-                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.category_id.code == 'DED')"/>
+                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.total and l.category_id.code == 'DED')"/>
                                 <t t-set="max_lines" t-value="max(len(earning_lines), len(deduction_lines))"/>
                                 <tr t-foreach="range(max_lines)" t-as="i">
                                     <td t-if="i &lt; len(earning_lines)" t-esc="earning_lines[i].name"/>
@@ -101,8 +123,8 @@
                             <tr>
                                 <td>Leaves adjusted (days)</td>
                                 <td class="text-end" t-esc="o.get_leaves_days_total()"/>
-                                <td><strong>Total paid days</strong></td>
-                                <td class="text-end"><strong t-esc="o.get_worked_days_total('PAID_DAYS')"/></td>
+                                <td>Total paid days</td>
+                                <td class="text-end" t-esc="o.get_worked_days_total('PAID_DAYS')"/>
                             </tr>
                         </table>
 
@@ -117,15 +139,29 @@
                         <p>Net Salary in Words: <strong t-esc="'%s %s Only' % (o.get_amount_in_words(), o.company_id.currency_id.name)"/></p>
 
                         <table class="table table-sm table-bordered">
+                            <tr t-if="o.get_salary_line_total('EPF_ER')">
+                                <td>Company EPF Share (12%)</td>
+                                <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('EPF_ER'))"/>
+                            </tr>
                             <tr>
                                 <td>*Total CTC this period, including Bonus, EPF Company Share and EPF Admin charges if any</td>
                                 <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('CTC'))"/>
                             </tr>
                         </table>
 
-                        <p class="text-muted mt-4" style="font-size: 11px;">
-                            This is a computer-generated Salary Slip and does not require a signature.
-                        </p>
+                        <div class="border border-dark p-2 mt-4 text-center" style="font-size: 11px;">
+                            <p class="mb-1">
+                                Please note that all bonus payments, if any, to be paid to you from time to
+                                time will include all mandatory payments that you are entitled to under all
+                                applicable laws, rules, statutes, enactments, orders and regulations
+                                currently in force as amended from time to time.
+                            </p>
+                            <p class="mb-1">This is a computer-generated Salary slip, does not require any signature.</p>
+                            <p class="mb-0">
+                                <span style="color:#6f2da8;">All queries should be directed to Accounts@qaagility.com .</span>
+                                <span style="color:#dc3545;">*Total CTC means Total Cost to company</span>
+                            </p>
+                        </div>
                     </div>
                 </t>
             </t>

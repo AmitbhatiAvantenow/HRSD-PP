@@ -56,116 +56,51 @@ class HrContract(models.Model):
     other_allowance = fields.Monetary(string="Other Allowance",
                                       help="Other allowances")
 
-    # --- Auto-computed salary structure (% of Gross / Basic), matching
-    # a typical Indian "Basic + HRA + CCA + Medical + balancing allowance"
-    # compensation structure. `wage` is used as the target Monthly Gross.
-    ctc_basic_percentage = fields.Float(
-        string='Basic (% of Gross)', default=50.0,
-        help="Basic Salary as a percentage of the monthly Gross Wage.")
-    hra_percentage_of_basic = fields.Float(
-        string='HRA (% of Basic)', default=40.0,
-        help="House Rent Allowance as a percentage of Basic Salary.")
-    cca_percentage_of_basic = fields.Float(
-        string='CCA (% of Basic)', default=20.0,
-        help="City Compensatory Allowance as a percentage of Basic Salary.")
-
-    epf_wage_ceiling = fields.Monetary(
-        string='EPF Wage Ceiling', default=15000.0,
-        help="Statutory monthly Basic ceiling used to compute EPF "
-             "contributions (contribution is computed on min(Basic, "
-             "this ceiling)).")
-    epf_employee_rate = fields.Float(
-        string='EPF Employee Rate (%)', default=12.0,
-        help="Employee's EPF contribution, deducted from Net pay.")
-    epf_employer_rate = fields.Float(
-        string='EPF Employer Rate (%)', default=12.0,
-        help="Employer's EPF contribution. Part of CTC, not deducted "
-             "from the employee's Net pay.")
-    epf_admin_rate = fields.Float(
-        string='EPF Admin/EDLI Rate (%)', default=1.0,
-        help="Combined EDLI + EPF administration charges paid by the "
-             "employer. Part of CTC, not deducted from Net pay. This "
-             "rate varies by payroll processor/period in practice - "
-             "adjust it if it needs to match a specific payslip.")
+    # --- Salary Components: plain, independent numbers the admin types
+    # in directly - this month's full (pre pro-ration) amount for each.
+    # None of these are derived from Wage or from each other, and
+    # editing one never changes any of the others - deliberately, after
+    # an earlier percentage/Wage-driven auto-calc version of this proved
+    # fragile (a blank field mid-edit could silently corrupt Basic, HRA,
+    # CTC, etc. together). Total CTC below is the only computed field
+    # here, and it's a plain sum - it can only ever reflect these, never
+    # write back to them.
+    basic_amount = fields.Monetary(string='Basic Salary')
+    hra_cca_amount = fields.Monetary(
+        string='City Compensatory Allowance + HRA')
+    project_allowance_amount = fields.Monetary(
+        string='Project & Special Allowance')
+    epf_employee_amount = fields.Monetary(string='EPF Employee Deduction')
+    epf_employer_amount = fields.Monetary(
+        string='Company EPF Share (12%)')
+    epf_admin_amount = fields.Monetary(
+        string='EPF Exp (1%) 0.5% EDLI+ 0.5% EPF ADMIN')
 
     lwf_employee = fields.Monetary(
         string='LWF Employee Contribution', default=0.0,
         help="Labour Welfare Fund - employee's share, deducted from Net.")
-    lwf_employer = fields.Monetary(
-        string='LWF Employer Contribution', default=0.0,
-        help="Labour Welfare Fund - employer's share. Part of CTC.")
 
-    gratuity_rate = fields.Float(
-        string='Gratuity Rate (%)', default=4.81,
-        help="Statutory gratuity accrual, ~15/26/12 of Basic. "
-             "Informational only: shown on the employee's Payroll tab, "
-             "not deducted/added on the monthly payslip.")
-    gratuity_per_month = fields.Monetary(
-        string='Gratuity per Month', compute='_compute_gratuity_per_month')
-
-    @api.depends('wage', 'ctc_basic_percentage', 'gratuity_rate')
-    def _compute_gratuity_per_month(self):
-        for version in self:
-            basic = (version.wage or 0.0) * (
-                version.ctc_basic_percentage or 0.0) / 100.0
-            version.gratuity_per_month = basic * (
-                version.gratuity_rate or 0.0) / 100.0
-
-    # --- Full-month (non pro-rated) preview of the auto-computed
-    # compensation breakdown, shown on the employee's Payroll tab so the
-    # numbers are visible before a payslip is even generated.
-    basic_amount = fields.Monetary(
-        string='Basic Salary', compute='_compute_salary_breakdown')
-    hra_amount = fields.Monetary(
-        string='HRA (Auto)', compute='_compute_salary_breakdown')
-    cca_amount = fields.Monetary(
-        string='City Compensatory Allowance', compute='_compute_salary_breakdown')
-    project_allowance_amount = fields.Monetary(
-        string='Project & Special Allowance (balancing figure)',
-        compute='_compute_salary_breakdown')
-    epf_employee_amount = fields.Monetary(
-        string='EPF Employee Deduction', compute='_compute_salary_breakdown')
-    epf_employer_amount = fields.Monetary(
-        string='EPF Employer Contribution', compute='_compute_salary_breakdown')
-    epf_admin_amount = fields.Monetary(
-        string='EPF Admin/EDLI Charges', compute='_compute_salary_breakdown')
     ctc_amount = fields.Monetary(
-        string='Total CTC (Monthly)', compute='_compute_salary_breakdown')
+        string='Total CTC (Monthly)', compute='_compute_ctc_amount',
+        store=True,
+        help="Total Salary (Basic + CCA/HRA + Medical + Project "
+             "Allowance) + Company EPF Share + EPF Exp. Purely the sum "
+             "of the components to the left - to change it, change one "
+             "of those.")
 
-    @api.depends('wage', 'ctc_basic_percentage', 'hra_percentage_of_basic',
-                'cca_percentage_of_basic', 'medical_allowance',
-                'epf_wage_ceiling', 'epf_employee_rate', 'epf_employer_rate',
-                'epf_admin_rate', 'lwf_employee', 'lwf_employer',
-                'gratuity_rate')
-    def _compute_salary_breakdown(self):
+    @api.depends('basic_amount', 'hra_cca_amount', 'medical_allowance',
+                'project_allowance_amount', 'epf_employer_amount',
+                'epf_admin_amount')
+    def _compute_ctc_amount(self):
         for version in self:
-            gross = version.wage or 0.0
-            basic = gross * (version.ctc_basic_percentage or 0.0) / 100.0
-            hra = basic * (version.hra_percentage_of_basic or 0.0) / 100.0
-            cca = basic * (version.cca_percentage_of_basic or 0.0) / 100.0
-            project_allowance = gross - basic - hra - cca - (
-                version.medical_allowance or 0.0)
-            epf_base = min(basic, version.epf_wage_ceiling or 0.0)
-            gratuity = basic * (version.gratuity_rate or 0.0) / 100.0
-            version.basic_amount = basic
-            version.hra_amount = hra
-            version.cca_amount = cca
-            version.project_allowance_amount = project_allowance
-            version.epf_employee_amount = round(
-                epf_base * (version.epf_employee_rate or 0.0) / 100.0, 2)
-            version.epf_employer_amount = round(
-                epf_base * (version.epf_employer_rate or 0.0) / 100.0, 2)
-            version.epf_admin_amount = round(
-                epf_base * (version.epf_admin_rate or 0.0) / 100.0, 2)
-            # CTC = Gross + employer's EPF + EPF admin/EDLI + LWF employer
-            # + gratuity accrual - gratuity is a real employer cost even
-            # though it's only paid out at exit, so standard Indian CTC
-            # definitions include it (matches the payslip's own "Total
-            # CTC (this period)" rule, which folds GRATUITY into COMP).
+            total_salary = (
+                (version.basic_amount or 0.0)
+                + (version.hra_cca_amount or 0.0)
+                + (version.medical_allowance or 0.0)
+                + (version.project_allowance_amount or 0.0))
             version.ctc_amount = (
-                gross + version.epf_employer_amount
-                + version.epf_admin_amount + (version.lwf_employer or 0.0)
-                + round(gratuity, 2))
+                total_salary + (version.epf_employer_amount or 0.0)
+                + (version.epf_admin_amount or 0.0))
 
     def get_all_structures(self):
         """

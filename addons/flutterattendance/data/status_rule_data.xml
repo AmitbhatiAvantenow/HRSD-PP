@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Reproduces the module's original hardcoded behaviour: half day beats
+         late, late beats present. Fully editable from Mobile Attendance >
+         Settings > Status Rules once installed. -->
+    <record id="status_rule_half_day" model="flutterattendance.status.rule">
+        <field name="name">Half Day</field>
+        <field name="code">half_day</field>
+        <field name="sequence">10</field>
+        <field name="condition">shift_half_day</field>
+        <field name="require_checkout">True</field>
+    </record>
+
+    <record id="status_rule_late" model="flutterattendance.status.rule">
+        <field name="name">Late</field>
+        <field name="code">late</field>
+        <field name="sequence">20</field>
+        <field name="condition">late</field>
+        <field name="require_checkout">False</field>
+    </record>
+
+    <record id="status_rule_present" model="flutterattendance.status.rule">
+        <field name="name">Present</field>
+        <field name="code">present</field>
+        <field name="sequence">30</field>
+        <field name="condition">always</field>
+        <field name="require_checkout">False</field>
+    </record>
+</odoo>

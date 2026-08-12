@@ -57,20 +57,13 @@
             <i class="fa fa-check-circle"/> Marked as Paid
           </div>
 
-          <!-- Single-employee: actions + PDF preview -->
-          <div class="opw-success-layout" t-if="!isBulk">
+          <!-- Single-employee: actions (no PDF preview) -->
+          <div class="opw-success-layout opw-success-layout-centered" t-if="!isBulk">
             <div class="opw-success-actions">
               <button type="button" class="opw-btn-primary" t-on-click="viewPayslip"><i class="fa fa-external-link"/> View Payslip</button>
               <button type="button" class="opw-btn-ghost" t-on-click="printPayslip"><i class="fa fa-print"/> Print / Download</button>
               <button type="button" class="opw-btn-ghost" t-on-click="createAnother"><i class="fa fa-plus"/> Create Another</button>
               <button type="button" class="opw-btn-ghost" t-on-click="onClose">Close</button>
-            </div>
-            <div class="opw-success-preview">
-              <div t-if="state.previewLoading" class="opw-preview-status"><i class="fa fa-spinner fa-spin"/> Rendering preview…</div>
-              <div t-if="state.previewError" class="opw-preview-status" t-esc="state.previewError"/>
-              <div t-foreach="state.previewPages" t-as="pg" t-key="pg_index" class="opw-preview-page">
-                <img t-att-src="pg.url" class="opw-preview-img"/>
-              </div>
             </div>
           </div>
 
@@ -373,18 +366,43 @@
             <div class="opw-step-header-icon"><i class="fa fa-arrow-up"/></div>
             <div>
               <h3 class="opw-step-title">Earnings</h3>
-              <p class="opw-step-sub">Basic, HRA, CCA, Medical &amp; Project Allowance are auto-computed from the employee's compensation. Bonus is the only manual entry.</p>
+              <p class="opw-step-sub">Basic, CCA + HRA, Medical &amp; Project Allowance are pre-filled from the employee's compensation but every amount here is editable. Use "Add Earning" for anything extra.</p>
             </div>
           </div>
-          <table class="opw-table">
-            <thead><tr><th>Component</th><th class="text-end">Amount</th></tr></thead>
+          <table class="opw-table opw-table-editable">
+            <thead><tr><th>Component</th><th class="text-end">Amount</th><th/></tr></thead>
             <tbody>
               <tr t-foreach="earningLines" t-as="line" t-key="line.id">
                 <td t-esc="line.name"/>
-                <td class="text-end" t-esc="formatMoney(line.total)"/>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="line.total"
+                         t-on-change="(ev) => this.onAutoLineChange(line, ev)"/>
+                </td>
+                <td/>
+              </tr>
+              <tr t-foreach="extraEarnings" t-as="extra" t-key="extra.id">
+                <td>
+                  <input type="text" class="opw-inline-input" placeholder="Earning name"
+                         t-att-value="extra.name"
+                         t-on-change="(ev) => this.onExtraLineNameChange(extra, ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="extra.amount"
+                         t-on-change="(ev) => this.onExtraLineAmountChange(extra, ev)"/>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="opw-btn-icon" title="Remove line" t-on-click="() => this.removeExtraLine(extra)">
+                    <i class="fa fa-trash-o"/>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
+          <button type="button" class="opw-btn-ghost opw-add-line-btn" t-on-click="() => this.addExtraLine('earning')">
+            <i class="fa fa-plus"/> Add Earning
+          </button>
           <div class="opw-input-row" t-if="inputByCode('BONUS')">
             <label>Bonus if any</label>
             <input type="number" step="0.01"
@@ -403,7 +421,7 @@
             <div class="opw-step-header-icon"><i class="fa fa-arrow-up"/></div>
             <div>
               <h3 class="opw-step-title">Earnings — <t t-esc="bulkCreatedResults.length"/> Employees</h3>
-              <p class="opw-step-sub">Basic/HRA/CCA/Medical/Project Allowance are auto-computed per employee. Bonus below applies the same amount to everyone.</p>
+              <p class="opw-step-sub">Basic/CCA+HRA/Medical/Project Allowance are auto-computed per employee. Bonus below applies the same amount to everyone.</p>
             </div>
           </div>
           <table class="opw-table opw-bulk-component-table">
@@ -430,14 +448,14 @@
 
           <h4 class="opw-subsection-title">Per-Employee Breakdown</h4>
           <p class="opw-subsection-note">
-            Basic/HRA/CCA/Medical/Project Allowance are auto-computed from each employee's own Compensation Rules
+            Basic/CCA+HRA/Medical/Project Allowance are auto-computed from each employee's own Compensation Rules
             (Employee → Payroll tab) - edit them there to change the formula. Bonus is a manual entry per payslip, editable below.
           </p>
           <table class="opw-table opw-table-scroll opw-per-employee-table">
             <thead>
               <tr>
-                <th>Employee</th><th class="text-end">Basic</th><th class="text-end">HRA</th>
-                <th class="text-end">CCA</th><th class="text-end">Medical</th>
+                <th>Employee</th><th class="text-end">Basic</th><th class="text-end">CCA + HRA</th>
+                <th class="text-end">Medical</th>
                 <th class="text-end">Project Allw.</th><th class="text-end">Bonus</th>
                 <th class="text-end">Gross</th>
               </tr>
@@ -449,8 +467,7 @@
                   <i t-if="state.bulkRowBusy[row.slip_id]" class="fa fa-spinner fa-spin ms-1"/>
                 </td>
                 <td class="text-end" t-esc="formatMoney(row.basic)"/>
-                <td class="text-end" t-esc="formatMoney(row.hra)"/>
-                <td class="text-end" t-esc="formatMoney(row.cca)"/>
+                <td class="text-end" t-esc="formatMoney(row.hraCca)"/>
                 <td class="text-end" t-esc="formatMoney(row.medical)"/>
                 <td class="text-end" t-esc="formatMoney(row.projalw)"/>
                 <td class="text-end">
@@ -460,7 +477,7 @@
                 </td>
                 <td class="text-end"><strong t-esc="formatMoney(row.gross)"/></td>
               </tr>
-              <tr t-if="!bulkEarningsPerEmployee.length"><td colspan="8" class="opw-empty">No employees to show.</td></tr>
+              <tr t-if="!bulkEarningsPerEmployee.length"><td colspan="7" class="opw-empty">No employees to show.</td></tr>
             </tbody>
           </table>
         </div>
@@ -471,18 +488,43 @@
             <div class="opw-step-header-icon"><i class="fa fa-arrow-down"/></div>
             <div>
               <h3 class="opw-step-title">Deductions</h3>
-              <p class="opw-step-sub">EPF and LWF (employee share) are auto-computed. TDS and any additional deduction are entered per payslip since they vary.</p>
+              <p class="opw-step-sub">EPF and LWF (employee share) are pre-filled but every amount here is editable. Use "Add Deduction" for anything extra.</p>
             </div>
           </div>
-          <table class="opw-table">
-            <thead><tr><th>Component</th><th class="text-end">Amount</th></tr></thead>
+          <table class="opw-table opw-table-editable">
+            <thead><tr><th>Component</th><th class="text-end">Amount</th><th/></tr></thead>
             <tbody>
               <tr t-foreach="deductionLines" t-as="line" t-key="line.id">
                 <td t-esc="line.name"/>
-                <td class="text-end" t-esc="formatMoney(-line.total)"/>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="-line.total"
+                         t-on-change="(ev) => this.onAutoLineChange(line, ev)"/>
+                </td>
+                <td/>
+              </tr>
+              <tr t-foreach="extraDeductions" t-as="extra" t-key="extra.id">
+                <td>
+                  <input type="text" class="opw-inline-input" placeholder="Deduction name"
+                         t-att-value="extra.name"
+                         t-on-change="(ev) => this.onExtraLineNameChange(extra, ev)"/>
+                </td>
+                <td class="text-end">
+                  <input type="number" step="0.01" class="opw-inline-input text-end"
+                         t-att-value="extra.amount"
+                         t-on-change="(ev) => this.onExtraLineAmountChange(extra, ev)"/>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="opw-btn-icon" title="Remove line" t-on-click="() => this.removeExtraLine(extra)">
+                    <i class="fa fa-trash-o"/>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
+          <button type="button" class="opw-btn-ghost opw-add-line-btn" t-on-click="() => this.addExtraLine('deduction')">
+            <i class="fa fa-plus"/> Add Deduction
+          </button>
           <div class="opw-input-row" t-if="inputByCode('TDS')">
             <label>TDS if any</label>
             <input type="number" step="0.01"

@@ -4,7 +4,6 @@ import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
-import { loadPDFJSAssets } from "@web/core/utils/pdfjs";
 
 const STEPS = [
     { key: "employee", label: _t("Employee & Period"), icon: "fa-user" },
@@ -14,7 +13,7 @@ const STEPS = [
     { key: "review", label: _t("Review"), icon: "fa-check" },
 ];
 
-const EARNING_CODES = ["BASIC", "HRA", "CCA", "MEDICAL", "PROJALW"];
+const EARNING_CODES = ["BASIC", "HRACCA", "MEDICAL", "PROJALW"];
 const DEDUCTION_CODES = ["EPF_EE", "LWF_EE"];
 
 function toDateStr(d) {
@@ -68,9 +67,6 @@ export class HrPayslipCreateWizard extends Component {
             error: "",
             success: false,
             netPay: 0,
-            previewPages: [],
-            previewLoading: false,
-            previewError: "",
             // Bulk mode (2+ employees selected)
             bulkRunId: false,
             bulkResults: [],
@@ -219,6 +215,18 @@ export class HrPayslipCreateWizard extends Component {
 
     inputByCode(code) {
         return this.state.inputs.find((i) => i.code === code);
+    }
+
+    // Ad-hoc earning/deduction lines added via "+ Add Earning"/"+ Add
+    // Deduction" - each is its own hr.payslip.input (unique EXTRAEARN_*/
+    // EXTRADED_* code) so it can be individually named/edited/removed;
+    // a single "Other Earnings"/"Other Deductions" salary rule sums
+    // them into the payslip total (see hr_payroll_structure_india_regular.xml).
+    get extraEarnings() {
+        return this.state.inputs.filter((i) => i.code && i.code.startsWith("EXTRAEARN"));
+    }
+    get extraDeductions() {
+        return this.state.inputs.filter((i) => i.code && i.code.startsWith("EXTRADED"));
     }
 
     formatMoney(amount) {
@@ -563,8 +571,7 @@ export class HrPayslipCreateWizard extends Component {
             slip_id: r.slip_id,
             employee_name: r.employee_name,
             basic: this._lineTotalFor(r.slip_id, "BASIC"),
-            hra: this._lineTotalFor(r.slip_id, "HRA"),
-            cca: this._lineTotalFor(r.slip_id, "CCA"),
+            hraCca: this._lineTotalFor(r.slip_id, "HRACCA"),
             medical: this._lineTotalFor(r.slip_id, "MEDICAL"),
             projalw: this._lineTotalFor(r.slip_id, "PROJALW"),
             bonus: this._lineTotalFor(r.slip_id, "BONUSAMT"),
@@ -811,6 +818,117 @@ export class HrPayslipCreateWizard extends Component {
         );
     }
 
+    // Editing an auto-computed Earnings/Deductions row (Basic, CCA+HRA,
+    // Medical, Project Allowance, EPF, LWF): stored as a "<CODE>_ADJ"
+    // hr.payslip.input. The salary rule for that code uses the override
+    // amount instead of its formula whenever that input is present (see
+    // hr_payroll_structure_india_regular.xml), so this never touches the
+    // rule/formula itself - it's a per-payslip override only.
+    async onAutoLineChange(line, ev) {
+        const adjCode = `${line.code}_ADJ`;
+        const raw = parseFloat(ev.target.value) || 0;
+        this.state.loadingStep = true;
+        try {
+            const existing = this.state.inputs.find((i) => i.code === adjCode);
+            if (existing) {
+                existing.amount = raw;
+                await this.orm.write("hr.payslip.input", [existing.id], { amount: raw });
+            } else {
+                const [slip] = await this.orm.read("hr.payslip", [this.state.slipId], ["contract_id"]);
+                if (!slip.contract_id) {
+                    this.state.error = _t("No contract found for this employee/period - cannot override this line.");
+                    return;
+                }
+                const [id] = await this.orm.create("hr.payslip.input", [{
+                    payslip_id: this.state.slipId,
+                    contract_id: slip.contract_id[0],
+                    name: `${line.name} (${_t("Manual Override")})`,
+                    code: adjCode,
+                    amount: raw,
+                    date_from: this.state.dateFrom,
+                    date_to: this.state.dateTo,
+                }]);
+                this.state.inputs.push({
+                    id, code: adjCode, amount: raw,
+                    name: `${line.name} (${_t("Manual Override")})`,
+                });
+            }
+            await this._recomputeAndRefreshLines();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    // "+ Add Earning" / "+ Add Deduction": create a new named, freely
+    // editable extra line (see extraEarnings/extraDeductions above).
+    async addExtraLine(kind) {
+        const prefix = kind === "earning" ? "EXTRAEARN" : "EXTRADED";
+        const label = kind === "earning" ? _t("New Earning") : _t("New Deduction");
+        this.state.loadingStep = true;
+        try {
+            const [slip] = await this.orm.read("hr.payslip", [this.state.slipId], ["contract_id"]);
+            if (!slip.contract_id) {
+                this.state.error = _t("No contract found for this employee/period - cannot add a line.");
+                return;
+            }
+            const code = `${prefix}_${Date.now()}`;
+            const [id] = await this.orm.create("hr.payslip.input", [{
+                payslip_id: this.state.slipId,
+                contract_id: slip.contract_id[0],
+                name: label,
+                code,
+                amount: 0,
+                date_from: this.state.dateFrom,
+                date_to: this.state.dateTo,
+            }]);
+            this.state.inputs.push({ id, name: label, code, amount: 0 });
+            await this._recomputeAndRefreshLines();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    async removeExtraLine(input) {
+        this.state.loadingStep = true;
+        try {
+            await this.orm.unlink("hr.payslip.input", [input.id]);
+            this.state.inputs = this.state.inputs.filter((i) => i.id !== input.id);
+            await this._recomputeAndRefreshLines();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    async onExtraLineNameChange(input, ev) {
+        const name = ev.target.value;
+        input.name = name;
+        try {
+            await this.orm.write("hr.payslip.input", [input.id], { name });
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
+
+    async onExtraLineAmountChange(input, ev) {
+        const amount = parseFloat(ev.target.value) || 0;
+        input.amount = amount;
+        this.state.loadingStep = true;
+        try {
+            await this.orm.write("hr.payslip.input", [input.id], { amount });
+            await this._recomputeAndRefreshLines();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
     _errorMessage(e) {
         return (e && e.data && e.data.message) || (e && e.message) || _t("Something went wrong.");
     }
@@ -823,7 +941,6 @@ export class HrPayslipCreateWizard extends Component {
             await this._refreshAll();
             this.state.netPay = this.netTotal;
             this.state.success = true;
-            this.loadPreview();
         } catch (e) {
             this.state.error = this._errorMessage(e);
         } finally {
@@ -858,39 +975,6 @@ export class HrPayslipCreateWizard extends Component {
         return this.state.slipId
             ? `/report/pdf/hr_payroll_community.report_payslip/${this.state.slipId}`
             : "";
-    }
-
-    // Render the payslip PDF with PDF.js instead of an <iframe src="...">:
-    // relying on the browser's native PDF plugin to display a framed PDF
-    // is inconsistent (blank in some browsers/contexts) - PDF.js renders
-    // to a canvas image, which always works.
-    async loadPreview() {
-        if (!this.state.slipId || this.state.previewLoading) return;
-        this.state.previewLoading = true;
-        this.state.previewError = "";
-        try {
-            const res = await fetch(this.previewUrl);
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            const bytes = new Uint8Array(await res.arrayBuffer());
-            await loadPDFJSAssets();
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc = "/web/static/lib/pdfjs/build/pdf.worker.js";
-            const pdf = await window.pdfjsLib.getDocument({ data: bytes }).promise;
-            const pages = [];
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale: 1.3 });
-                const canvas = document.createElement("canvas");
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
-                pages.push({ url: canvas.toDataURL("image/png") });
-            }
-            this.state.previewPages = pages;
-        } catch (e) {
-            this.state.previewError = _t("Could not render the preview - use Print / Download instead.");
-        } finally {
-            this.state.previewLoading = false;
-        }
     }
 
     viewPayslip() {

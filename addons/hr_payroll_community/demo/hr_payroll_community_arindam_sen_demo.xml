@@ -14,14 +14,13 @@
             <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
             <field name="contract_date_start" eval="'2026-01-01'"/>
             <field name="wage">181194.49</field>
-            <field name="ctc_basic_percentage">50.0</field>
-            <field name="hra_percentage_of_basic">40.0</field>
-            <field name="cca_percentage_of_basic">20.0</field>
+            <field name="basic_amount">90597.25</field>
+            <field name="hra_cca_amount">54358.35</field>
             <field name="medical_allowance">1250.0</field>
-            <field name="epf_wage_ceiling">15000.0</field>
-            <field name="epf_employee_rate">12.0</field>
-            <field name="epf_employer_rate">12.0</field>
-            <field name="epf_admin_rate">1.0</field>
+            <field name="project_allowance_amount">34988.90</field>
+            <field name="epf_employee_amount">1800.0</field>
+            <field name="epf_employer_amount">1800.0</field>
+            <field name="epf_admin_amount">528.0</field>
             <field name="struct_id" ref="hr_payroll_community.structure_in_regular"/>
             <field name="schedule_pay">monthly</field>
         </record>

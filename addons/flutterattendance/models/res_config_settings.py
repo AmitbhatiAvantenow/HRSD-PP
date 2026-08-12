@@ -1,4 +1,4 @@
-from odoo import fields, models
+from odoo import _, fields, models
 
 
 class ResConfigSettings(models.TransientModel):
@@ -35,3 +35,38 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='flutterattendance.face_max_attempts',
         default=5, help="After this many failed match attempts, check-in/out escalates to HR approval.",
     )
+
+    flutterattendance_status_auto_enabled = fields.Boolean(
+        string='Automatically Calculate Attendance Status',
+        config_parameter='flutterattendance.status_auto_enabled',
+        default=True,
+        help="When off, every attendance record is simply set to the Default Status below "
+             "(e.g. always 'Present'), ignoring the Status Rules entirely.",
+    )
+    flutterattendance_status_default_code = fields.Char(
+        string='Default Status',
+        config_parameter='flutterattendance.status_default_code',
+        default='present',
+        help="Used when auto-calculation is off above, and as the fallback if a record matches "
+             "none of the active Status Rules. Must match a Status Rule's Code, e.g. 'present'.",
+    )
+
+    def action_recompute_attendance_status(self):
+        """Re-run status calculation on every existing Mobile Attendance record
+        using the Status Rules / toggle as they stand right now. Not automatic:
+        new check-ins/check-outs always pick up the latest rules on their own
+        (Status is computed at save time), so this is only needed if an admin
+        also wants past records to reflect a rule change they just made."""
+        self.ensure_one()
+        records = self.env['flutterattendance.attendance'].sudo().search([])
+        records._compute_summary()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Attendance Status Updated'),
+                'message': _('%s record(s) recalculated using the current Status Rules.') % len(records),
+                'type': 'success',
+                'sticky': False,
+            },
+        }

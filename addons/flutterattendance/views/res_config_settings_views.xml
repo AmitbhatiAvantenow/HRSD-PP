@@ -24,6 +24,31 @@
                     <field name="flutterattendance_face_similarity_threshold"/>
                     <field name="flutterattendance_face_max_attempts"/>
                 </setting>
+                <setting id="flutterattendance_status_setting" string="Attendance Status"
+                         help="Fine-tune (or add) the Present/Late/Half Day rules under Mobile Attendance &gt;
+                               Settings &gt; Status Rules.">
+                    <div class="d-flex">
+                        <field name="flutterattendance_status_auto_enabled" class="ml16"/>
+                        <label for="flutterattendance_status_auto_enabled" class="o_light_label"/>
+                    </div>
+                    <div class="content-group">
+                        <field name="flutterattendance_status_default_code"
+                               placeholder="present"
+                               string="Default / Fallback Status Code"/>
+                    </div>
+                    <div class="content-group">
+                        <button name="%(action_flutterattendance_status_rule)d" type="action"
+                                string="Configure Status Rules &#8594;" class="btn-link"/>
+                    </div>
+                    <div class="content-group mt8">
+                        <button name="action_recompute_attendance_status" type="object"
+                                string="Update Existing Records' Status Now" class="btn-secondary"
+                                confirm="This recalculates Status on every existing Mobile Attendance record
+                                         using the current Status Rules. New check-ins/check-outs already pick
+                                         up rule changes automatically - only click this if you also want past
+                                         records updated to match."/>
+                    </div>
+                </setting>
             </xpath>
         </field>
     </record>

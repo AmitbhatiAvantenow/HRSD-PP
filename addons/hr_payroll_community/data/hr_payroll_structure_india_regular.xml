@@ -2,6 +2,10 @@
 <odoo>
     <data>
         <!-- New categories used by the India: Regular Pay structure -->
+        <!-- No longer used by any active rule (CCA and HRA were merged
+             into hr_rule_in_hra below), but kept - not deleted - because
+             historical hr.payslip.line rows from before the merge still
+             hold a foreign key to it. -->
         <record id="CCA" model="hr.salary.rule.category">
             <field name="name">City Compensatory Allowance</field>
             <field name="code">CCA</field>
@@ -26,7 +30,9 @@
             <field name="code">CTC</field>
         </record>
 
-        <!-- Basic: % of Gross wage, pro-rated by days actually paid
+        <!-- Basic: a plain amount the admin types on the employee's
+             Payroll tab (no more Wage/percentage math behind it - that
+             turned out fragile), pro-rated by days actually paid
              (timesheet attendance + paid leave) over scheduled working
              days in the period. -->
         <record id="hr_rule_in_basic" model="hr.salary.rule">
@@ -39,44 +45,67 @@
             <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
 PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
 ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
-result = contract.wage * (contract.ctc_basic_percentage / 100.0) * ratio</field>
-            <field name="note">Basic Salary = Gross Wage x Basic % x (Paid Hours / Working Hours). Pro-rated by hours, not days, so editing the Hours column on a worked-days line actually changes pay.</field>
+result = inputs.dict['BASIC_ADJ'].amount if 'BASIC_ADJ' in inputs.dict else contract.basic_amount * ratio</field>
+            <field name="note">Basic Salary x (Paid Hours / Working Hours). Pro-rated by hours, not days, so editing the Hours column on a worked-days line actually changes pay. Manually edited on a payslip (New Payslip wizard) via the BASIC_ADJ input, which takes over from the formula whenever it's present.</field>
         </record>
 
-        <!-- Hidden helper: EPF is computed on Basic capped at the
-             statutory wage ceiling (pro-rated the same way as Basic). -->
+        <!-- Retired: was a hidden helper capping EPF contributions at a
+             statutory wage ceiling for rate-based EPF computation. EPF
+             amounts are now plain entered amounts (see hr_rule_in_epf_ee
+             etc. below), so there's no rate/ceiling left to apply this
+             to. Kept, not deleted, in case any historical payslip.line
+             still holds a foreign key to it - not referenced in
+             rule_ids below, so it never fires on new payslips. -->
         <record id="hr_rule_in_epf_base" model="hr.salary.rule">
             <field name="name">EPF Contribution Base (hidden)</field>
             <field name="sequence" eval="5"/>
             <field name="code">EPF_BASE</field>
             <field name="category_id" ref="INFO"/>
             <field name="appears_on_payslip" eval="False"/>
+            <field name="active" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = 0.0</field>
+        </record>
+
+        <!-- Formerly two separate rules (House Rent Allowance / City
+             Compensatory Allowance). Merged into this one rule, keeping
+             the ORIGINAL "hr_rule_in_hra" external id and repurposing
+             its fields in place rather than deleting/recreating it -
+             historical hr.payslip.line rows hold a foreign key to this
+             record's database id, and unlinking it during a module
+             upgrade would fail with a constraint violation. Payslips
+             computed before the merge keep their own stored "House Rent
+             Allowance" name/code snapshot regardless of this rename;
+             only newly computed payslips see the merged name/formula.
+             hr_rule_in_cca (below in this same concern) is retired the
+             same way - kept, not deleted, and no longer in rule_ids. -->
+        <record id="hr_rule_in_hra" model="hr.salary.rule">
+            <field name="name">City Compensatory Allowance + HRA</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">HRACCA</field>
+            <field name="category_id" ref="hr_payroll_community.HRA"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
 PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
 ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
-result = min(categories.BASIC, contract.epf_wage_ceiling * ratio)</field>
+result = inputs.dict['HRACCA_ADJ'].amount if 'HRACCA_ADJ' in inputs.dict else contract.hra_cca_amount * ratio</field>
         </record>
 
-        <record id="hr_rule_in_hra" model="hr.salary.rule">
-            <field name="name">House Rent Allowance</field>
-            <field name="sequence" eval="10"/>
-            <field name="code">HRA</field>
-            <field name="category_id" ref="hr_payroll_community.HRA"/>
-            <field name="condition_select">none</field>
-            <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = categories.BASIC * (contract.hra_percentage_of_basic / 100.0)</field>
-        </record>
-
+        <!-- Retired (folded into hr_rule_in_hra above) - kept only so
+             historical payslip lines from before the merge keep a valid
+             foreign key. Not referenced in rule_ids below, so it never
+             fires on new payslips. -->
         <record id="hr_rule_in_cca" model="hr.salary.rule">
             <field name="name">City Compensatory Allowance</field>
             <field name="sequence" eval="11"/>
             <field name="code">CCA</field>
             <field name="category_id" ref="CCA"/>
+            <field name="active" eval="False"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = categories.BASIC * (contract.cca_percentage_of_basic / 100.0)</field>
+            <field name="amount_python_compute">result = 0.0</field>
         </record>
 
         <record id="hr_rule_in_medical" model="hr.salary.rule">
@@ -89,7 +118,7 @@ result = min(categories.BASIC, contract.epf_wage_ceiling * ratio)</field>
             <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
 PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
 ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
-result = contract.medical_allowance * ratio</field>
+result = inputs.dict['MEDICAL_ADJ'].amount if 'MEDICAL_ADJ' in inputs.dict else contract.medical_allowance * ratio</field>
         </record>
 
         <record id="hr_rule_in_projalw" model="hr.salary.rule">
@@ -102,8 +131,7 @@ result = contract.medical_allowance * ratio</field>
             <field name="amount_python_compute">WORKING_HOURS = worked_days.dict['WORKING_DAYS'].number_of_hours if 'WORKING_DAYS' in worked_days.dict else 0.0
 PAID_HOURS = worked_days.dict['PAID_DAYS'].number_of_hours if 'PAID_DAYS' in worked_days.dict else 0.0
 ratio = (PAID_HOURS / WORKING_HOURS) if WORKING_HOURS else 0.0
-result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
-            <field name="note">Balancing figure: Gross target (pro-rated) minus Basic and every other allowance already computed.</field>
+result = inputs.dict['PROJALW_ADJ'].amount if 'PROJALW_ADJ' in inputs.dict else contract.project_allowance_amount * ratio</field>
         </record>
 
         <record id="hr_rule_in_bonus" model="hr.salary.rule">
@@ -121,6 +149,24 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="input_id" ref="hr_rule_in_bonus"/>
         </record>
 
+        <!-- Ad-hoc extra earning lines added from the New Payslip wizard
+             ("+ Add Earning"). Each such line is stored as its own
+             hr.payslip.input with a unique EXTRAEARN_* code (so the
+             wizard can show/edit/remove them individually); this single
+             rule sums them all into one payslip line that folds into
+             Gross/CTC like any other allowance. Only appears on the
+             payslip when at least one such line actually exists. -->
+        <record id="hr_rule_in_other_earnings" model="hr.salary.rule">
+            <field name="name">Other Earnings</field>
+            <field name="sequence" eval="17"/>
+            <field name="code">OTHERERN</field>
+            <field name="category_id" ref="hr_payroll_community.ALW"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = any(code.startswith('EXTRAEARN') for code in inputs.dict)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = sum(inputs.dict[code].amount for code in inputs.dict if code.startswith('EXTRAEARN'))</field>
+        </record>
+
         <!-- Statutory / manual-input deductions -->
         <record id="hr_rule_in_epf_ee" model="hr.salary.rule">
             <field name="name">EPF Employee Deduction</field>
@@ -129,7 +175,7 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="category_id" ref="hr_payroll_community.DED"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = -round(EPF_BASE * (contract.epf_employee_rate / 100.0), 2)</field>
+            <field name="amount_python_compute">result = -inputs.dict['EPF_EE_ADJ'].amount if 'EPF_EE_ADJ' in inputs.dict else -contract.epf_employee_amount</field>
         </record>
 
         <record id="hr_rule_in_lwf_ee" model="hr.salary.rule">
@@ -139,7 +185,7 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="category_id" ref="hr_payroll_community.DED"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = -contract.lwf_employee</field>
+            <field name="amount_python_compute">result = -inputs.dict['LWF_EE_ADJ'].amount if 'LWF_EE_ADJ' in inputs.dict else -contract.lwf_employee</field>
         </record>
 
         <record id="hr_rule_in_tds" model="hr.salary.rule">
@@ -172,6 +218,19 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="input_id" ref="hr_rule_in_addldeduction"/>
         </record>
 
+        <!-- Ad-hoc extra deduction lines added from the New Payslip wizard
+             ("+ Add Deduction"), same mechanism as Other Earnings above. -->
+        <record id="hr_rule_in_other_deductions" model="hr.salary.rule">
+            <field name="name">Other Deductions</field>
+            <field name="sequence" eval="114"/>
+            <field name="code">OTHERDED</field>
+            <field name="category_id" ref="hr_payroll_community.DED"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = any(code.startswith('EXTRADED') for code in inputs.dict)</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = -sum(inputs.dict[code].amount for code in inputs.dict if code.startswith('EXTRADED'))</field>
+        </record>
+
         <!-- Employer/company contributions: part of CTC, not deducted
              from the employee's Net pay. -->
         <record id="hr_rule_in_epf_er" model="hr.salary.rule">
@@ -181,7 +240,7 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="category_id" ref="hr_payroll_community.COMP"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = round(EPF_BASE * (contract.epf_employer_rate / 100.0), 2)</field>
+            <field name="amount_python_compute">result = contract.epf_employer_amount</field>
         </record>
 
         <record id="hr_rule_in_epf_admin" model="hr.salary.rule">
@@ -191,35 +250,38 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
             <field name="category_id" ref="hr_payroll_community.COMP"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = round(EPF_BASE * (contract.epf_admin_rate / 100.0), 2)</field>
+            <field name="amount_python_compute">result = contract.epf_admin_amount</field>
         </record>
 
+        <!-- Retired: the reference salary sheet this structure now
+             matches doesn't include an employer-side LWF or a Gratuity
+             accrual line in CTC at all (CTC = Total Salary + Company
+             EPF Share + EPF Exp, full stop). Both rules, and the
+             contract fields they read, are gone; these two records are
+             kept (not deleted) only for the same historical-foreign-key
+             reason as hr_rule_in_cca above, and are no longer in
+             rule_ids so they never fire on new payslips. -->
         <record id="hr_rule_in_lwf_er" model="hr.salary.rule">
             <field name="name">Labour Welfare Fund (Employer)</field>
             <field name="sequence" eval="122"/>
             <field name="code">LWF_ER</field>
             <field name="category_id" ref="hr_payroll_community.COMP"/>
+            <field name="active" eval="False"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = contract.lwf_employer</field>
+            <field name="amount_python_compute">result = 0.0</field>
         </record>
 
-        <!-- Hidden: gratuity is a real employer cost that accrues monthly
-             even though it's only paid out at exit, so standard Indian
-             CTC definitions include it. Category COMP so it folds into
-             Total CTC automatically via categories.COMP below, matching
-             the employee's "Gratuity per Month" figure on their Payroll
-             tab (same formula: Basic x gratuity_rate). Not shown on the
-             payslip itself - purely a CTC contributor. -->
         <record id="hr_rule_in_gratuity" model="hr.salary.rule">
             <field name="name">Gratuity Accrual (hidden)</field>
             <field name="sequence" eval="123"/>
             <field name="code">GRATUITY</field>
             <field name="category_id" ref="hr_payroll_community.COMP"/>
             <field name="appears_on_payslip" eval="False"/>
+            <field name="active" eval="False"/>
             <field name="condition_select">none</field>
             <field name="amount_select">code</field>
-            <field name="amount_python_compute">result = categories.BASIC * (contract.gratuity_rate / 100.0)</field>
+            <field name="amount_python_compute">result = 0.0</field>
         </record>
 
         <!-- Total CTC = everything earned (incl. bonus) + employer's EPF,
@@ -249,24 +311,22 @@ result = (contract.wage * ratio) - categories.BASIC - categories.ALW</field>
                  in alongside these, double-firing same-code rules and
                  corrupting the category totals used for pro-ration. -->
             <field name="parent_id" eval="False"/>
-            <field name="note">Generic, configurable Indian payroll structure: Basic/HRA/CCA/Medical/Project Allowance auto pro-rated from Timesheet Pro attendance and Time Off, with statutory EPF (employee + employer + admin) and Labour Welfare Fund contributions.</field>
+            <field name="note">Generic, configurable Indian payroll structure: Basic/CCA+HRA/Medical/Project Allowance auto pro-rated from Timesheet Pro attendance and Time Off, with statutory EPF (employee + employer + admin) and Labour Welfare Fund contributions.</field>
             <field eval="[(6, 0, [
                 ref('hr_rule_in_basic'),
-                ref('hr_rule_in_epf_base'),
                 ref('hr_rule_in_hra'),
-                ref('hr_rule_in_cca'),
                 ref('hr_rule_in_medical'),
                 ref('hr_rule_in_projalw'),
                 ref('hr_rule_in_bonus'),
+                ref('hr_rule_in_other_earnings'),
                 ref('hr_payroll_community.hr_rule_taxable'),
                 ref('hr_rule_in_epf_ee'),
                 ref('hr_rule_in_lwf_ee'),
                 ref('hr_rule_in_tds'),
                 ref('hr_rule_in_addldeduction'),
+                ref('hr_rule_in_other_deductions'),
                 ref('hr_rule_in_epf_er'),
                 ref('hr_rule_in_epf_admin'),
-                ref('hr_rule_in_lwf_er'),
-                ref('hr_rule_in_gratuity'),
                 ref('hr_payroll_community.hr_rule_net'),
                 ref('hr_rule_in_ctc'),
             ])]" name="rule_ids"/>

@@ -45,6 +45,13 @@ class HrEmployee(models.Model):
     lwf_number = fields.Char(string='LWF Number',
                              help="Labour Welfare Fund registration "
                                   "number.")
+    employee_sid = fields.Char(string='Employee SID',
+                               help="Employee Staff/Service ID shown on "
+                                    "the payslip.")
+    pay_mode = fields.Char(string='Pay Mode',
+                           help="How this employee is paid, e.g. "
+                                "'Online Transfer', 'Cheque' (shown on "
+                                "the payslip).")
 
     def _compute_payslip_count(self):
         """Function for count Payslips"""

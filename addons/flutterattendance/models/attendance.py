@@ -22,11 +22,11 @@ class FlutterAttendance(models.Model):
     distance_km = fields.Float(compute='_compute_summary', store=True, string='Distance (km)', digits=(10, 3))
     late_minutes = fields.Float(compute='_compute_summary', store=True)
     overtime_hours = fields.Float(compute='_compute_summary', store=True)
-    status = fields.Selection([
-        ('present', 'Present'),
-        ('late', 'Late'),
-        ('half_day', 'Half Day'),
-    ], compute='_compute_summary', store=True)
+    status = fields.Selection(
+        selection='_get_status_selection', compute='_compute_summary', store=True,
+        help="Driven by Mobile Attendance > Settings > Status Rules — fully configurable, "
+             "including adding brand new statuses beyond Present/Late/Half Day.",
+    )
     remarks = fields.Text(string='Work Comment', help="Employee's work summary, collected right after check-out.")
 
     # Check-in
@@ -215,9 +215,31 @@ class FlutterAttendance(models.Model):
         else:
             Line.create({**line_vals, 'sheet_id': sheet.id, 'date': attendance_date})
 
+    def _get_status_selection(self):
+        rules = self.env['flutterattendance.status.rule'].with_context(active_test=False).sudo().search(
+            [], order='sequence, id')
+        selection = list(dict.fromkeys((rule.code, rule.name) for rule in rules))
+        default_code = self.env['ir.config_parameter'].sudo().get_param(
+            'flutterattendance.status_default_code', 'present')
+        if default_code not in dict(selection):
+            selection.append((default_code, default_code.replace('_', ' ').title()))
+        if not selection:
+            selection = [('present', 'Present'), ('late', 'Late'), ('half_day', 'Half Day')]
+        return selection
+
     @api.depends('check_in_time', 'check_out_time',
                  'checkin_latitude', 'checkin_longitude', 'checkout_latitude', 'checkout_longitude')
     def _compute_summary(self):
+        ICP = self.env['ir.config_parameter'].sudo()
+        # ir.config_parameter.set_param() deletes the row entirely for a
+        # False boolean rather than storing the string 'False' - so a missing
+        # key must read as disabled, not as "default enabled", or an admin's
+        # explicit uncheck would be indistinguishable from never-configured.
+        auto_enabled = ICP.get_param('flutterattendance.status_auto_enabled') == 'True'
+        default_code = ICP.get_param('flutterattendance.status_default_code', 'present')
+        rules = self.env['flutterattendance.status.rule'].sudo().search([], order='sequence, id') \
+            if auto_enabled else self.env['flutterattendance.status.rule']
+
         for rec in self:
             shift = rec.employee_id.attendance_shift_id
 
@@ -236,13 +258,31 @@ class FlutterAttendance(models.Model):
             else:
                 rec.overtime_hours = 0.0
 
-            half_day_hours = shift.half_day_hours if shift else 4.0
-            if rec.check_out_time and rec.working_hours < half_day_hours:
-                rec.status = 'half_day'
-            elif rec.late_minutes > 0:
-                rec.status = 'late'
-            else:
-                rec.status = 'present'
+            rec.status = rec._match_status_rule(rules, shift) if auto_enabled else default_code
+
+    def _match_status_rule(self, rules, shift):
+        """First rule (in sequence order) whose condition matches this record's
+        worked hours / lateness wins; falls back to the configured default code
+        if none match, so a bad rule set never leaves Status empty."""
+        self.ensure_one()
+        for rule in rules:
+            if rule.require_checkout and not self.check_out_time:
+                continue
+
+            if rule.condition == 'shift_half_day':
+                half_day_hours = shift.half_day_hours if shift else 4.0
+                if self.check_out_time and self.working_hours < half_day_hours:
+                    return rule.code
+            elif rule.condition == 'hours_range':
+                if self.working_hours >= rule.min_hours and (rule.max_hours <= 0 or self.working_hours < rule.max_hours):
+                    return rule.code
+            elif rule.condition == 'late':
+                if self.late_minutes > 0:
+                    return rule.code
+            elif rule.condition == 'always':
+                return rule.code
+
+        return self.env['ir.config_parameter'].sudo().get_param('flutterattendance.status_default_code', 'present')
 
     def _haversine_km(self):
         self.ensure_one()

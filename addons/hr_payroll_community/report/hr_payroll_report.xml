@@ -18,6 +18,26 @@
         <field name="report_file">hr_payroll_community.report_payslipdetails</field>
         <field name="print_report_name">('Payslip Details - %s' % (object.employee_id.name))</field>
     </record>
+    <!-- The company's default paperformat reserves a huge 52mm top
+         margin AND another 52mm of header spacing (104mm total, over 4
+         inches) before body content starts - fine for a letterhead, but
+         it leaves a big empty gap above "Salary Slip <Month>" on this
+         report. This report doesn't use wkhtmltopdf's separate .header
+         document at all (see report_payslip_templates.xml), so a
+         normal, modest top margin is all that's needed here. -->
+    <record id="paperformat_payslip" model="report.paperformat">
+        <field name="name">Payslip</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
     <!--Report action for the main Payslip (the modern payslip layout) -->
     <record id="action_report_payslip" model="ir.actions.report">
         <field name="name">Payslip</field>
@@ -28,5 +48,6 @@
         <field name="report_name">hr_payroll_community.report_payslip</field>
         <field name="report_file">hr_payroll_community.report_payslip</field>
         <field name="print_report_name">('Salary Slip - %s' % (object.employee_id.name))</field>
+        <field name="paperformat_id" ref="paperformat_payslip"/>
     </record>
 </odoo>

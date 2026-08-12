@@ -270,8 +270,11 @@ class FlutterAttendanceController(http.Controller):
                     if not parsed:
                         return _error(f'Invalid datetime for {field_name}', 400)
                     vals[field_name] = parsed
-            if data.get('status') in ('present', 'late', 'half_day'):
-                vals['status'] = data['status']
+            if data.get('status'):
+                valid_codes = request.env['flutterattendance.status.rule'].sudo().with_context(
+                    active_test=False).search([]).mapped('code')
+                if data['status'] in valid_codes:
+                    vals['status'] = data['status']
 
         if not vals:
             return _error('No editable fields provided', 400)

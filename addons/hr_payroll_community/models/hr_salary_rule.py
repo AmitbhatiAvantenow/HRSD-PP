@@ -246,8 +246,7 @@ class HrSalaryRule(models.Model):
                         self.name, self.code))
         else:  # python code
             try:
-                safe_eval(self.condition_python, localdict, mode='exec',
-                          nocopy=True)
+                safe_eval(self.condition_python, localdict, mode='exec')
                 return 'result' in localdict and localdict['result'] or False
             except:
                 raise UserError(

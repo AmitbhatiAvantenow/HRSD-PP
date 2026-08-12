@@ -45,4 +45,10 @@
               parent="menu_flutterattendance_settings"
               action="action_flutterattendance_location"
               sequence="20"/>
+
+    <menuitem id="menu_flutterattendance_status_rule"
+              name="Status Rules"
+              parent="menu_flutterattendance_settings"
+              action="action_flutterattendance_status_rule"
+              sequence="30"/>
 </odoo>
