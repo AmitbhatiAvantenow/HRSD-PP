@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+
+    <!-- Seed data — one record per built-in dashboard widget. No groups
+         set, so out of the box only Administrators see these panels. -->
+
+    <record id="dashboard_widget_recent_activities" model="hrsd.dashboard.widget">
+      <field name="key">recent_activities</field>
+    </record>
+    <record id="dashboard_widget_upcoming_birthdays" model="hrsd.dashboard.widget">
+      <field name="key">upcoming_birthdays</field>
+    </record>
+
+  </data>
+</odoo>

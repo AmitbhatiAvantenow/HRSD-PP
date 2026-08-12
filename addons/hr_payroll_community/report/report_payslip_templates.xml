@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Modern payslip report: mirrors a typical Indian company payslip
-         (employee info block, Earnings/Deductions salary sheet, worked
-         days block, Net Salary in words, Total CTC, disclaimer).
+    <!-- "QA Agility" style payslip report: colored PAY SLIP header with a
+         month pill, a rounded employee-info card, blue/purple Earnings &amp;
+         Deductions panels, a Working Days card, standalone Bonus/Additional
+         Deductions/TDS "if any" rows, a solid Net Salary bar, a Net Salary
+         in Words strip and a Total CTC note - modelled directly on the
+         company's own reference payslip design.
 
          Note: every value below is rendered with plain t-esc (plain
          text), never t-field or a t-options widget. On this setup, the
@@ -17,7 +20,14 @@
          though the exact same tag renders fine as HTML and in the
          wizard's pdf.js preview - <th> and <h4> bold text are NOT
          affected, only <strong>). So this template never uses <strong>
-         - emphasis is done with color/underline instead.
+         - emphasis is done with color/background/heading tags instead.
+
+         For the same reason, "icons" here are plain ASCII letters/symbols
+         on a solid-color circle (CSS only) rather than an emoji or a
+         Unicode pictograph glyph: this setup's wkhtmltopdf is missing
+         glyphs for some Unicode symbols (see format_currency() below,
+         which avoids the Rupee sign for the same reason) and a missing
+         glyph blanks the surrounding text, not just the glyph itself.
 
          The logo/company block below is deliberately NOT rendered via
          web.external_layout's standard .header mechanism. wkhtmltopdf
@@ -36,132 +46,206 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.basic_layout">
                     <style>
+                        .payslip-report { font-size: 12px; color: #1f2937; }
                         .payslip-report td.text-end, .payslip-report th.text-end { padding-right: 8px !important; }
+                        .payslip-report .ps-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+                        .payslip-report .ps-title { font-size: 26px; font-weight: bold; letter-spacing: 1px; color: #111827; }
+                        .payslip-report .ps-badge { display: inline-block; background-color: #4a3fd6; background-image: linear-gradient(90deg, #1d3fe0, #7c3aed); color: #ffffff; padding: 5px 16px; border-radius: 8px; font-size: 13px; }
+                        .payslip-report .ps-avatar { width: 42px; height: 42px; min-width: 42px; border-radius: 50%; background-color: #e6e9fb; color: #3a3fd6; text-align: center; line-height: 42px; font-size: 14px; }
+                        .payslip-report .ps-label { color: #6b7280; font-size: 10.5px; }
+                        .payslip-report .ps-value { color: #111827; font-size: 12.5px; }
+                        .payslip-report .ps-grid-head { color: #ffffff; padding: 7px 10px !important; font-size: 12px; letter-spacing: .3px; border-color: transparent !important; }
+                        .payslip-report .ps-grid-head.blue { background-color: #1d3fe0; }
+                        .payslip-report .ps-grid-head.purple { background-color: #6d33d6; }
+                        .payslip-report .ps-total-row td { background-color: #eef1fd !important; color: #1d3fe0; }
+                        .payslip-report .ps-section-title { background-color: #f3f4fb; padding: 8px 10px; color: #1d3fe0; font-size: 12.5px; }
+                        .payslip-report .ps-icon-badge { display: inline-block; width: 22px; height: 22px; min-width: 22px; border-radius: 50%; text-align: center; line-height: 22px; color: #ffffff; font-size: 12px; }
+                        .payslip-report .ps-icon-badge.blue { background-color: #1d3fe0; }
+                        .payslip-report .ps-icon-badge.purple { background-color: #6d33d6; }
+                        .payslip-report .ps-icon-badge.green { background-color: #1c9e5e; }
+                        .payslip-report .ps-net-bar { background-color: #1d3fe0; color: #ffffff; padding: 10px 16px; font-size: 15px; border-radius: 8px; margin-bottom: 12px; }
+                        .payslip-report .ps-words { background-color: #e9f9ef; border: 1px solid #cdeedd; border-radius: 8px; padding: 8px 12px; color: #1c7c4b; margin-bottom: 12px; }
+                        .payslip-report .ps-ctc-amount { color: #1d3fe0; font-size: 13px; }
+                        .payslip-report .ps-footer { background-color: #f9fafb; border-radius: 8px; padding: 10px 14px; font-size: 10.5px; color: #374151; margin-top: auto; }
+                        .payslip-report .ps-page-flex { display: flex; flex-direction: column; min-height: 250mm; }
                     </style>
                     <div class="page payslip-report">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                      <div class="ps-page-flex">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
-                                 alt="Logo" style="max-height:30mm; max-width:90mm;"/>
+                                 alt="Logo" style="max-height:26mm; max-width:80mm;"/>
+                            <div t-else="" t-esc="o.company_id.name"/>
                             <div class="text-end">
-                                <div t-esc="o.company_id.name"/>
-                                <div t-esc="o.company_id.country_id.name"/>
+                                <div class="ps-title">PAY SLIP</div>
+                                <div class="mt-1">
+                                    <span class="text-muted">for the month of</span>
+                                    <span class="ps-badge ms-2" t-esc="o.date_from.strftime('%B %y')"/>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h2 class="mb-0">Salary Slip <t t-esc="o.date_from.strftime('%B %Y')"/></h2>
+                        <div class="text-end mb-2">
                             <span t-if="o.state == 'done'" class="badge rounded-pill text-bg-success">Paid</span>
                             <span t-elif="o.state == 'cancel'" class="badge rounded-pill text-bg-secondary">Cancelled</span>
                             <span t-else="" class="badge rounded-pill text-bg-warning">Draft</span>
                         </div>
 
-                        <table class="table table-sm table-borderless mb-2" style="width:auto;">
-                            <tr>
-                                <td class="text-end" style="width:140px;">Employee Name:</td>
-                                <td><t t-esc="o.employee_id.name"/></td>
-                            </tr>
-                            <tr>
-                                <td class="text-end">Employee SID:</td>
-                                <td><t t-esc="o.employee_id.employee_sid or ''"/></td>
-                            </tr>
-                            <tr>
-                                <td class="text-end">Pay Mode:</td>
-                                <td><t t-esc="o.employee_id.pay_mode or ''"/></td>
-                            </tr>
-                            <tr>
-                                <td class="text-end">Designation:</td>
-                                <td><t t-esc="o.employee_id.job_title or ''"/></td>
-                            </tr>
-                        </table>
-
-                        <table class="table table-sm table-bordered mb-1" style="table-layout:fixed; width:100%;">
-                            <thead class="table-light">
+                        <div class="ps-card d-flex align-items-center">
+                            <div class="ps-avatar me-3">
+                                <t t-esc="''.join([p[0] for p in (o.employee_id.name or '?').split()[:2]]).upper()"/>
+                            </div>
+                            <table class="table table-borderless table-sm mb-0" style="table-layout:fixed; width:100%;">
                                 <tr>
-                                    <th style="width:33%;">Earnings</th>
-                                    <th class="text-end" style="width:17%;">Amount</th>
-                                    <th style="width:33%;">Deductions</th>
-                                    <th class="text-end" style="width:17%;">Amount</th>
+                                    <td style="width:25%;">
+                                        <div class="ps-label">Employee Name</div>
+                                        <div class="ps-value" t-esc="o.employee_id.name"/>
+                                    </td>
+                                    <td style="width:25%;">
+                                        <div class="ps-label">Employee SID</div>
+                                        <div class="ps-value" t-esc="o.employee_id.employee_sid or '-'"/>
+                                    </td>
+                                    <td style="width:25%;">
+                                        <div class="ps-label">Pay Mode</div>
+                                        <div class="ps-value" t-esc="o.employee_id.pay_mode or '-'"/>
+                                    </td>
+                                    <td style="width:25%;">
+                                        <div class="ps-label">Designation</div>
+                                        <div class="ps-value" t-esc="o.employee_id.job_title or '-'"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <table class="table table-sm table-bordered mb-3" style="table-layout:fixed; width:100%;">
+                            <thead>
+                                <tr>
+                                    <th class="ps-grid-head blue" style="width:33%;">EARNINGS</th>
+                                    <th class="ps-grid-head blue text-end" style="width:17%;">AMOUNT</th>
+                                    <th class="ps-grid-head purple" style="width:33%;">DEDUCTIONS</th>
+                                    <th class="ps-grid-head purple text-end" style="width:17%;">AMOUNT</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-set="earning_lines"
-                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.total and l.category_id.code not in ('DED', 'COMP') and l.code not in ('GROSS', 'NET', 'CTC'))"/>
-                                <t t-set="deduction_lines"
-                                   t-value="o.line_ids.filtered(lambda l: l.appears_on_payslip and l.total and l.category_id.code == 'DED')"/>
+                                <t t-set="earning_lines" t-value="o.get_report_earning_lines()"/>
+                                <t t-set="deduction_lines" t-value="o.get_report_deduction_lines()"/>
                                 <t t-set="max_lines" t-value="max(len(earning_lines), len(deduction_lines))"/>
                                 <tr t-foreach="range(max_lines)" t-as="i">
-                                    <td t-if="i &lt; len(earning_lines)" t-esc="earning_lines[i].name"/>
+                                    <td t-if="i &lt; len(earning_lines)" t-esc="earning_lines[i]['name']"/>
                                     <td t-else=""/>
-                                    <td t-if="i &lt; len(earning_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(earning_lines[i].total)"/>
+                                    <td t-if="i &lt; len(earning_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(earning_lines[i]['amount'])"/>
                                     <td t-else=""/>
-                                    <td t-if="i &lt; len(deduction_lines)" t-esc="deduction_lines[i].name"/>
+                                    <td t-if="i &lt; len(deduction_lines)" t-esc="deduction_lines[i]['name']"/>
                                     <td t-else=""/>
-                                    <td t-if="i &lt; len(deduction_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(-deduction_lines[i].total)"/>
+                                    <td t-if="i &lt; len(deduction_lines)" class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(deduction_lines[i]['amount'])"/>
                                     <td t-else=""/>
                                 </tr>
                             </tbody>
                             <tfoot>
-                                <tr class="table-light">
-                                    <th>Total Earnings</th>
+                                <tr class="ps-total-row">
+                                    <th>TOTAL EARNINGS</th>
                                     <th class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('GROSS'))"/>
-                                    <th>Total Deductions</th>
-                                    <th class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(-sum(deduction_lines.mapped('total')))"/>
+                                    <th>TOTAL DEDUCTIONS</th>
+                                    <th class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(sum(l['amount'] for l in deduction_lines))"/>
                                 </tr>
                             </tfoot>
                         </table>
 
-                        <table class="table table-sm table-bordered mb-3">
-                            <tr class="table-light">
-                                <th colspan="4">Working days for this period</th>
-                            </tr>
-                            <tr>
-                                <td>Working days in period</td>
-                                <td class="text-end" t-esc="o.get_worked_days_total('WORKING_DAYS')"/>
-                                <td>Number of days worked</td>
-                                <td class="text-end" t-esc="o.get_worked_days_total('WORK100')"/>
-                            </tr>
-                            <tr>
-                                <td>Leaves adjusted (days)</td>
-                                <td class="text-end" t-esc="o.get_leaves_days_total()"/>
-                                <td>Total paid days</td>
-                                <td class="text-end" t-esc="o.get_worked_days_total('PAID_DAYS')"/>
-                            </tr>
-                        </table>
+                        <div class="ps-card p-0">
+                            <div class="ps-section-title">
+                                <span class="ps-icon-badge blue">#</span>
+                                <span class="ms-1">WORKING DAYS FOR THIS MONTH AND DAYS WORKED</span>
+                            </div>
+                            <table class="table table-sm mb-0">
+                                <tr>
+                                    <td>Working days in this month</td>
+                                    <td class="text-end" t-esc="o.get_worked_days_total('WORKING_DAYS')"/>
+                                </tr>
+                                <tr>
+                                    <td>Number of days worked</td>
+                                    <td class="text-end" t-esc="o.get_worked_days_total('WORK100')"/>
+                                </tr>
+                                <tr>
+                                    <td>Leaves adjusted in days</td>
+                                    <td class="text-end" t-esc="o.get_leaves_days_total()"/>
+                                </tr>
+                                <tr>
+                                    <td>Extra days paid if any</td>
+                                    <td class="text-end" t-esc="max(0, o.get_worked_days_total('PAID_DAYS') - o.get_worked_days_total('WORKING_DAYS'))"/>
+                                </tr>
+                                <tr class="ps-total-row">
+                                    <td>Total number of paid days (I.1+I.2-I.3)</td>
+                                    <td class="text-end" t-esc="o.get_worked_days_total('PAID_DAYS')"/>
+                                </tr>
+                            </table>
+                        </div>
 
-                        <table class="table table-sm mb-1">
-                            <tr class="border-top border-bottom">
-                                <td><h4 class="mb-0">Net Salary</h4></td>
-                                <td class="text-end" style="white-space:nowrap;">
-                                    <h4 class="mb-0" t-esc="o.format_currency(o.get_salary_line_total('NET'))"/>
-                                </td>
-                            </tr>
-                        </table>
-                        <p>Net Salary in Words: <strong t-esc="'%s %s Only' % (o.get_amount_in_words(), o.company_id.currency_id.name)"/></p>
+                        <div class="ps-card p-0">
+                            <t t-set="bonus_amount" t-value="o.get_salary_line_total('BONUSAMT')"/>
+                            <t t-set="addl_ded_amount" t-value="-o.get_salary_line_total('ADDLDEDAMT')"/>
+                            <t t-set="tds_amount" t-value="-o.get_salary_line_total('TDSAMT')"/>
+                            <table class="table table-sm mb-0">
+                                <tr>
+                                    <td style="width:34px;"><span class="ps-icon-badge blue">B</span></td>
+                                    <td>Bonus if any</td>
+                                    <td class="text-end" t-esc="o.format_currency(bonus_amount) if bonus_amount else '-'"/>
+                                </tr>
+                                <tr>
+                                    <td><span class="ps-icon-badge blue">+</span></td>
+                                    <td>Additional Deductions if any</td>
+                                    <td class="text-end" t-esc="o.format_currency(addl_ded_amount) if addl_ded_amount else '-'"/>
+                                </tr>
+                                <tr>
+                                    <td><span class="ps-icon-badge blue">%</span></td>
+                                    <td>TDS if any</td>
+                                    <td class="text-end" t-esc="o.format_currency(tds_amount) if tds_amount else '-'"/>
+                                </tr>
+                            </table>
+                        </div>
 
-                        <table class="table table-sm table-bordered">
-                            <tr t-if="o.get_salary_line_total('EPF_ER')">
-                                <td>Company EPF Share (12%)</td>
-                                <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('EPF_ER'))"/>
-                            </tr>
-                            <tr>
-                                <td>*Total CTC this period, including Bonus, EPF Company Share and EPF Admin charges if any</td>
-                                <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('CTC'))"/>
-                            </tr>
-                        </table>
+                        <div class="ps-net-bar d-flex justify-content-between align-items-center">
+                            <span>NET SALARY</span>
+                            <span style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('NET'))"/>
+                        </div>
 
-                        <div class="border border-dark p-2 mt-4 text-center" style="font-size: 11px;">
+                        <div class="ps-words">
+                            <span class="ps-icon-badge green">$</span>
+                            <span class="ms-1">Net Salary in Words:</span>
+                            <span t-esc="'%s %s Only' % (o.get_amount_in_words(), o.company_id.currency_id.name)"/>
+                        </div>
+
+                        <div class="ps-card">
+                            <table class="table table-sm mb-0">
+                                <tr t-if="o.get_salary_line_total('EPF_ER')">
+                                    <td>Company EPF Share (12%)</td>
+                                    <td class="text-end" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('EPF_ER'))"/>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="ps-icon-badge purple">$</span>
+                                        <span class="ms-1">*Total CTC this month, including Bonus, EPF Company Share and EPF Admin charges if any (Total Salary + EPF Share + EPF Exp + Bonus)</span>
+                                    </td>
+                                    <td class="text-end ps-ctc-amount" style="white-space:nowrap;" t-esc="o.format_currency(o.get_salary_line_total('CTC'))"/>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="ps-card d-flex align-items-center">
+                            <span>Remarks : <t t-esc="o.note or 'N/A'"/></span>
+                        </div>
+
+                        <div class="ps-footer text-center">
                             <p class="mb-1">
-                                Please note that all bonus payments, if any, to be paid to you from time to
+                                *Please note that all bonus payments, if any, to be paid to you from time to
                                 time will include all mandatory payments that you are entitled to under all
                                 applicable laws, rules, statutes, enactments, orders and regulations
                                 currently in force as amended from time to time.
                             </p>
                             <p class="mb-1">This is a computer-generated Salary slip, does not require any signature.</p>
                             <p class="mb-0">
-                                <span style="color:#6f2da8;">All queries should be directed to Accounts@qaagility.com .</span>
-                                <span style="color:#dc3545;">*Total CTC means Total Cost to company</span>
+                                <span style="color:#1d3fe0;">All queries should be directed to Accounts@qaagility.com .</span>
+                                <span style="color:#dc3545;"> *Total CTC means Total Cost to company</span>
                             </p>
                         </div>
+                      </div>
                     </div>
                 </t>
             </t>

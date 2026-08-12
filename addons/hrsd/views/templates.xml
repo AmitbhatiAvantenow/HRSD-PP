@@ -197,9 +197,11 @@
 
                   <script id="hrsd-dashboard-menu-data" type="application/json"><t t-out="detail_data_json"/></script>
 
-                  <!-- Recent activities + Upcoming birthdays -->
-                  <section class="hrsd-bottom-grid">
-                    <div class="hrsd-panel">
+                  <!-- Recent activities + Upcoming birthdays
+                       (visibility configurable at HR Portal > Dashboard
+                       Widgets — Administrators-only by default) -->
+                  <section class="hrsd-bottom-grid" t-if="show_recent_activities or show_upcoming_birthdays">
+                    <div class="hrsd-panel" t-if="show_recent_activities">
                       <div class="hrsd-panel-title">Recent Activities</div>
                       <t t-if="activities">
                         <t t-foreach="activities" t-as="a">
@@ -217,7 +219,7 @@
                       </t>
                     </div>
 
-                    <div class="hrsd-panel">
+                    <div class="hrsd-panel" t-if="show_upcoming_birthdays">
                       <div class="hrsd-panel-title">Upcoming Birthdays</div>
                       <t t-if="birthdays">
                         <t t-foreach="birthdays" t-as="b">

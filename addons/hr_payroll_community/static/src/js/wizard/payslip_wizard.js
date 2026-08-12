@@ -62,17 +62,20 @@ export class HrPayslipCreateWizard extends Component {
             workedDays: [],
             inputs: [],
             lines: [],
+            remarks: "",
             loadingStep: false,
             submitting: false,
             error: "",
             success: false,
             netPay: 0,
             // Bulk mode (2+ employees selected)
+            bulkRemarks: "", // "Remarks for all selected employees" - each row below can still override its own
             bulkRunId: false,
             bulkResults: [],
             bulkValidating: false,
             bulkWorkedDays: [], // [{slip_id, employee_id, employee_name, lines: [...]}]
             bulkLines: [], // flat hr.payslip.line rows across all bulk slips
+            bulkInputs: [], // flat hr.payslip.input rows across all bulk slips
             bulkTableSearch: "",
             bulkEditSelectedIds: [], // slip_ids checked for the "Bulk Edit" action
             bulkEditField: "paid_days", // 'working_days' | 'paid_days'
@@ -271,7 +274,7 @@ export class HrPayslipCreateWizard extends Component {
                 this.state.bulkDuplicateInfo = null;
                 await this._runBulkGenerate();
                 if (this.state.error) return;
-                await Promise.all([this._loadBulkWorkedDays(), this._loadBulkLines()]);
+                await Promise.all([this._loadBulkWorkedDays(), this._loadBulkLines(), this._loadBulkInputs()]);
                 if (!this.isLastStep) this.state.stepIndex++;
                 return;
             }
@@ -416,6 +419,21 @@ export class HrPayslipCreateWizard extends Component {
             "hr.payslip.line",
             [["slip_id", "in", slipIds]],
             ["code", "name", "total", "slip_id"]
+        );
+    }
+
+    // hr.payslip.input rows (not hr.payslip.line): needed for the bulk
+    // "+ Add Earning"/"+ Add Deduction" lines, since those only exist as
+    // individually-named EXTRAEARN_*/EXTRADED_* inputs - the "Other
+    // Earnings"/"Other Deductions" rule folds them into one summed line,
+    // so their own name/amount can't be read back off bulkLines.
+    async _loadBulkInputs() {
+        const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!slipIds.length) { this.state.bulkInputs = []; return; }
+        this.state.bulkInputs = await this.orm.searchRead(
+            "hr.payslip.input",
+            [["payslip_id", "in", slipIds]],
+            ["name", "code", "amount", "payslip_id"]
         );
     }
 
@@ -584,14 +602,38 @@ export class HrPayslipCreateWizard extends Component {
             const lwf = this._lineTotalFor(r.slip_id, "LWF_EE");
             const tds = this._lineTotalFor(r.slip_id, "TDSAMT");
             const addl = this._lineTotalFor(r.slip_id, "ADDLDEDAMT");
+            // "Other Deductions" (OTHERDED) is the salary rule that sums
+            // every EXTRADED_* ad-hoc line (see the "+ Add" column) into
+            // one payslip line - included here so Total Deduction stays
+            // correct once a custom line has an amount.
+            const other = this._lineTotalFor(r.slip_id, "OTHERDED");
             return {
                 slip_id: r.slip_id,
                 employee_name: r.employee_name,
                 epf, lwf, tds, addl,
-                total: epf + lwf + tds + addl,
+                total: epf + lwf + tds + addl + other,
             };
         });
     }
+
+    // Bulk-mode "+ Add Earning"/"+ Add Deduction": each ad-hoc line is
+    // created with the same EXTRAEARN_*/EXTRADED_* code on every payslip
+    // in the batch at once (see addBulkExtraLine below), so grouping
+    // bulkInputs by code and keeping one representative row per code is
+    // enough to list them - unlike Bonus/TDS/Additional Deduction, these
+    // don't currently support per-employee overrides.
+    _bulkExtraGroups(prefix) {
+        const byCode = new Map();
+        for (const inp of this.state.bulkInputs) {
+            if (!inp.code || !inp.code.startsWith(prefix)) continue;
+            if (!byCode.has(inp.code)) {
+                byCode.set(inp.code, { code: inp.code, name: inp.name, amount: inp.amount });
+            }
+        }
+        return [...byCode.values()];
+    }
+    get bulkExtraEarnings() { return this._bulkExtraGroups("EXTRAEARN"); }
+    get bulkExtraDeductions() { return this._bulkExtraGroups("EXTRADED"); }
 
     async _bulkApplyInput(code, amount) {
         const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
@@ -635,6 +677,190 @@ export class HrPayslipCreateWizard extends Component {
         }
     }
     onBulkAddlDedChange(ev) { this._bulkApplyInput("ADDLDED", parseFloat(ev.target.value) || 0); }
+
+    // "+ Add Earning" / "+ Add Deduction" in bulk mode: same ad-hoc-line
+    // mechanism as the single-employee addExtraLine, but applied to
+    // every payslip in the batch at once via bulk_set_input.
+    async addBulkExtraLine(kind) {
+        const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!slipIds.length) return;
+        const prefix = kind === "earning" ? "EXTRAEARN" : "EXTRADED";
+        const label = kind === "earning" ? _t("New Earning") : _t("New Deduction");
+        const code = `${prefix}_${Date.now()}`;
+        this.state.loadingStep = true;
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [slipIds, code, 0, label]);
+            await Promise.all([this._loadBulkLines(), this._loadBulkInputs()]);
+            this._refreshBulkNetTotals();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    async removeBulkExtraLine(code) {
+        const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!slipIds.length) return;
+        this.state.loadingStep = true;
+        try {
+            await this.orm.call("hr.payslip", "bulk_remove_input", [slipIds, code]);
+            await Promise.all([this._loadBulkLines(), this._loadBulkInputs()]);
+            this._refreshBulkNetTotals();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    async onBulkExtraLineNameChange(code, ev) {
+        const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!slipIds.length) return;
+        const name = ev.target.value;
+        const group = this._bulkExtraGroups(code.startsWith("EXTRAEARN") ? "EXTRAEARN" : "EXTRADED")
+            .find((g) => g.code === code);
+        const amount = group ? group.amount : 0;
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [slipIds, code, amount, name]);
+            await this._loadBulkInputs();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
+
+    async onBulkExtraLineAmountChange(code, ev) {
+        const slipIds = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!slipIds.length) return;
+        const amount = parseFloat(ev.target.value) || 0;
+        this.state.loadingStep = true;
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [slipIds, code, amount]);
+            await Promise.all([this._loadBulkLines(), this._loadBulkInputs()]);
+            this._refreshBulkNetTotals();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.loadingStep = false;
+        }
+    }
+
+    // A single employee's own ad-hoc lines, shown in the Per-Employee
+    // Breakdown table's "Extra" column: normally just that employee's
+    // own EXTRAEARN_*/EXTRADED_* input(s) added via the "+ Add" button
+    // below, but a bulk-wide line (see addBulkExtraLine above) also
+    // shows up here since it exists on every payslip in the batch too -
+    // editing it from one employee's row only overrides that employee's
+    // payslip, same as the Bonus/TDS/Additional cells already do.
+    employeeExtraLines(slipId, prefix) {
+        return this.state.bulkInputs.filter(
+            (i) => i.payslip_id && i.payslip_id[0] === slipId && i.code && i.code.startsWith(prefix));
+    }
+
+    async _refreshBulkSlip(slipId) {
+        const [newLines, newInputs] = await Promise.all([
+            this.orm.searchRead(
+                "hr.payslip.line", [["slip_id", "=", slipId]],
+                ["code", "name", "total", "slip_id"]),
+            this.orm.searchRead(
+                "hr.payslip.input", [["payslip_id", "=", slipId]],
+                ["name", "code", "amount", "payslip_id"]),
+        ]);
+        this.state.bulkLines = this.state.bulkLines.filter((l) => l.slip_id[0] !== slipId).concat(newLines);
+        this.state.bulkInputs = this.state.bulkInputs.filter((i) => i.payslip_id[0] !== slipId).concat(newInputs);
+        this._refreshBulkNetTotals();
+    }
+
+    // "+ Add" on a single row of the Per-Employee Breakdown table: same
+    // ad-hoc-line mechanism as addBulkExtraLine, but scoped to just this
+    // one employee's payslip (bulk_set_input called with a single id).
+    async addEmployeeExtraLine(slipId, kind) {
+        const prefix = kind === "earning" ? "EXTRAEARN" : "EXTRADED";
+        const label = kind === "earning" ? _t("New Earning") : _t("New Deduction");
+        const code = `${prefix}_${slipId}_${Date.now()}`;
+        this.state.bulkRowBusy = { ...this.state.bulkRowBusy, [slipId]: true };
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [[slipId], code, 0, label]);
+            await this._refreshBulkSlip(slipId);
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            const busy = { ...this.state.bulkRowBusy };
+            delete busy[slipId];
+            this.state.bulkRowBusy = busy;
+        }
+    }
+
+    async removeEmployeeExtraLine(slipId, code) {
+        this.state.bulkRowBusy = { ...this.state.bulkRowBusy, [slipId]: true };
+        try {
+            await this.orm.call("hr.payslip", "bulk_remove_input", [[slipId], code]);
+            await this._refreshBulkSlip(slipId);
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            const busy = { ...this.state.bulkRowBusy };
+            delete busy[slipId];
+            this.state.bulkRowBusy = busy;
+        }
+    }
+
+    async onEmployeeExtraLineNameChange(slipId, code, ev) {
+        const name = ev.target.value;
+        const existing = this.state.bulkInputs.find(
+            (i) => i.payslip_id[0] === slipId && i.code === code);
+        const amount = existing ? existing.amount : 0;
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [[slipId], code, amount, name]);
+            await this._loadBulkInputs();
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
+
+    async onEmployeeExtraLineAmountChange(slipId, code, ev) {
+        const amount = parseFloat(ev.target.value) || 0;
+        this.state.bulkRowBusy = { ...this.state.bulkRowBusy, [slipId]: true };
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_input", [[slipId], code, amount]);
+            await this._refreshBulkSlip(slipId);
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            const busy = { ...this.state.bulkRowBusy };
+            delete busy[slipId];
+            this.state.bulkRowBusy = busy;
+        }
+    }
+
+    // Remarks in bulk mode: one text box sets the same note on every
+    // payslip in the batch ("combine"), and each row of the results
+    // table below can still override just its own employee's note.
+    async onBulkRemarksChange(ev) {
+        const note = ev.target.value;
+        this.state.bulkRemarks = note;
+        const ids = this.bulkCreatedResults.map((r) => r.slip_id);
+        if (!ids.length) return;
+        try {
+            await this.orm.call("hr.payslip", "bulk_set_note", [ids, note]);
+            for (const r of this.state.bulkResults) {
+                if (r.status === "created") r.note = note;
+            }
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
+
+    async onBulkRowRemarksChange(slipId, ev) {
+        const note = ev.target.value;
+        const r = this.state.bulkResults.find((x) => x.slip_id === slipId);
+        if (r) r.note = note;
+        try {
+            await this.orm.write("hr.payslip", [slipId], { note });
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
 
     async onValidateBulk() {
         const ids = this.bulkCreatedResults.map((r) => r.slip_id);
@@ -713,9 +939,10 @@ export class HrPayslipCreateWizard extends Component {
     async _refreshAll() {
         const [slip] = await this.orm.read(
             "hr.payslip", [this.state.slipId],
-            ["number", "worked_days_line_ids", "input_line_ids", "line_ids"]
+            ["number", "worked_days_line_ids", "input_line_ids", "line_ids", "note"]
         );
         this.state.slipNumber = slip.number;
+        this.state.remarks = slip.note || "";
         this.state.workedDays = await this.orm.read(
             "hr.payslip.worked.days", slip.worked_days_line_ids,
             ["name", "code", "number_of_days", "number_of_hours"]
@@ -726,6 +953,19 @@ export class HrPayslipCreateWizard extends Component {
         this.state.lines = await this.orm.read(
             "hr.payslip.line", slip.line_ids, ["name", "code", "total", "category_id"]
         );
+    }
+
+    // Remarks (hr.payslip.note): printed on the payslip PDF's "Remarks"
+    // row, which otherwise always shows "N/A" since nothing else in the
+    // wizard writes to this field.
+    async onRemarksChange(ev) {
+        const note = ev.target.value;
+        this.state.remarks = note;
+        try {
+            await this.orm.write("hr.payslip", [this.state.slipId], { note });
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
     }
 
     async refreshWorkedDays() {

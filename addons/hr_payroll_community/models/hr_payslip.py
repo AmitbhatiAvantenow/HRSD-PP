@@ -450,26 +450,50 @@ class HrPayslip(models.Model):
         return True
 
     @api.model
-    def bulk_set_input(self, slip_ids, code, amount):
-        """Set one payslip input (Bonus/TDS/Additional Deduction) to the
-        same amount across every one of the given payslips, creating the
-        input line where it doesn't exist yet, then recompute each."""
+    def bulk_set_input(self, slip_ids, code, amount, name=None):
+        """Set one payslip input to the same amount across every one of
+        the given payslips, creating the input line where it doesn't
+        exist yet, then recompute each.
+
+        Used both for the fixed "for all selected employees" inputs
+        (Bonus/TDS/Additional Deduction) and, from the New Payslip
+        wizard's bulk Earnings/Deductions steps, to override an
+        auto-computed line (e.g. 'BASIC_ADJ') on a single payslip (when
+        slip_ids has one id) or to create/rename/amend an ad-hoc
+        EXTRAEARN_*/EXTRADED_* line across the whole batch (when name is
+        given - falls back to the matching hr.rule.input's label, or the
+        raw code, for the fixed inputs that don't pass one)."""
         slips = self.browse(slip_ids)
         input_def = self.env['hr.rule.input'].search(
             [('code', '=', code)], limit=1)
+        default_name = name or (input_def.name if input_def else code)
         for slip in slips:
             line = slip.input_line_ids.filtered(lambda l: l.code == code)
             if line:
-                line.write({'amount': amount})
+                vals = {'amount': amount}
+                if name:
+                    vals['name'] = name
+                line.write(vals)
             elif slip.contract_id:
                 slip.write({'input_line_ids': [(0, 0, {
-                    'name': input_def.name if input_def else code,
+                    'name': default_name,
                     'code': code,
                     'amount': amount,
                     'contract_id': slip.contract_id.id,
                     'date_from': slip.date_from,
                     'date_to': slip.date_to,
                 })]})
+        slips.action_compute_sheet()
+        return True
+
+    @api.model
+    def bulk_remove_input(self, slip_ids, code):
+        """Remove the input line with the given code from every one of
+        the given payslips - the bulk-mode equivalent of the "+ Add
+        Earning"/"+ Add Deduction" line's trash-can button in the
+        single-employee wizard - then recompute each."""
+        slips = self.browse(slip_ids)
+        slips.mapped('input_line_ids').filtered(lambda l: l.code == code).unlink()
         slips.action_compute_sheet()
         return True
 
@@ -1079,6 +1103,56 @@ class HrPayslip(models.Model):
         lines = self.worked_days_line_ids.filtered(
             lambda wd: wd.code not in ('WORK100', 'WORKING_DAYS', 'PAID_DAYS'))
         return sum(lines.mapped('number_of_days'))
+
+    def get_report_earning_lines(self):
+        """Earnings shown on the payslip PDF's Earnings column: the
+        auto-computed salary-rule lines (Basic, CCA+HRA, Medical,
+        Project Allowance, ...) plus each "+ Add Earning" ad-hoc line by
+        its own typed name/amount - not the single summed "Other
+        Earnings" rule line (OTHERERN in
+        hr_payroll_structure_india_regular.xml), which would otherwise
+        replace every custom name the user typed with "Other Earnings".
+        Bonus is reported separately (see the "Bonus if any" row), so
+        it's excluded here too."""
+        self.ensure_one()
+        lines = self.line_ids.filtered(
+            lambda l: l.appears_on_payslip and l.total
+            and l.category_id.code not in ('DED', 'COMP', 'BONUS')
+            and l.code not in ('GROSS', 'NET', 'CTC', 'OTHERERN'))
+        result = [{'name': l.name, 'amount': l.total} for l in lines]
+        extra = self.input_line_ids.filtered(
+            lambda i: i.code and i.code.startswith('EXTRAEARN') and i.amount)
+        result += [{'name': i.name, 'amount': i.amount} for i in extra]
+        return result
+
+    def get_report_deduction_lines(self):
+        """Deductions shown on the payslip PDF's Deductions column: same
+        idea as get_report_earning_lines but for EPF/LWF-style lines -
+        each "+ Add Deduction" ad-hoc line is listed by its own name
+        instead of being folded into "Other Deductions" (OTHERDED). TDS
+        and Additional Deduction are reported separately (see the "if
+        any" rows), so they're excluded here too. Amounts are returned
+        as positive magnitudes (line.total is negative internally)."""
+        self.ensure_one()
+        lines = self.line_ids.filtered(
+            lambda l: l.appears_on_payslip and l.total
+            and l.category_id.code == 'DED'
+            and l.code not in ('TDSAMT', 'ADDLDEDAMT', 'OTHERDED'))
+        result = [{'name': l.name, 'amount': -l.total} for l in lines]
+        extra = self.input_line_ids.filtered(
+            lambda i: i.code and i.code.startswith('EXTRADED') and i.amount)
+        result += [{'name': i.name, 'amount': i.amount} for i in extra]
+        return result
+
+    @api.model
+    def bulk_set_note(self, slip_ids, note):
+        """Set the Remarks (note) field to the same text across every
+        one of the given payslips - the bulk-mode "Remarks for all
+        selected employees" input in the New Payslip wizard's Review
+        step. No recompute needed: note doesn't feed into any salary
+        rule."""
+        self.browse(slip_ids).write({'note': note})
+        return True
 
     def format_currency(self, amount):
         """Plain-text currency formatting for the payslip report.

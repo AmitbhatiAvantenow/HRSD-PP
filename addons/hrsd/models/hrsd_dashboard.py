@@ -233,6 +233,26 @@ class HrEmployee(models.Model):
         except Exception:
             birthdays = []
 
+        # ---- Dashboard widget visibility (Recent Activities / Upcoming
+        #      Birthdays panels — configurable from the backend at HR
+        #      Portal > Dashboard Widgets). Unlike stat cards / dashboard
+        #      menus / top-nav links, these default to Administrators-only:
+        #      no group set means hidden from everyone but admins. ----------
+        widgets_by_key = {w.key: w for w in env['hrsd.dashboard.widget'].sudo().search([])}
+
+        def _widget_visible(key):
+            widget = widgets_by_key.get(key)
+            if widget is None or not widget.active:
+                return False
+            return is_admin or bool(set(widget.group_ids.ids) & user_group_ids)
+
+        show_recent_activities = _widget_visible('recent_activities')
+        show_upcoming_birthdays = _widget_visible('upcoming_birthdays')
+        if not show_recent_activities:
+            activities = []
+        if not show_upcoming_birthdays:
+            birthdays = []
+
         # ---- Stat cards (configurable from the backend at HR Portal >
         #      Stat Cards — controls which cards show for whom, and their
         #      order; the numbers themselves are always computed live). ----
@@ -293,4 +313,6 @@ class HrEmployee(models.Model):
             'nav_items': nav_items,
             'activities': activities,
             'birthdays': birthdays,
+            'show_recent_activities': show_recent_activities,
+            'show_upcoming_birthdays': show_upcoming_birthdays,
         }

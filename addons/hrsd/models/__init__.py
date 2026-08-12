@@ -3,6 +3,7 @@ from . import hrsd_dashboard
 from . import hrsd_dashboard_menu
 from . import hrsd_dashboard_navbar
 from . import hrsd_dashboard_stat_card
+from . import hrsd_dashboard_widget
 from . import hr_document_ocr
 from . import hr_resume_screening
 from . import hr_interview

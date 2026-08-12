@@ -47,7 +47,7 @@
         <field name="binding_type">report</field>
         <field name="report_name">hr_payroll_community.report_payslip</field>
         <field name="report_file">hr_payroll_community.report_payslip</field>
-        <field name="print_report_name">('Salary Slip - %s' % (object.employee_id.name))</field>
+        <field name="print_report_name">('%s_%s_Payslip' % (object.employee_id.name.replace(' ', '_'), object.date_from.strftime('%B_%Y')))</field>
         <field name="paperformat_id" ref="paperformat_payslip"/>
     </record>
 </odoo>

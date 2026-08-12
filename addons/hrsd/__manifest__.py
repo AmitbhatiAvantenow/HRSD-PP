@@ -41,6 +41,8 @@
         'data/hrsd_dashboard_navbar_data.xml',
         'views/hrsd_dashboard_stat_card_views.xml',
         'data/hrsd_dashboard_stat_card_data.xml',
+        'views/hrsd_dashboard_widget_views.xml',
+        'data/hrsd_dashboard_widget_data.xml',
         'views/templates.xml',
         'views/templates_ocr.xml',
         'views/hr_document_ocr_views.xml',
