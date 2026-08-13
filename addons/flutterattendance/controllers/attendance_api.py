@@ -35,6 +35,7 @@ def _attendance_data(rec):
         'late_minutes': rec.late_minutes,
         'overtime_hours': rec.overtime_hours,
         'status': rec.status,
+        'missed_checkout': rec.missed_checkout,
         'remarks': rec.remarks or False,
         'checkin': {
             'latitude': rec.checkin_latitude,
@@ -123,8 +124,13 @@ class FlutterAttendanceController(http.Controller):
     def check_in(self, employee=None, **kwargs):
         data = _json_body()
         Attendance = request.env['flutterattendance.attendance'].sudo()
+        today = fields.Date.context_today(employee)
 
-        if Attendance._find_open_session(employee):
+        # A session left open from a previous day is auto-closed as
+        # missed_checkout here (instead of blocking today's check-in
+        # forever); only a session still open for *today* counts as a real
+        # duplicate check-in.
+        if Attendance._resolve_stale_session(employee, today):
             return _error('Already checked in. Please check out first.', 409)
 
         latitude = data.get('latitude')
@@ -141,7 +147,7 @@ class FlutterAttendanceController(http.Controller):
 
         record = Attendance.create({
             'employee_id': employee.id,
-            'attendance_date': fields.Date.context_today(employee),
+            'attendance_date': today,
             'check_in_time': fields.Datetime.now(),
             'checkin_latitude': latitude,
             'checkin_longitude': longitude,

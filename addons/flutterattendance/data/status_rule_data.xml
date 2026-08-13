@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
-    <!-- Reproduces the module's original hardcoded behaviour: half day beats
-         late, late beats present. Fully editable from Mobile Attendance >
-         Settings > Status Rules once installed. -->
+    <!-- Reproduces the module's original hardcoded behaviour: missed
+         checkout beats half day, half day beats late, late beats present.
+         Fully editable from Mobile Attendance > Settings > Status Rules
+         once installed. -->
+    <record id="status_rule_missed_checkout" model="flutterattendance.status.rule">
+        <field name="name">Missed Checkout</field>
+        <field name="code">missed_checkout</field>
+        <field name="sequence">5</field>
+        <field name="condition">missed_checkout</field>
+        <field name="require_checkout">False</field>
+    </record>
+
     <record id="status_rule_half_day" model="flutterattendance.status.rule">
         <field name="name">Half Day</field>
         <field name="code">half_day</field>

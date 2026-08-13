@@ -52,7 +52,13 @@ class FlutterAttendanceSyncController(http.Controller):
                 photo_bytes = _decode_photo(item.get('photo'))
 
                 if action == 'check_in':
-                    if Attendance._find_open_session(employee):
+                    # Uses the queued item's own timestamp (when the check-in
+                    # actually happened on the device) rather than server
+                    # "now" as the reference day — matches attendance_date
+                    # below, and lets a stale open session from an earlier
+                    # day auto-resolve as missed_checkout instead of
+                    # rejecting this queued check-in.
+                    if Attendance._resolve_stale_session(employee, timestamp.date()):
                         raise ValueError('Already checked in for an open session')
                     device = _register_device(request.env, employee, item)
                     record = Attendance.create({

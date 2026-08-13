@@ -178,6 +178,77 @@ class HrPayslip(models.Model):
             })
             payslip.message_post(attachment_ids=[attachment.id])
 
+    def _render_payslip_mail(self, template):
+        """Substitute {{employee_name}}/{{month}}/{{net_pay}}/
+        {{designation}}/{{company_name}} placeholders in the given
+        hr.payslip.mail.template's subject/body for this one payslip.
+        Plain string replacement (no Jinja/expression eval) - the
+        wizard's "Manage Template" panel is meant for anyone with
+        payroll access to edit safely, not just developers."""
+        self.ensure_one()
+        values = {
+            '{{employee_name}}': self.employee_id.name or '',
+            '{{month}}': self.date_from.strftime('%B %Y') if self.date_from else '',
+            '{{net_pay}}': self.format_currency(self.get_salary_line_total('NET')),
+            '{{company_name}}': self.company_id.name or '',
+            '{{designation}}': self.employee_id.job_title or self.employee_id.job_id.name or '',
+        }
+        subject = template.subject or ''
+        body = template.body or ''
+        for token, val in values.items():
+            subject = subject.replace(token, val)
+            body = body.replace(token, val)
+        return subject, body
+
+    def action_send_payslip_email(self):
+        """Email this payslip's PDF to the employee's work email, using
+        the single shared hr.payslip.mail.template (subject/body/CC -
+        editable from the New Payslip wizard's "Manage Template"
+        button)."""
+        self.ensure_one()
+        if not self.employee_id.work_email:
+            raise UserError(_('%s has no work email set - cannot send the payslip.') % self.employee_id.name)
+        template = self.env['hr.payslip.mail.template'].sudo().get_or_create()
+        subject, body = self._render_payslip_mail(template)
+        pdf_content, _fmt = self.env['ir.actions.report']._render_qweb_pdf(
+            'hr_payroll_community.report_payslip', self.ids)
+        attachment = self.env['ir.attachment'].create({
+            'name': '%s_%s_Payslip.pdf' % (
+                (self.employee_id.name or 'Employee').replace(' ', '_'),
+                self.date_from.strftime('%B_%Y') if self.date_from else 'Payslip'),
+            'type': 'binary',
+            'raw': pdf_content,
+            'res_model': self._name,
+            'res_id': self.id,
+            'mimetype': 'application/pdf',
+        })
+        mail_vals = {
+            'subject': subject or _('Payslip'),
+            'body_html': (body or '').replace('\n', '<br/>'),
+            'email_to': self.employee_id.work_email,
+            'attachment_ids': [(6, 0, [attachment.id])],
+            'auto_delete': True,
+        }
+        if template.cc:
+            mail_vals['email_cc'] = template.cc
+        self.env['mail.mail'].sudo().create(mail_vals).send()
+        return True
+
+    @api.model
+    def bulk_send_payslip_email(self, slip_ids):
+        """Email every one of the given payslips to its employee,
+        skipping (and reporting) any with no work email or a send
+        failure - the bulk-mode "Send by Email" action on the New
+        Payslip wizard's success screen."""
+        results = []
+        for slip in self.browse(slip_ids):
+            try:
+                slip.action_send_payslip_email()
+                results.append({'slip_id': slip.id, 'status': 'sent'})
+            except Exception as e:
+                results.append({'slip_id': slip.id, 'status': 'error', 'reason': str(e)})
+        return results
+
     def action_payslip_pay(self, payment_mode=False, payment_date=False):
         """Mark the payslip(s) as paid."""
         for payslip in self:

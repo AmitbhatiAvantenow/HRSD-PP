@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+            Restyles the stock "Invoice: Sending" template (account.email_template_edi_invoice)
+            with the same modern branded layout used for payslip emails, while keeping all of
+            the original template's logic (partner/company display, reference, amount, paid vs.
+            due, payment reference/bank account, timesheet portal link, signature).
+        -->
+        <record id="account.email_template_edi_invoice" model="mail.template">
+            <field name="body_html" type="html">
+<t t-set="current_year" t-value="datetime.datetime.now().year"/>
+<t t-set="company" t-value="object.company_id"/>
+<t t-set="email_title">Invoice <t t-out="object.name or ''"/></t>
+<t t-set="preheader">Your invoice <t t-out="object.name or ''"/> from <t t-out="object.company_id.name or ''"/></t>
+<t t-set="body_content">
+    <p style="font-size:15px; margin:0 0 20px 0; line-height:1.7;">
+        Dear
+        <t t-if="object.partner_id.parent_id">
+            <t t-if="object.partner_id.name">
+                <strong t-out="object.partner_id.name">Brandon Freeman</strong> (<t t-out="object.partner_id.parent_id.name or ''">Azure Interior</t>),
+            </t>
+            <t t-else="">
+                <strong t-out="object.partner_id.parent_id.name or ''">Azure Interior</strong>,
+            </t>
+        </t>
+        <t t-else="">
+            <strong t-out="object.partner_id.name or ''">Brandon Freeman</strong>,
+        </t>
+        <br/><br/>
+        Here is your
+        <t t-if="object.name">invoice <strong t-out="object.name or ''">INV/2021/05/0005</strong></t>
+        <t t-else="">invoice</t>
+        <t t-if="object.invoice_origin"> (with reference: <t t-out="object.invoice_origin or ''">SUB003</t>)</t>
+        from <t t-out="object.company_id.name or ''">YourCompany</t>.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e3e8f3; border-radius:10px; margin-bottom:16px;">
+        <tr><td style="padding:18px 20px;">
+            <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+                <td style="width:52px; vertical-align:middle;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" style="width:46px; height:46px; background:#eef2fb; border-radius:50%;">
+                        <tr><td align="center" valign="middle" style="font-size:18px;">&#128196;</td></tr>
+                    </table>
+                </td>
+                <td style="padding-left:14px;">
+                    <div style="font-size:12px; color:#6b7690;">Invoice Total</div>
+                    <div style="font-size:20px; font-weight:bold; color:#12328c; margin-top:2px;" t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 143,750.00</div>
+                </td>
+            </tr></table>
+        </td></tr>
+    </table>
+
+    <t t-if="object.payment_state in ('paid', 'in_payment')">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e5f7ea; border-radius:10px; margin-bottom:16px;">
+            <tr><td style="padding:14px 18px; font-size:13px; color:#1f9254; font-weight:bold;">&#9989; This invoice is already paid.</td></tr>
+        </table>
+    </t>
+    <t t-else="">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2fb; border-radius:10px; margin-bottom:16px;">
+            <tr><td style="padding:16px 20px; font-size:13px; color:#33415c; line-height:1.6;">
+                Please remit payment at your earliest convenience.
+                <t t-if="object.payment_reference">
+                    <br/>Payment reference: <strong t-out="object.payment_reference or ''">INV/2021/05/0005</strong>
+                    <t t-if="object.partner_bank_id"> on account <strong t-out="object.partner_bank_id.acc_number"/></t>.
+                </t>
+            </td></tr>
+        </table>
+    </t>
+
+    <t t-if="hasattr(object, 'timesheet_count') and object.timesheet_count">
+        <p style="font-size:13px; color:#6b7690; margin:0 0 16px 0;">
+            PS: you can review your timesheets <a t-att-href="'/my/timesheets?search_in=invoice&amp;search=%s' % object.name">from the portal.</a>
+        </p>
+    </t>
+
+    <p style="font-size:14px; margin:0;">Do not hesitate to contact us if you have any questions.</p>
+    <t t-if="not is_html_empty(object.invoice_user_id.signature)">
+        <div style="margin-top:16px; font-size:13px; color:#6b7690;">--<br/><t t-out="object.invoice_user_id.signature or ''">Mitchell Admin</t></div>
+    </t>
+</t>
+<t t-call="mail_template.email_layout"/>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -87,6 +87,11 @@ export class HrPayslipCreateWizard extends Component {
             paymentDate: toDateStr(today),
             markingPaid: false,
             paidDone: false,
+            // Send by Email (success screen)
+            sendingEmail: false,
+            showTemplateManager: false,
+            mailTemplate: { id: false, subject: "", body: "", cc: "" },
+            savingTemplate: false,
         });
 
         onWillStart(async () => {
@@ -1244,6 +1249,96 @@ export class HrPayslipCreateWizard extends Component {
 
     printBulkPayslips() {
         if (this.bulkPreviewUrl) window.open(this.bulkPreviewUrl, "_blank");
+    }
+
+    // Send by Email (success screen): emails the payslip PDF to the
+    // employee's work email using the shared hr.payslip.mail.template.
+    async sendPayslipEmail() {
+        this.state.sendingEmail = true;
+        this.state.error = "";
+        try {
+            await this.orm.call("hr.payslip", "action_send_payslip_email", [[this.state.slipId]]);
+            this.notification.add(_t("Payslip emailed to") + ` ${this.employeeName}.`, { type: "success" });
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.sendingEmail = false;
+        }
+    }
+
+    async sendBulkPayslipEmails() {
+        const ids = this.bulkValidatedResults.map((r) => r.slip_id);
+        if (!ids.length) return;
+        this.state.sendingEmail = true;
+        this.state.error = "";
+        try {
+            const results = await this.orm.call("hr.payslip", "bulk_send_payslip_email", [ids]);
+            const byId = {};
+            for (const r of results) byId[r.slip_id] = r;
+            for (const r of this.state.bulkResults) {
+                const res = byId[r.slip_id];
+                if (res) {
+                    r.emailStatus = res.status;
+                    r.emailReason = res.reason;
+                }
+            }
+            const sent = results.filter((r) => r.status === "sent").length;
+            const failed = results.length - sent;
+            this.notification.add(
+                `${sent} ` + _t("payslip(s) emailed") + (failed ? `, ${failed} ` + _t("failed") + "." : "."),
+                { type: failed ? "warning" : "success" }
+            );
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.sendingEmail = false;
+        }
+    }
+
+    // Manage Template: subject/body/CC for the payslip email, with
+    // {{variable}} placeholders substituted per-employee at send time
+    // (see hr.payslip._render_payslip_mail on the server) - plain
+    // string tokens rather than Jinja/expression eval, since this panel
+    // is meant to be safely editable by anyone with payroll access.
+    async openTemplateManager() {
+        this.state.error = "";
+        try {
+            this.state.mailTemplate = await this.orm.call(
+                "hr.payslip.mail.template", "get_template_values", []);
+            this.state.showTemplateManager = true;
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        }
+    }
+
+    closeTemplateManager() {
+        this.state.showTemplateManager = false;
+    }
+
+    onTemplateFieldChange(field, ev) {
+        this.state.mailTemplate[field] = ev.target.value;
+    }
+
+    insertTemplateVariable(field, token) {
+        this.state.mailTemplate[field] = (this.state.mailTemplate[field] || "") + token;
+    }
+
+    async saveTemplate() {
+        this.state.savingTemplate = true;
+        this.state.error = "";
+        try {
+            await this.orm.write("hr.payslip.mail.template", [this.state.mailTemplate.id], {
+                subject: this.state.mailTemplate.subject,
+                body: this.state.mailTemplate.body,
+                cc: this.state.mailTemplate.cc,
+            });
+            this.state.showTemplateManager = false;
+            this.notification.add(_t("Email template saved."), { type: "success" });
+        } catch (e) {
+            this.state.error = this._errorMessage(e);
+        } finally {
+            this.state.savingTemplate = false;
+        }
     }
 
     createAnother() {

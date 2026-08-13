@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data>
+
+    <record id="testmail_check_list_view" model="ir.ui.view">
+      <field name="name">testmail.check.list</field>
+      <field name="model">testmail.check</field>
+      <field name="arch" type="xml">
+        <list string="Test Mail Checks" default_order="id desc">
+          <field name="name"/>
+          <field name="to_email"/>
+          <field name="state" widget="badge"
+                 decoration-success="state == 'received'"
+                 decoration-danger="state in ('error', 'not_received')"
+                 decoration-info="state == 'sent'"/>
+          <field name="sent_date"/>
+          <field name="received_date"/>
+          <field name="latency_seconds"/>
+        </list>
+      </field>
+    </record>
+
+    <record id="testmail_check_form_view" model="ir.ui.view">
+      <field name="name">testmail.check.form</field>
+      <field name="model">testmail.check</field>
+      <field name="arch" type="xml">
+        <form string="Test Mail Check">
+          <header>
+            <button name="action_send_and_verify" type="object" string="Send &amp; Verify"
+                    class="btn-primary" invisible="state != 'draft'"/>
+            <button name="action_send_test_email" type="object" string="Send Test Email"
+                    class="btn-secondary" invisible="state != 'draft'"/>
+            <button name="action_check_inbox" type="object" string="Check Inbox"
+                    class="btn-secondary" invisible="state not in ('sent', 'not_received')"/>
+            <field name="state" widget="statusbar" statusbar_visible="draft,sent,received"/>
+          </header>
+          <sheet>
+            <div class="oe_title">
+              <h1><field name="name" readonly="1"/></h1>
+            </div>
+            <group>
+              <group string="testmail.app">
+                <field name="namespace"/>
+                <field name="api_key" password="True"/>
+                <field name="to_email" readonly="1"/>
+                <field name="tag" readonly="1"/>
+              </group>
+              <group string="Result">
+                <field name="sent_date" readonly="1"/>
+                <field name="received_date" readonly="1"/>
+                <field name="received_subject" readonly="1"/>
+                <field name="latency_seconds" readonly="1"/>
+              </group>
+            </group>
+            <group string="Error" invisible="not error_message">
+              <field name="error_message" readonly="1" nolabel="1"/>
+            </group>
+            <notebook>
+              <page string="Raw API Response">
+                <field name="raw_response" readonly="1" widget="text"/>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_testmail_check" model="ir.actions.act_window">
+      <field name="name">Test Mail</field>
+      <field name="res_model">testmail.check</field>
+      <field name="view_mode">list,form</field>
+      <field name="context">{}</field>
+      <field name="help" type="html">
+        <p class="o_view_nocontent_smiling_face">Run a deliverability check</p>
+        <p>
+          Sends a real email through Odoo's configured Outgoing Mail Server to a
+          disposable testmail.app inbox, then queries testmail.app to confirm it
+          actually arrived - proving outgoing mail really works, not just that
+          Odoo queued it.
+        </p>
+      </field>
+    </record>
+
+    <menuitem id="menu_testmail_root" name="Test Mail" sequence="500"
+              action="action_testmail_check" groups="base.group_system"/>
+
+  </data>
+</odoo>

@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
+<odoo>
+    <!-- Not noupdate: runs on every module update (unlike the noupdate="1"
+         block below) so the Face Detection check seeded by older versions
+         of this module actually gets removed from already-installed
+         databases, instead of surviving as an orphaned row nothing reads
+         anymore. Face Detection (on-device "is there a face at all") was
+         retired in favor of Face Recognition alone (server-side match
+         against the employee's registered photo), which already implies
+         a face is present. -->
+    <delete model="flutterattendance.security.check" id="security_check_face_detection"/>
+
+    <data noupdate="1">
     <record id="security_check_mock_location" model="flutterattendance.security.check">
         <field name="check_type">mock_location</field>
         <field name="name">Location Spoofing</field>
@@ -48,14 +59,6 @@
         <field name="sequence">60</field>
         <field name="enabled">True</field>
     </record>
-    <record id="security_check_face_detection" model="flutterattendance.security.check">
-        <field name="check_type">face_detection</field>
-        <field name="name">Face Detection</field>
-        <field name="description">Require a detected face in the check-in/out selfie.</field>
-        <field name="icon">fa-user</field>
-        <field name="sequence">5</field>
-        <field name="enabled">True</field>
-    </record>
     <record id="security_check_face_recognition" model="flutterattendance.security.check">
         <field name="check_type">face_recognition</field>
         <field name="name">Face Recognition</field>
@@ -67,4 +70,5 @@
              so HR should turn it on only after registering photos. -->
         <field name="enabled">False</field>
     </record>
+    </data>
 </odoo>

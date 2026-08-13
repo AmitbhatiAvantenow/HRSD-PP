@@ -9,4 +9,14 @@
         <field name="interval_type">minutes</field>
         <field name="active">True</field>
     </record>
+
+    <record id="ir_cron_flutterattendance_flag_missed_checkouts" model="ir.cron">
+        <field name="name">Flutter Attendance: Flag Missed Checkouts</field>
+        <field name="model_id" ref="model_flutterattendance_attendance"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_flag_missed_checkouts()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
 </odoo>

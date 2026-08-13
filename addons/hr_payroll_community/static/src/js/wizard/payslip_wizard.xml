@@ -62,6 +62,10 @@
             <div class="opw-success-actions">
               <button type="button" class="opw-btn-primary" t-on-click="viewPayslip"><i class="fa fa-external-link"/> View Payslip</button>
               <button type="button" class="opw-btn-ghost" t-on-click="printPayslip"><i class="fa fa-print"/> Print / Download</button>
+              <button type="button" class="opw-btn-ghost" t-att-disabled="state.sendingEmail" t-on-click="sendPayslipEmail">
+                <i t-if="state.sendingEmail" class="fa fa-spinner fa-spin"/><i t-else="" class="fa fa-envelope"/> Send by Email
+              </button>
+              <button type="button" class="opw-btn-ghost" t-on-click="openTemplateManager"><i class="fa fa-cog"/> Manage Template</button>
               <button type="button" class="opw-btn-ghost" t-on-click="createAnother"><i class="fa fa-plus"/> Create Another</button>
               <button type="button" class="opw-btn-ghost" t-on-click="onClose">Close</button>
             </div>
@@ -72,11 +76,15 @@
             <div class="opw-success-actions">
               <button type="button" class="opw-btn-primary" t-on-click="viewBulkRun"><i class="fa fa-external-link"/> View Payslip Batch</button>
               <button type="button" class="opw-btn-ghost" t-on-click="printBulkPayslips"><i class="fa fa-print"/> Print / Download</button>
+              <button type="button" class="opw-btn-ghost" t-att-disabled="state.sendingEmail || !bulkValidatedResults.length" t-on-click="sendBulkPayslipEmails">
+                <i t-if="state.sendingEmail" class="fa fa-spinner fa-spin"/><i t-else="" class="fa fa-envelope"/> Send by Email
+              </button>
+              <button type="button" class="opw-btn-ghost" t-on-click="openTemplateManager"><i class="fa fa-cog"/> Manage Template</button>
               <button type="button" class="opw-btn-ghost" t-on-click="createAnother"><i class="fa fa-plus"/> Create Another</button>
               <button type="button" class="opw-btn-ghost" t-on-click="onClose">Close</button>
             </div>
             <table class="opw-table opw-bulk-result-table">
-              <thead><tr><th>Employee</th><th>Status</th><th class="text-end">Net Pay</th></tr></thead>
+              <thead><tr><th>Employee</th><th>Status</th><th class="text-end">Net Pay</th><th>Email</th></tr></thead>
               <tbody>
                 <tr t-foreach="state.bulkResults" t-as="r" t-key="r.employee_id">
                   <td t-esc="r.employee_name"/>
@@ -87,9 +95,60 @@
                     <span t-if="r.status === 'error'" class="opw-badge opw-badge-error" t-att-title="r.reason">Failed</span>
                   </td>
                   <td class="text-end" t-esc="r.status === 'validated' ? formatMoney(r.net_total) : '—'"/>
+                  <td>
+                    <span t-if="r.emailStatus === 'sent'" class="opw-badge opw-badge-ok">Sent</span>
+                    <span t-if="r.emailStatus === 'error'" class="opw-badge opw-badge-error" t-att-title="r.emailReason">Failed</span>
+                    <span t-if="!r.emailStatus">—</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Manage Template: subject/body/CC for the payslip email,
+             with {{variable}} placeholders - available from either
+             success screen's "Manage Template" button. -->
+        <div class="opw-modal-overlay" t-if="state.showTemplateManager">
+          <div class="opw-modal">
+            <div class="opw-modal-header">
+              <h3>Manage Payslip Email Template</h3>
+              <button type="button" class="opw-btn-icon" t-on-click="closeTemplateManager"><i class="fa fa-times"/></button>
+            </div>
+            <div class="opw-modal-body">
+              <div class="opw-field">
+                <label>Subject</label>
+                <input type="text"
+                       t-att-value="state.mailTemplate.subject"
+                       t-on-change="(ev) => this.onTemplateFieldChange('subject', ev)"/>
+              </div>
+              <div class="opw-field">
+                <label>Body</label>
+                <textarea class="opw-remarks-textarea opw-template-body"
+                          t-att-value="state.mailTemplate.body"
+                          t-on-change="(ev) => this.onTemplateFieldChange('body', ev)"></textarea>
+              </div>
+              <div class="opw-template-variables">
+                <span class="opw-template-var-label">Insert variable:</span>
+                <button type="button" class="opw-var-chip" t-on-click="() => this.insertTemplateVariable('body', '{{employee_name}}')">employee_name</button>
+                <button type="button" class="opw-var-chip" t-on-click="() => this.insertTemplateVariable('body', '{{month}}')">month</button>
+                <button type="button" class="opw-var-chip" t-on-click="() => this.insertTemplateVariable('body', '{{net_pay}}')">net_pay</button>
+                <button type="button" class="opw-var-chip" t-on-click="() => this.insertTemplateVariable('body', '{{designation}}')">designation</button>
+                <button type="button" class="opw-var-chip" t-on-click="() => this.insertTemplateVariable('body', '{{company_name}}')">company_name</button>
+              </div>
+              <div class="opw-field">
+                <label>CC <span class="opw-text-muted">(optional, comma-separated email addresses)</span></label>
+                <input type="text" placeholder="hr@company.com, payroll@company.com"
+                       t-att-value="state.mailTemplate.cc"
+                       t-on-change="(ev) => this.onTemplateFieldChange('cc', ev)"/>
+              </div>
+            </div>
+            <div class="opw-modal-footer">
+              <button type="button" class="opw-btn-ghost" t-on-click="closeTemplateManager">Cancel</button>
+              <button type="button" class="opw-btn-primary" t-att-disabled="state.savingTemplate" t-on-click="saveTemplate">
+                <i t-if="state.savingTemplate" class="fa fa-spinner fa-spin"/> Save Template
+              </button>
+            </div>
           </div>
         </div>
 

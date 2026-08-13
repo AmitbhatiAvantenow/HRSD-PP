@@ -21,6 +21,7 @@ class FlutterAttendanceStatusRule(models.Model):
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company)
 
     condition = fields.Selection([
+        ('missed_checkout', 'Check-out was never recorded (auto-closed by the next-day sweep)'),
         ('shift_half_day', "Worked less than the employee's shift Half-Day hours"),
         ('hours_range', 'Worked hours are between'),
         ('late', 'Checked in later than the shift start + grace period'),

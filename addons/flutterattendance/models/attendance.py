@@ -28,6 +28,13 @@ class FlutterAttendance(models.Model):
              "including adding brand new statuses beyond Present/Late/Half Day.",
     )
     remarks = fields.Text(string='Work Comment', help="Employee's work summary, collected right after check-out.")
+    missed_checkout = fields.Boolean(
+        default=False,
+        help="True when this session's employee-local day ended (or a later check-in happened) "
+             "before a check-out was ever recorded — the checkout was missed, so the session was "
+             "auto-closed instead of blocking the next check-in. Cleared automatically if HR later "
+             "fills in a real check-out time.",
+    )
 
     # Check-in
     checkin_latitude = fields.Float(digits=(10, 7))
@@ -75,6 +82,48 @@ class FlutterAttendance(models.Model):
             ('check_out_time', '=', False),
         ], limit=1, order='check_in_time desc')
 
+    @api.model
+    def _resolve_stale_session(self, employee, today):
+        """Look up this employee's open session (if any) and decide whether
+        it should still block a new check-in.
+
+        A session left open from a previous day means the check-out was
+        simply forgotten, not that the employee is still "at work" — so
+        instead of blocking today's check-in forever, it's auto-closed here
+        as missed_checkout and this returns None, letting the caller create
+        today's record. A session still open for *today* is a real
+        in-progress check-in and is returned as-is so the caller can reject
+        the duplicate check-in.
+        """
+        open_session = self._find_open_session(employee)
+        if not open_session:
+            return None
+        if open_session.attendance_date and open_session.attendance_date < today:
+            open_session.write({'missed_checkout': True})
+            return None
+        return open_session
+
+    @api.model
+    def _cron_flag_missed_checkouts(self):
+        """Safety net for _resolve_stale_session: catches sessions left open
+        from a previous day even when the employee never opens the app again
+        to trigger a new check-in (so HR/reports still see them flagged
+        instead of looking like an endless open session)."""
+        open_sessions = self.sudo().search([
+            ('check_out_time', '=', False),
+            ('missed_checkout', '=', False),
+        ])
+        stale = self.browse()
+        for rec in open_sessions:
+            employee = rec.employee_id
+            tz_name = employee.tz or employee.user_id.tz or 'UTC'
+            today_local = fields.Datetime.context_timestamp(
+                rec.with_context(tz=tz_name), fields.Datetime.now()).date()
+            if rec.attendance_date and rec.attendance_date < today_local:
+                stale += rec
+        if stale:
+            stale.write({'missed_checkout': True})
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
@@ -85,6 +134,12 @@ class FlutterAttendance(models.Model):
         return records
 
     def write(self, vals):
+        # A real check-out time arriving (the normal check-out call, or HR
+        # backfilling one via history_update) means the checkout was no
+        # longer missed, even if this session had earlier been auto-flagged
+        # by _resolve_stale_session/_cron_flag_missed_checkouts.
+        if vals.get('check_out_time') and 'missed_checkout' not in vals:
+            vals = {**vals, 'missed_checkout': False}
         sync_keys = {'check_in_time', 'check_out_time', 'attendance_date', 'remarks', 'employee_id'}
         to_sync = self if sync_keys & set(vals) else self.browse()
         # attendance_date/employee_id can move a record's hours out of its old
@@ -227,7 +282,7 @@ class FlutterAttendance(models.Model):
             selection = [('present', 'Present'), ('late', 'Late'), ('half_day', 'Half Day')]
         return selection
 
-    @api.depends('check_in_time', 'check_out_time',
+    @api.depends('check_in_time', 'check_out_time', 'missed_checkout',
                  'checkin_latitude', 'checkin_longitude', 'checkout_latitude', 'checkout_longitude')
     def _compute_summary(self):
         ICP = self.env['ir.config_parameter'].sudo()
@@ -269,7 +324,10 @@ class FlutterAttendance(models.Model):
             if rule.require_checkout and not self.check_out_time:
                 continue
 
-            if rule.condition == 'shift_half_day':
+            if rule.condition == 'missed_checkout':
+                if self.missed_checkout:
+                    return rule.code
+            elif rule.condition == 'shift_half_day':
                 half_day_hours = shift.half_day_hours if shift else 4.0
                 if self.check_out_time and self.working_hours < half_day_hours:
                     return rule.code

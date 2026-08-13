@@ -209,6 +209,36 @@
   }
   .opw-remarks-textarea:focus { border-color: var(--opw-rose); outline: none; }
 
+  // Manage Template modal (payslip email subject/body/CC)
+  .opw-modal-overlay {
+    position: fixed; inset: 0; background: rgba(17, 24, 39, 0.55); z-index: 1100;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .opw-modal {
+    background: #fff; border-radius: 14px; width: 100%; max-width: 560px; max-height: 90vh;
+    display: flex; flex-direction: column; box-shadow: 0 20px 50px -12px rgba(17, 24, 39, 0.35);
+  }
+  .opw-modal-header {
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;
+    border-bottom: 1px solid var(--opw-border);
+  }
+  .opw-modal-header h3 { font-size: 15.5px; font-weight: 800; margin: 0; }
+  .opw-modal-body { padding: 18px 20px; overflow-y: auto; }
+  .opw-modal-body .opw-field { margin-bottom: 14px; }
+  .opw-modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px;
+    border-top: 1px solid var(--opw-border);
+  }
+  .opw-template-body { min-height: 160px; font-family: inherit; }
+  .opw-template-variables { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: -6px 0 16px; }
+  .opw-template-var-label { font-size: 11.5px; color: var(--opw-text-muted); margin-right: 2px; }
+  .opw-var-chip {
+    font-family: monospace; font-size: 11px; padding: 3px 9px; border-radius: 999px;
+    background: var(--opw-bg); border: 1px solid var(--opw-border); color: var(--opw-indigo);
+    cursor: pointer; transition: background 0.15s ease;
+  }
+  .opw-var-chip:hover { background: darken(#f6f5fb, 5%); }
+
   .opw-total-row {
     display: flex; justify-content: space-between; padding: 12px 14px; margin-top: 8px;
     border-top: 2px solid var(--opw-border); font-size: 14px;

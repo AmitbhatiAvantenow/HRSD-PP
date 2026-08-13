@@ -14,7 +14,6 @@ class FlutterAttendanceSecurityCheck(models.Model):
             ('dev_mode', 'Developer Mode Detection'),
             ('real_device', 'Emulator Detection'),
             ('impossible_travel', 'Impossible Travel Detection'),
-            ('face_detection', 'Face Detection'),
             ('face_recognition', 'Face Recognition'),
         ],
         required=True, index=True,

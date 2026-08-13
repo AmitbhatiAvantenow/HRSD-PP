@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--
+            Shared modern branded shell for outgoing emails.
+            Expected render values:
+              company       : res.company record (defaults to env.company)
+              email_title   : text shown top-right in the header (e.g. "Payslip for August 2026")
+              preheader     : hidden inbox-preview text
+              body_content  : Markup - the inner HTML for the white content area
+              current_year  : int - must be passed explicitly, must not rely on globals
+                               that differ between the ir.qweb and mail.render pipelines
+        -->
+        <template id="email_layout" name="Modern Mail Template: Layout">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef1f7; padding:24px 0; font-family:Arial, Helvetica, sans-serif;">
+<tr><td align="center">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px; max-width:640px; background:#ffffff; border-radius:14px; overflow:hidden;">
+
+    <tr t-if="preheader"><td>
+        <div style="display:none; max-height:0; overflow:hidden; opacity:0; font-size:1px; line-height:1px; color:#eef1f7;">
+            <t t-out="preheader"/>
+        </div>
+    </td></tr>
+
+    <!-- HEADER -->
+    <tr><td style="background:#0c2470; background-image:linear-gradient(135deg,#081a52 0%,#123a9c 55%,#2159e8 100%); padding:26px 32px 0 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td valign="middle">
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td t-if="company and not company.uses_default_logo" style="padding-right:12px;">
+                                <img t-att-src="'/logo.png?company=%s' % company.id" t-att-alt="company.name" style="height:40px; max-width:150px; display:block; border-radius:8px;"/>
+                            </td>
+                            <td t-else="" style="padding-right:12px;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" style="width:40px; height:40px; background:rgba(255,255,255,0.16); border-radius:50%;">
+                                    <tr><td align="center" valign="middle" style="color:#ffffff; font-size:16px; font-weight:bold;"><t t-out="(company.name or '?')[0]"/></td></tr>
+                                </table>
+                            </td>
+                            <td style="color:#ffffff; font-size:16px; font-weight:bold; vertical-align:middle;"><t t-out="company.name or ''"/></td>
+                        </tr>
+                    </table>
+                </td>
+                <td align="right" valign="middle" style="color:#ffffff; font-size:19px; font-weight:600; padding-left:12px;">
+                    <t t-out="email_title or ''"/>
+                </td>
+            </tr>
+        </table>
+        <div style="line-height:0; margin-top:20px;">
+            <svg viewBox="0 0 640 46" xmlns="http://www.w3.org/2000/svg" style="display:block; width:100%; height:46px;">
+                <path d="M0,26 C120,50 260,4 420,22 C520,34 580,10 640,18 L640,46 L0,46 Z" fill="#ffffff"></path>
+            </svg>
+        </div>
+    </td></tr>
+
+    <!-- BODY -->
+    <tr><td style="padding:30px 36px 6px 36px; font-family:Arial, Helvetica, sans-serif; color:#33415c;">
+        <t t-out="body_content"/>
+    </td></tr>
+
+    <tr><td style="padding:6px 36px 30px 36px;">
+        <div style="height:3px; width:46px; background:#2159e8; border-radius:2px;"></div>
+    </td></tr>
+
+    <!-- FOOTER -->
+    <tr><td style="background:#eef1f7; padding:20px 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+            <td t-if="company.website" style="font-size:12px; color:#48546b; padding:4px 14px 4px 0;">
+                &#127760;&#160;<a t-att-href="company.website" style="color:#48546b; text-decoration:none;" t-out="company.website"/>
+            </td>
+            <td t-if="company.email" style="font-size:12px; color:#48546b; padding:4px 14px;">
+                &#9993;&#160;<a t-att-href="'mailto:%s' % company.email" style="color:#48546b; text-decoration:none;" t-out="company.email"/>
+            </td>
+            <td t-if="company.partner_id.city or company.partner_id.country_id" style="font-size:12px; color:#48546b; padding:4px 0 4px 14px;">
+                &#128205;&#160;<t t-out="', '.join(filter(None, [company.partner_id.city, company.partner_id.country_id.name]))"/>
+            </td>
+        </tr></table>
+    </td></tr>
+    <tr><td style="background:#0c2470; padding:14px 32px; text-align:center;">
+        <span style="font-size:11px; color:#c7d2f0;">&#169; <t t-out="current_year"/> <t t-out="company.name or ''"/>. All rights reserved.</span>
+    </td></tr>
+
+</table>
+</td></tr>
+</table>
+        </template>
+    </data>
+</odoo>
