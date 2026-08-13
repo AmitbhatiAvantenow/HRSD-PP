@@ -5,6 +5,11 @@
         <field name="model">flutterattendance.attendance</field>
         <field name="arch" type="xml">
             <list string="Mobile Attendance">
+                <header>
+                    <button name="action_resync_status" type="object" string="Sync Status"
+                            class="btn-secondary" display="always"
+                            confirm="Recompute Status (and Working Hours / Late Minutes / Overtime / Distance) against the current Status Rules? With no rows checked this updates every attendance record; check specific rows first to limit it to just those."/>
+                </header>
                 <field name="employee_id"/>
                 <field name="attendance_date"/>
                 <field name="check_in_time"/>
@@ -13,8 +18,8 @@
                 <field name="distance_km"/>
                 <field name="status" widget="badge"
                        decoration-success="status == 'present'"
-                       decoration-warning="status == 'late'"
-                       decoration-danger="status == 'half_day' or status == 'missed_checkout'"/>
+                       decoration-warning="status == 'half_day' or status == 'late'"
+                       decoration-danger="status == 'absent' or status == 'missed_checkout'"/>
                 <field name="missed_checkout" optional="show"/>
                 <field name="remarks" string="Comment" optional="show"/>
             </list>

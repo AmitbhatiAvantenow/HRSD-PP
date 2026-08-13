@@ -13,9 +13,12 @@ class FlutterAttendanceStatusRule(models.Model):
     )
     code = fields.Char(
         required=True,
-        help="Technical value stored on the record. Reuse 'present'/'late'/'half_day' to stay "
+        help="Technical value stored on the record. Reuse 'present'/'half_day'/'absent' to stay "
              "compatible with the mobile app and existing filters, or make up a new one to add a "
-             "brand new status (e.g. 'absent', 'overtime').",
+             "brand new status (e.g. 'late', 'overtime'). Multiple rules may share the same code "
+             "(e.g. two different reasons that both land on 'absent') as long as they also share "
+             "the same name — the Status field's options are built from (code, name) pairs, and "
+             "mismatched names for one code produce a broken duplicate-valued selection.",
     )
     active = fields.Boolean(default=True)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.company)

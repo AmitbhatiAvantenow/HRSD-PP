@@ -124,6 +124,26 @@ class FlutterAttendance(models.Model):
         if stale:
             stale.write({'missed_checkout': True})
 
+    def action_resync_status(self):
+        """Sync Status button on the Mobile Attendance list. status
+        (like working_hours/late_minutes/overtime_hours/distance_km) is a
+        stored compute field, so editing Settings > Status Rules doesn't
+        retroactively touch records computed under the old rules — they
+        keep showing whatever status they were given at the time, even
+        after a rule is renamed/removed/added. Calling the compute method
+        directly re-runs it now, against whatever rules are configured
+        this moment.
+
+        The button is display="always" specifically so it doesn't require
+        selecting rows first, but Odoo's header-button click still only
+        ever passes the *checked* rows as `self` — with nothing checked
+        that's an empty recordset, which would silently resync nothing.
+        So an empty self here means "resync everything" instead; a real
+        selection is still honored and resyncs only those rows.
+        """
+        records = self or self.search([])
+        records._compute_summary()
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)

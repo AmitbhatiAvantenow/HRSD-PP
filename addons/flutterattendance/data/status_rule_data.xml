@@ -1,38 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
-    <!-- Reproduces the module's original hardcoded behaviour: missed
-         checkout beats half day, half day beats late, late beats present.
-         Fully editable from Mobile Attendance > Settings > Status Rules
-         once installed. -->
+<odoo>
+    <!-- Not noupdate: runs on every module update. Late is retired outright
+         (deleted, not recreated — attendance below the shift start + grace
+         period no longer gets its own status). Missed Checkout/Half
+         Day/Present are deleted here and recreated below with their new
+         field values, because noupdate="1" (below) only protects records
+         from being overwritten on upgrade for DBs that already have
+         them — it doesn't apply new field values to them. Deleting first
+         means the recreate below is a fresh insert either way, so the new
+         values reliably land on every already-installed database, not
+         just fresh installs. -->
+    <delete model="flutterattendance.status.rule" id="status_rule_late"/>
+    <delete model="flutterattendance.status.rule" id="status_rule_missed_checkout"/>
+    <delete model="flutterattendance.status.rule" id="status_rule_half_day"/>
+    <delete model="flutterattendance.status.rule" id="status_rule_present"/>
+
+    <data noupdate="1">
+    <!-- Reproduces the module's current hardcoded behaviour: missed
+         checkout beats "worked under 4h" (both Absent), which beats half
+         day (4h-8h), which beats present (8h+). Fully editable from
+         Mobile Attendance > Settings > Status Rules once installed —
+         including the 4h/8h boundaries below, which are fixed values
+         here rather than each employee's shift.half_day_hours /
+         full_day_hours (still used for overtime calculation), so a
+         shift-specific boundary needs its own rule added manually.
+
+         status_rule_missed_checkout and status_rule_absent_low_hours
+         deliberately share code "absent" (two different reasons landing
+         on the same status) — kept on the same `name` too, since
+         flutterattendance.attendance's status Selection is built from
+         (code, name) pairs off these rows (_get_status_selection) and
+         mismatched names for the same code would produce a broken
+         duplicate-valued selection. -->
     <record id="status_rule_missed_checkout" model="flutterattendance.status.rule">
-        <field name="name">Missed Checkout</field>
-        <field name="code">missed_checkout</field>
+        <field name="name">Absent</field>
+        <field name="code">absent</field>
         <field name="sequence">5</field>
         <field name="condition">missed_checkout</field>
         <field name="require_checkout">False</field>
     </record>
 
-    <record id="status_rule_half_day" model="flutterattendance.status.rule">
-        <field name="name">Half Day</field>
-        <field name="code">half_day</field>
+    <record id="status_rule_absent_low_hours" model="flutterattendance.status.rule">
+        <field name="name">Absent</field>
+        <field name="code">absent</field>
         <field name="sequence">10</field>
-        <field name="condition">shift_half_day</field>
+        <field name="condition">hours_range</field>
+        <field name="min_hours">0</field>
+        <field name="max_hours">4</field>
         <field name="require_checkout">True</field>
     </record>
 
-    <record id="status_rule_late" model="flutterattendance.status.rule">
-        <field name="name">Late</field>
-        <field name="code">late</field>
+    <record id="status_rule_half_day" model="flutterattendance.status.rule">
+        <field name="name">Half Day</field>
+        <field name="code">half_day</field>
         <field name="sequence">20</field>
-        <field name="condition">late</field>
-        <field name="require_checkout">False</field>
+        <field name="condition">hours_range</field>
+        <field name="min_hours">4</field>
+        <field name="max_hours">8</field>
+        <field name="require_checkout">True</field>
     </record>
 
     <record id="status_rule_present" model="flutterattendance.status.rule">
         <field name="name">Present</field>
         <field name="code">present</field>
         <field name="sequence">30</field>
-        <field name="condition">always</field>
-        <field name="require_checkout">False</field>
+        <field name="condition">hours_range</field>
+        <field name="min_hours">8</field>
+        <field name="max_hours">0</field>
+        <field name="require_checkout">True</field>
     </record>
+    </data>
 </odoo>
