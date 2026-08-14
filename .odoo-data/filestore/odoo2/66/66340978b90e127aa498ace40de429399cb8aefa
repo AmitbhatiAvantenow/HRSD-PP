@@ -12,18 +12,18 @@
                     font-family: Lato;
 
                     h2 {
-                        color: #212529;
+                        color: #2a4caf;
                     }
 
                     #informations strong {
-                        color: #212529;
+                        color: #868686;
                     }
 
                     .o_total strong {
-                        color: #212529;
+                        color: #2a4caf;
                     }
 
                     .o_company_tagline {
-                        color: #212529
+                        color: #2a4caf
                     }
             }

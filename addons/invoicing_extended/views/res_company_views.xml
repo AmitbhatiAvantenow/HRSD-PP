@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_invoicing_extended" model="ir.ui.view">
+        <field name="name">res.company.form.invoicing.extended</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='branches']" position="before">
+                <page string="Extended Invoicing" name="invoicing_extended">
+                    <group>
+                        <group string="Invoice Header">
+                            <field name="invoice_tagline" placeholder="e.g. Quant Analytics with Agility"/>
+                        </group>
+                        <group string="Defaults">
+                            <field name="invoice_default_ccw_percent"/>
+                            <field name="invoice_default_lut_arn"/>
+                        </group>
+                    </group>
+                    <group string="Authorized Signatory">
+                        <group>
+                            <field name="invoice_signatory_name"/>
+                            <field name="invoice_signatory_designation"/>
+                        </group>
+                        <group>
+                            <field name="invoice_signatory_signature" widget="image" class="oe_avatar" options="{'size': [140, 70]}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

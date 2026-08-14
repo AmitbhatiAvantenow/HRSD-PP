@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_extended">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="invoicing_extended.report_invoice_extended_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_invoice_extended_document">
+        <t t-set="company" t-value="o.company_id"/>
+        <t t-set="is_staff_aug" t-value="o.invoice_layout == 'staff_augmentation'"/>
+        <t t-set="lines" t-value="o.invoice_line_ids.filtered(lambda l: l.display_type == 'product')"/>
+
+        <div class="iext-doc">
+            <style>
+                .iext-doc { font-size: 12px; color: #1f2a3d; }
+                .iext-doc table { width: 100%; border-collapse: collapse; }
+                .iext-doc table.iext-layout > tr > td { vertical-align: top; padding: 0; }
+                .iext-doc table.iext-layout > tr > td.iext-gutter { width: 12px; }
+                .iext-doc .iext-logo img { max-height: 64px; max-width: 220px; }
+                .iext-doc .iext-tagline { color: #5b6b82; font-style: italic; font-size: 11px; margin-top: 2px; }
+                .iext-doc .iext-doctitle h2 { color: #17406b; margin: 0; font-weight: 700; letter-spacing: 1px; }
+                .iext-doc .iext-doctitle .iext-subtitle { color: #b4590c; font-weight: 600; font-size: 11px; }
+                .iext-doc .iext-box { border: 1px solid #d3dae3; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+                .iext-doc .iext-box-accent { background: #eef4fb; border-color: #cbdcef; }
+                .iext-doc .iext-box-muted { background: #f4f6f9; }
+                .iext-doc .iext-label { color: #5b6b82; font-size: 10.5px; text-transform: uppercase; letter-spacing: .4px; }
+                .iext-doc table.iext-items th { background: #17406b; color: #fff; font-size: 11px; padding: 6px 8px; text-align: left; }
+                .iext-doc table.iext-items td { border-bottom: 1px solid #e3e8ee; padding: 6px 8px; vertical-align: top; }
+                .iext-doc table.iext-totals td { padding: 4px 8px; }
+                .iext-doc table.iext-totals tr.iext-strong td { font-weight: 700; border-top: 1px solid #17406b; }
+                .iext-doc table.iext-totals tr.iext-grand td { font-weight: 700; background: #17406b; color: #fff; }
+                .iext-doc .iext-bank { background: #fff8e1; border: 1px solid #f0d98c; border-radius: 6px; padding: 10px 12px; margin-top: 4px; }
+                .iext-doc .iext-signblock { margin-top: 22px; }
+                .iext-doc .iext-signblock img { max-height: 50px; }
+                .iext-doc .text-end { text-align: right; }
+                .iext-doc .text-muted { color: #5b6b82; }
+            </style>
+
+            <!-- Header: logo + document title -->
+            <table class="iext-layout" style="margin-bottom: 10px;">
+                <tr>
+                    <td class="iext-logo">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"/>
+                        <div t-if="not company.logo" style="font-size:20px;font-weight:700;" t-esc="company.name"/>
+                        <div class="iext-tagline" t-if="company.invoice_tagline" t-esc="company.invoice_tagline"/>
+                    </td>
+                    <td class="iext-doctitle text-end">
+                        <h2>
+                            <t t-if="o.move_type == 'out_refund'">Credit Note</t>
+                            <t t-else="">Invoice</t>
+                        </h2>
+                        <div class="iext-subtitle" t-if="o.is_export_under_lut">
+                            Supply meant for export under LUT without payment of IGST
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Invoice number / date  +  Company address -->
+            <table class="iext-layout">
+                <tr>
+                    <td style="width:50%;">
+                        <div class="iext-box iext-box-accent">
+                            <table>
+                                <tr><td class="iext-label" style="width:40%;">Invoice Number</td><td t-esc="o.name"/></tr>
+                                <tr><td class="iext-label">Date</td><td><span t-field="o.invoice_date"/></td></tr>
+                                <tr t-if="o.client_po_number"><td class="iext-label">PO Number</td><td t-esc="o.client_po_number"/></tr>
+                            </table>
+                            <div t-if="o.invoice_subject" style="margin-top:6px;font-weight:600;" t-esc="o.invoice_subject"/>
+                        </div>
+                    </td>
+                    <td class="iext-gutter"/>
+                    <td style="width:50%;">
+                        <div class="iext-box iext-box-accent">
+                            <div style="font-weight:700;" t-esc="company.name"/>
+                            <div t-field="company.partner_id"
+                                 t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                            <div t-if="company.vat"><span class="iext-label">GST/VAT: </span><span t-esc="company.vat"/></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Bill To + Invoice Reference -->
+            <table class="iext-layout">
+                <tr>
+                    <td style="width:60%;">
+                        <div class="iext-box">
+                            <div class="iext-label">Bill To</div>
+                            <div t-if="o.kind_attn"><strong>Kind Attn: </strong><span t-esc="o.kind_attn"/></div>
+                            <div t-field="o.partner_id"
+                                 t-options='{"widget": "contact", "fields": ["name", "address"], "no_marker": True}'/>
+                            <div t-if="o.partner_id.vat"><span class="iext-label">GSTIN/VAT: </span><span t-esc="o.partner_id.vat"/></div>
+                            <div t-if="o.cc_details" style="margin-top:6px;">
+                                <span class="iext-label">CC: </span><span t-esc="o.cc_details" style="white-space: pre-line;"/>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="iext-gutter"/>
+                    <td style="width:40%;">
+                        <div class="iext-box iext-box-muted">
+                            <div class="iext-label">Invoice Reference Number</div>
+                            <div style="word-break: break-all;" t-esc="o.invoice_reference_hash"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Line items -->
+            <table class="iext-items">
+                <t t-if="is_staff_aug">
+                    <thead>
+                        <tr>
+                            <th style="width:4%;">S.No</th>
+                            <th>Description</th>
+                            <th class="text-end" style="width:10%;">Days Worked</th>
+                            <th class="text-end" style="width:10%;">Hourly Rate</th>
+                            <th class="text-end" style="width:10%;">Hours Worked</th>
+                            <th class="text-end" style="width:12%;">Total Cost</th>
+                            <th style="width:7%;">Currency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="lines" t-as="line">
+                            <td t-esc="line_index + 1"/>
+                            <td style="white-space: pre-line;" t-esc="line.name"/>
+                            <td class="text-end" t-esc="'%.2f' % o.days_worked"/>
+                            <td class="text-end" t-esc="'%.2f' % o.hourly_rate"/>
+                            <td class="text-end" t-esc="'%.2f' % o.hours_worked"/>
+                            <td class="text-end" t-esc="'%.2f' % line.price_subtotal"/>
+                            <td t-esc="o.currency_id.name"/>
+                        </tr>
+                    </tbody>
+                </t>
+                <t t-else="">
+                    <thead>
+                        <tr>
+                            <th style="width:6%;">#</th>
+                            <th>Description</th>
+                            <th class="text-end" style="width:18%;">Amount</th>
+                            <th style="width:8%;">Currency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="lines" t-as="line">
+                            <td t-esc="line_index + 1"/>
+                            <td style="white-space: pre-line;" t-esc="line.name"/>
+                            <td class="text-end" t-esc="'%.2f' % line.price_subtotal"/>
+                            <td t-esc="o.currency_id.name"/>
+                        </tr>
+                    </tbody>
+                </t>
+            </table>
+
+            <!-- Totals -->
+            <table class="iext-totals" style="margin-top:8px;">
+                <tr>
+                    <td style="width:70%;"/>
+                    <td class="text-end" style="width:18%;">Total Assessable Value</td>
+                    <td class="text-end" style="width:12%;" t-esc="'%.2f' % o.amount_untaxed"/>
+                </tr>
+                <tr t-if="is_staff_aug and o.ccw_deduction_percent">
+                    <td/>
+                    <td class="text-end">Deductions for CCW (<t t-esc="'%.2f' % o.ccw_deduction_percent"/>%)</td>
+                    <td class="text-end" t-esc="'%.2f' % o.ccw_deduction_amount"/>
+                </tr>
+                <tr t-if="is_staff_aug and o.ccw_deduction_percent" class="iext-strong">
+                    <td/>
+                    <td class="text-end">Final Assessable Value (A)</td>
+                    <td class="text-end" t-esc="'%.2f' % o.final_assessable_value"/>
+                </tr>
+                <tr t-foreach="o.invoice_line_ids.tax_ids" t-as="applied_tax">
+                    <td/>
+                    <td class="text-end" t-esc="applied_tax.name"/>
+                    <td class="text-end" t-esc="'%.2f' % (sum(o.line_ids.filtered(lambda l: l.tax_line_id == applied_tax).mapped('balance')) * (-1 if o.move_type == 'out_invoice' else 1))"/>
+                </tr>
+                <tr class="iext-strong">
+                    <td/>
+                    <td class="text-end">Total Taxes (B)</td>
+                    <td class="text-end" t-esc="'%.2f' % o.amount_tax"/>
+                </tr>
+                <tr class="iext-grand">
+                    <td/>
+                    <td class="text-end">Total Payable</td>
+                    <td class="text-end" t-esc="'%.2f' % o.extended_grand_total"/>
+                </tr>
+            </table>
+
+            <div style="margin-top:10px;" t-if="o.lut_arn">
+                <strong>ARN for application made for LUT: </strong><span t-esc="o.lut_arn"/>
+            </div>
+            <div t-if="o.reverse_charge_applicable">
+                <strong>Whether Reverse Charge Applicable: </strong>
+                <span t-esc="'Yes' if o.reverse_charge_applicable == 'yes' else 'No'"/>
+            </div>
+            <div style="margin-top:4px;">
+                <strong>Amount in words: </strong>
+                <span t-esc="o.currency_id.amount_to_text(o.extended_grand_total)"/>
+            </div>
+
+            <!-- Bank details -->
+            <div class="iext-bank" t-if="o.partner_bank_id">
+                <div class="iext-label" style="font-weight:700;">Our Bank Details</div>
+                <table>
+                    <tr><td class="iext-label" style="width:30%;">Beneficiary's A/c Name</td><td t-esc="o.partner_bank_id.acc_holder_name or company.name"/></tr>
+                    <tr><td class="iext-label">Bank Name &amp; Branch</td><td t-esc="o.partner_bank_id.bank_name"/></tr>
+                    <tr><td class="iext-label">Account Number</td><td t-esc="o.partner_bank_id.acc_number"/></tr>
+                    <tr t-if="o.partner_bank_id.ifsc_code"><td class="iext-label">IFSC Code</td><td t-esc="o.partner_bank_id.ifsc_code"/></tr>
+                    <tr t-if="o.partner_bank_id.bank_bic"><td class="iext-label">SWIFT Code</td><td t-esc="o.partner_bank_id.bank_bic"/></tr>
+                </table>
+            </div>
+
+            <!-- Signature -->
+            <div class="iext-signblock">
+                <div t-esc="'For %s' % company.name" style="font-weight:600;"/>
+                <img t-if="company.invoice_signatory_signature" t-att-src="image_data_uri(company.invoice_signatory_signature)"/>
+                <div t-if="o.authorized_signatory_name" t-esc="o.authorized_signatory_name" style="font-weight:600;"/>
+                <div t-if="o.authorized_signatory_designation" class="text-muted" t-esc="o.authorized_signatory_designation"/>
+            </div>
+        </div>
+    </template>
+</odoo>
