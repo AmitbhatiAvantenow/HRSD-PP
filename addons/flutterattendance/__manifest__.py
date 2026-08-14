@@ -1,6 +1,6 @@
 {
     'name': 'Flutter Attendance',
-    'version': '1.0',
+    'version': '1.1.0',
     'category': 'Human Resources',
     'summary': 'GPS + photo attendance check-in/check-out API for the Flutter mobile app',
     'description': """
