@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_einvoice_ewaybill_wizard_form" model="ir.ui.view">
+        <field name="name">einvoice.ewaybill.wizard.form</field>
+        <field name="model">einvoice.ewaybill.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate E-Way Bill">
+                <group>
+                    <field name="irn" readonly="1"/>
+                </group>
+                <group>
+                    <group string="Transport">
+                        <field name="trans_mode"/>
+                        <field name="distance"/>
+                        <field name="vehicle_no"/>
+                        <field name="vehicle_type"/>
+                    </group>
+                    <group string="Transporter">
+                        <field name="transporter_id"/>
+                        <field name="transporter_name"/>
+                        <field name="trans_doc_no"/>
+                        <field name="trans_doc_date"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Generate E-Way Bill" class="btn-primary"/>
+                    <button string="Discard" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

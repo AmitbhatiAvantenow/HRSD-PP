@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_einvoice" model="ir.ui.view">
+        <field name="name">res.config.settings.form.inherit.einvoice.integration</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='fiscal_localization_setting_container']" position="after">
+                <div id="einvoice_integration_section">
+                    <block title="e-Invoice (GST)" id="einvoice_integration_block">
+                        <setting id="einvoice_credentials_setting"
+                                 string="GSP API Credentials"
+                                 help="Used to generate/cancel IRNs and E-Way Bills directly from customer invoices. Defaults are set for WhiteBooks - change the Base URL and Advanced settings below if you use a different GSP."
+                                 company_dependent="1">
+                            <div class="content-group">
+                                <div class="row mt8">
+                                    <label for="einvoice_base_url" class="col-lg-4 o_light_label" string="Base URL"/>
+                                    <field name="einvoice_base_url" placeholder="https://apisandbox.whitebooks.in"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_client_id" class="col-lg-4 o_light_label" string="Client ID"/>
+                                    <field name="einvoice_client_id"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_client_secret" class="col-lg-4 o_light_label" string="Client Secret"/>
+                                    <field name="einvoice_client_secret" password="True"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_username" class="col-lg-4 o_light_label" string="API Username"/>
+                                    <field name="einvoice_username"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_password" class="col-lg-4 o_light_label" string="API Password"/>
+                                    <field name="einvoice_password" password="True"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_gstin" class="col-lg-4 o_light_label" string="GSTIN"/>
+                                    <field name="einvoice_gstin" placeholder="Defaults to company Tax ID"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_ip_address" class="col-lg-4 o_light_label" string="Client IP"/>
+                                    <field name="einvoice_ip_address" placeholder="e.g. 49.36.xx.xx"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting id="einvoice_advanced_setting"
+                                 string="Advanced: GSP Endpoints &amp; Headers"
+                                 help="Only needed if you switch to a GSP other than WhiteBooks - the IRN request/response format itself is a fixed government standard (NIC e-Invoice schema) that every GSP supports the same way, so only the URL routing and header names below actually vary provider to provider."
+                                 company_dependent="1">
+                            <div class="content-group">
+                                <div class="text-muted mb8">Endpoint paths (appended to the Base URL above)</div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_authenticate" class="col-lg-5 o_light_label" string="Authenticate"/>
+                                    <field name="einvoice_path_authenticate"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_generate_irn" class="col-lg-5 o_light_label" string="Generate IRN"/>
+                                    <field name="einvoice_path_generate_irn"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_get_irn" class="col-lg-5 o_light_label" string="Get IRN Details"/>
+                                    <field name="einvoice_path_get_irn"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_cancel_irn" class="col-lg-5 o_light_label" string="Cancel IRN"/>
+                                    <field name="einvoice_path_cancel_irn"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_generate_ewaybill" class="col-lg-5 o_light_label" string="Generate E-Way Bill"/>
+                                    <field name="einvoice_path_generate_ewaybill"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_path_get_ewaybill" class="col-lg-5 o_light_label" string="Get E-Way Bill Details"/>
+                                    <field name="einvoice_path_get_ewaybill"/>
+                                </div>
+                                <div class="text-muted mb8 mt16">Request header names used to carry each credential</div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_client_id" class="col-lg-5 o_light_label" string="Client ID header"/>
+                                    <field name="einvoice_header_client_id"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_client_secret" class="col-lg-5 o_light_label" string="Client Secret header"/>
+                                    <field name="einvoice_header_client_secret"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_username" class="col-lg-5 o_light_label" string="Username header"/>
+                                    <field name="einvoice_header_username"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_password" class="col-lg-5 o_light_label" string="Password header"/>
+                                    <field name="einvoice_header_password"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_ip_address" class="col-lg-5 o_light_label" string="Client IP header"/>
+                                    <field name="einvoice_header_ip_address"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_gstin" class="col-lg-5 o_light_label" string="GSTIN header"/>
+                                    <field name="einvoice_header_gstin"/>
+                                </div>
+                                <div class="row mt8">
+                                    <label for="einvoice_header_auth_token" class="col-lg-5 o_light_label" string="Auth Token header"/>
+                                    <field name="einvoice_header_auth_token"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

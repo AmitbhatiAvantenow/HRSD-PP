@@ -1,0 +1,70 @@
+{
+  "Version": "1.1",
+  "TranDtls": {
+    "TaxSch": "GST",
+    "SupTyp": "B2B",
+    "RegRev": "N",
+    "IgstOnIntra": "N"
+  },
+  "DocDtls": {
+    "Typ": "INV",
+    "No": "CLTEST1786709885",
+    "Dt": "14/08/2026"
+  },
+  "SellerDtls": {
+    "Addr1": "Ground Floor, Unit 7, Plot 15, Arihant CHS, Sector 6",
+    "Loc": "Bengaluru",
+    "Stcd": "29",
+    "LglNm": "QAAGILITY TECHNOLOGIES PRIVATE LIMITED",
+    "TrdNm": "QAAGILITY TECHNOLOGIES PRIVATE LIMITED",
+    "Gstin": "29AAGCB1286Q000",
+    "Pin": 560001
+  },
+  "BuyerDtls": {
+    "Addr1": "Sector 6, Airoli",
+    "Loc": "Navi Mumbai",
+    "Stcd": "27",
+    "LglNm": "EInvoice Test Buyer 2",
+    "TrdNm": "EInvoice Test Buyer 2",
+    "Gstin": "27AAACQ2510N2ZF",
+    "Pin": 400708,
+    "Em": "buyer2@example.com",
+    "Ph": "9000000002",
+    "Pos": "27"
+  },
+  "ItemList": [
+    {
+      "SlNo": "1",
+      "IsServc": "Y",
+      "HsnCd": "998314",
+      "Qty": 3.0,
+      "Unit": "UNT",
+      "UnitPrice": 1000.0,
+      "TotAmt": 3000.0,
+      "Discount": 0.0,
+      "AssAmt": 3000.0,
+      "GstRt": 18.0,
+      "CgstAmt": 0.0,
+      "SgstAmt": 0.0,
+      "IgstAmt": 540.0,
+      "CesRt": 0,
+      "CesAmt": 0,
+      "CesNonAdvlAmt": 0,
+      "OthChrg": 0,
+      "TotItemVal": 3540.0,
+      "PrdDesc": "EInvoice Test Service 2"
+    }
+  ],
+  "ValDtls": {
+    "AssVal": 3000.0,
+    "CgstVal": 0.0,
+    "SgstVal": 0.0,
+    "IgstVal": 540.0,
+    "CesVal": 0,
+    "StCesVal": 0,
+    "Discount": 0,
+    "OthChrg": 0,
+    "RndOffAmt": 0.0,
+    "TotInvVal": 3540.0
+  }
+}

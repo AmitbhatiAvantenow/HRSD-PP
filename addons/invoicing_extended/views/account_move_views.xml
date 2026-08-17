@@ -6,10 +6,21 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <button id="account_invoice_payment_secondary_btn" position="after">
-                <button name="%(invoicing_extended.action_report_invoice_extended)d"
-                        type="action"
+                <button name="action_print_extended_invoice"
+                        type="object"
                         string="Extended Invoice"
                         invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <button name="action_send_for_signature"
+                        type="object"
+                        string="Send for Signature"
+                        groups="hrsd.group_hrsd_confidential"
+                        invisible="move_type not in ('out_invoice', 'out_refund') or state != 'posted'"/>
+                <field name="esign_state" widget="badge"
+                       decoration-success="esign_state == 'signed'"
+                       decoration-warning="esign_state == 'pending'"
+                       decoration-danger="esign_state in ('rejected', 'expired')"
+                       groups="hrsd.group_hrsd_confidential"
+                       invisible="esign_state == 'not_sent' or move_type not in ('out_invoice', 'out_refund')"/>
             </button>
             <page id="invoice_tab" position="after">
                 <page id="invoicing_extended_tab"
@@ -59,6 +70,10 @@
                             <field name="authorized_signatory_name"/>
                             <field name="authorized_signatory_designation"/>
                         </group>
+                    </group>
+                    <group string="E-Signature" groups="hrsd.group_hrsd_confidential" invisible="not esign_document_id">
+                        <field name="esign_document_id" readonly="1"/>
+                        <field name="esign_state" readonly="1"/>
                     </group>
                 </page>
             </page>

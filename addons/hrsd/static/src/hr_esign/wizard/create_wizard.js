@@ -77,6 +77,13 @@ export class HrEsignCreateWizard extends Component {
     static template = "hrsd.HrEsignCreateWizard";
     static components = { Many2One };
     static props = ["*"];
+    // The action service only forwards props an action explicitly opts into via
+    // extractProps — without this, this.props is always {} and a caller has no
+    // way to hand this wizard a pre-selected document (see doAction's `params`
+    // in setup() below, e.g. from Invoicing Extended's "Send for Signature").
+    static extractProps(action) {
+        return { action };
+    }
 
     setup() {
         this.orm = useService("orm");
@@ -126,6 +133,42 @@ export class HrEsignCreateWizard extends Component {
             templatesPage: 0,
             docTemplatesPage: 0,
         });
+
+        // Optional prefill from a caller (e.g. Invoicing Extended's "Send for
+        // Signature" button hands us an already-generated PDF + signer so the
+        // user doesn't have to upload it manually). Only ever sets values —
+        // never removes/alters anything when absent, so the plain "Create
+        // Document" dashboard action (no params) behaves exactly as before.
+        this.originLink = null;
+        const prefill = this.props.action && this.props.action.params && this.props.action.params.prefill;
+        if (prefill) {
+            if (prefill.title) this.state.title = prefill.title;
+            if (prefill.category) this.state.category = prefill.category;
+            if (prefill.fileData) {
+                this.state.fileData = prefill.fileData;
+                this.state.fileName = prefill.fileName || this.state.fileName;
+            }
+            if (prefill.partnerId) {
+                this.state.partnerId = prefill.partnerId;
+                this.state.partnerName = prefill.partnerName || "";
+                this.state.partnerEmail = prefill.partnerEmail || "";
+                this.state.signers.push({
+                    partner_id: prefill.partnerId,
+                    name: prefill.partnerName || "",
+                    email: prefill.partnerEmail || "",
+                });
+            }
+            // The document is already chosen — skip straight to Choose Customer
+            // rather than landing on the (now redundant) upload step.
+            if (prefill.fileData) this.state.stepIndex = 1;
+            if (prefill.originModel && prefill.originId && prefill.originField) {
+                this.originLink = {
+                    model: prefill.originModel,
+                    id: prefill.originId,
+                    field: prefill.originField,
+                };
+            }
+        }
 
         onWillStart(async () => {
             this.state.templates = await this.orm.searchRead("hr.esign.template", [], ["id", "name", "category"], { limit: 100 });
@@ -587,6 +630,16 @@ export class HrEsignCreateWizard extends Component {
                 vals.file_name = this.state.fileName;
             }
             const docId = await this.orm.create("hr.esign.document", [vals]);
+            if (this.originLink) {
+                try {
+                    await this.orm.write(this.originLink.model, [this.originLink.id], {
+                        [this.originLink.field]: docId[0],
+                    });
+                } catch {
+                    // Best-effort link-back to the originating record — the e-sign
+                    // document itself was already created successfully either way.
+                }
+            }
             const signerVals = this.state.signers.map((s, i) => ({
                 document_id: docId[0],
                 partner_id: s.partner_id || false,

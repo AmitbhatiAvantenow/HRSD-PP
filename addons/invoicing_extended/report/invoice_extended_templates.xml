@@ -8,6 +8,17 @@
         </t>
     </template>
 
+    <!-- Makes the standard "Invoice PDF" / Print / Send / Pay flow (account.report_invoice)
+         use our template for customer invoices, instead of only our dedicated
+         "Extended Invoice" button, so both always produce the same PDF. -->
+    <template id="report_invoice_extended_hook" inherit_id="account.report_invoice">
+        <xpath expr="//t[@t-foreach='docs']/t[@t-if]" position="after">
+            <t t-elif="o._get_name_invoice_report() == 'invoicing_extended.report_invoice_extended_document'"
+               t-call="invoicing_extended.report_invoice_extended_document"
+               t-lang="lang"/>
+        </xpath>
+    </template>
+
     <template id="report_invoice_extended_document">
         <t t-set="company" t-value="o.company_id"/>
         <t t-set="is_staff_aug" t-value="o.invoice_layout == 'staff_augmentation'"/>

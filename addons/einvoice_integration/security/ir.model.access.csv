@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_einvoice_cancel_wizard,einvoice.cancel.wizard,model_einvoice_cancel_wizard,account.group_account_invoice,1,1,1,1
+access_einvoice_ewaybill_wizard,einvoice.ewaybill.wizard,model_einvoice_ewaybill_wizard,account.group_account_invoice,1,1,1,1
+access_einvoice_result_wizard,einvoice.result.wizard,model_einvoice_result_wizard,account.group_account_invoice,1,1,1,1

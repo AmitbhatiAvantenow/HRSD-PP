@@ -1,0 +1,9 @@
+{
+  "irp": "NIC1",
+  "data": {
+    "Irn": "569c49eaf739a62f8cba07332f26fc556d92a016aa25e7f94d2b5463a57f5235",
+    "CancelDate": "2026-08-14 17:53:00"
+  },
+  "status_cd": "1",
+  "status_desc": "GSTR request succeeds"
+}
