@@ -8,6 +8,7 @@
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="mail_type" widget="badge"/>
+                <field name="report_day" optional="show"/>
                 <field name="send_time" widget="float_time"/>
                 <field name="tz" optional="show"/>
                 <field name="skip_saturday" optional="hide"/>
@@ -42,6 +43,7 @@
                     <group>
                         <group string="Schedule">
                             <field name="active"/>
+                            <field name="report_day"/>
                             <field name="send_time" widget="float_time"/>
                             <field name="tz"/>
                             <field name="skip_saturday"/>

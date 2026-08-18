@@ -1,5 +1,6 @@
 import io
 import logging
+from datetime import timedelta
 
 import pytz
 import xlsxwriter
@@ -61,6 +62,15 @@ class FlutterAttendanceMail(models.Model):
              "The scheduled action checks every few minutes, so this is the earliest moment it can "
              "fire that day, not an exact-to-the-second trigger.",
     )
+    report_day = fields.Selection([
+        ('today', 'Today'),
+        ('yesterday', 'Previous Day'),
+    ], string='Attendance Date', default='today', required=True,
+        help="Which day's attendance this mail reports on. 'Today' includes whatever check-ins/"
+             "check-outs have happened so far as of Send At, which may still be incomplete for "
+             "anyone not yet checked out. 'Previous Day' reports the last full day instead, e.g. "
+             "a mail sent on 18 Aug covers 17 Aug's attendance for everyone.",
+    )
     tz = fields.Selection(
         _tz_get, string='Timezone', required=True,
         default=lambda self: self.env.company.partner_id.tz or 'Asia/Kolkata',
@@ -107,23 +117,26 @@ class FlutterAttendanceMail(models.Model):
     last_sent_status = fields.Char(readonly=True, copy=False)
 
     @api.model
-    def _default_body_html(self, mail_type='summary'):
+    def _default_body_html(self, mail_type='summary', report_day='today'):
+        day_label = "today's" if report_day == 'today' else "yesterday's"
         if mail_type == 'employee':
             return (
-                "<p>Here's your check-in / check-out summary for today.</p>"
+                f"<p>Here's your check-in / check-out summary for {day_label}.</p>"
                 "<p>The full detail (GPS, distance, your comments) is attached as an Excel export.</p>"
             )
         return (
-            "<p>Please find below today's check-in / check-out summary for all employees.</p>"
+            f"<p>Please find below {day_label} check-in / check-out summary for all employees.</p>"
             "<p>The full detail (GPS, distance, comments) is attached as an Excel export.</p>"
         )
 
-    @api.onchange('mail_type')
+    @api.onchange('mail_type', 'report_day')
     def _onchange_mail_type(self):
-        default_summary = self._default_body_html('summary')
-        default_employee = self._default_body_html('employee')
-        if str(self.body_html or '') in (default_summary, default_employee):
-            self.body_html = self._default_body_html(self.mail_type)
+        all_defaults = {
+            self._default_body_html(mail_type, report_day)
+            for mail_type in ('summary', 'employee') for report_day in ('today', 'yesterday')
+        }
+        if str(self.body_html or '') in all_defaults:
+            self.body_html = self._default_body_html(self.mail_type, self.report_day)
 
     @api.model
     def _cron_send_daily_attendance_mail(self):
@@ -168,11 +181,35 @@ class FlutterAttendanceMail(models.Model):
         names = self.to_employee_ids.mapped('name')
         return names[0] if len(names) == 1 else 'Team'
 
-    def _get_today(self):
+    def _get_send_date(self):
+        """The actual calendar day (in the mail's own Timezone) this send is
+        happening on -- used only for the last_sent_date dedup guard, never
+        for picking which attendance records to report on."""
         self.ensure_one()
         tz_name = self.tz or 'Asia/Kolkata'
         return fields.Datetime.context_timestamp(
             self.with_context(tz=tz_name), fields.Datetime.now()).date()
+
+    def _format_sent_status(self, prefix='Sent'):
+        """'<prefix> at YYYY-MM-DD HH:MM:SS <Timezone>', in the mail's own
+        Timezone rather than the raw server/UTC clock -- fields.Datetime.now()
+        alone reads as wrong-looking (e.g. hours off from Send At) once you
+        compare it against IST by eye."""
+        self.ensure_one()
+        tz_name = self.tz or 'Asia/Kolkata'
+        now_local = fields.Datetime.context_timestamp(self.with_context(tz=tz_name), fields.Datetime.now())
+        return f"{prefix} at {now_local.strftime('%Y-%m-%d %H:%M:%S')} {tz_name}"
+
+    def _get_today(self):
+        """The calendar day this mail's report covers -- the current day, or the
+        previous full day when Attendance Date is set to 'Previous Day' (e.g. a
+        CEO/management mail sent each evening that should always show a complete
+        day, not whoever hasn't checked out yet)."""
+        self.ensure_one()
+        today = self._get_send_date()
+        if self.report_day == 'yesterday':
+            return today - timedelta(days=1)
+        return today
 
     def _send(self, test=False):
         self.ensure_one()
@@ -212,8 +249,8 @@ class FlutterAttendanceMail(models.Model):
 
         if not test:
             self.write({
-                'last_sent_date': today,
-                'last_sent_status': 'Sent at %s' % fields.Datetime.now(),
+                'last_sent_date': self._get_send_date(),
+                'last_sent_status': self._format_sent_status(),
             })
 
     def _send_employee_batch(self, today, test=False):
@@ -252,10 +289,10 @@ class FlutterAttendanceMail(models.Model):
             self._dispatch_mail(records, today, employee.name, [email], cc_emails, test=False)
             sent += 1
 
-        status = f'Sent to {sent} employee(s) at {fields.Datetime.now()}'
+        status = self._format_sent_status(f'Sent to {sent} employee(s)')
         if skipped:
             status += f' ({skipped} skipped: no Work Email)'
-        self.write({'last_sent_date': today, 'last_sent_status': status})
+        self.write({'last_sent_date': self._get_send_date(), 'last_sent_status': status})
 
     def _dispatch_mail(self, records, today, greeting_name, to_emails, cc_emails, test=False):
         """Builds and sends one branded email for the given records/recipients,
