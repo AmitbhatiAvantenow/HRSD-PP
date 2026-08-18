@@ -43,6 +43,11 @@ class AccountMove(models.Model):
     # Deduction / assessable value breakdown (informational, printed on the
     # extended PDF only - does not alter the accounting tax computation).
     ccw_deduction_percent = fields.Float(string='CCW Deduction (%)')
+    gross_assessable_value = fields.Monetary(
+        string='Gross Assessable Value (before CCW)', compute='_compute_ccw_deduction',
+        store=True, currency_field='currency_id',
+        help="Hourly Rate x Hours Worked, before the CCW deduction is applied. "
+             "This is the base the CCW deduction % is calculated against.")
     ccw_deduction_amount = fields.Monetary(
         string='CCW Deduction Amount', compute='_compute_ccw_deduction',
         store=True, currency_field='currency_id')
@@ -107,14 +112,20 @@ class AccountMove(models.Model):
             move.hours_worked = move.days_worked * move.hours_per_day
 
     def _sync_staff_aug_pricing(self):
-        """Days Worked / Hourly Rate are printed on the Extended Invoice PDF,
-        but they used to be pure display fields with no link to the actual
-        invoice line — so the printed hours/rate and the real invoiced amount
-        could show unrelated numbers. When there's a single product line,
-        drive its quantity/price from these fields instead, the same way the
-        reference invoice format computes Total Cost = Hourly Rate x Hours.
-        Called on save (not as a live onchange — an onchange here doesn't
-        reliably propagate to the sibling Invoice Lines list in this view)."""
+        """Days Worked / Hourly Rate / CCW Deduction are printed on the
+        Extended Invoice PDF, but they used to be pure display fields with
+        no link to the actual invoice line — so the printed hours/rate/
+        deduction and the real invoiced amount could show unrelated numbers
+        (e.g. the Invoice Lines tab and Amount Due stayed at the gross
+        amount even though the PDF showed a lower Final Assessable Value).
+        When there's a single product line, drive its quantity/price/
+        discount from these fields instead, the same way the reference
+        invoice format computes Total Cost = Hourly Rate x Hours and then
+        nets out the CCW deduction — so the real Odoo totals (Untaxed
+        Amount / Total / Amount Due) match the Final Assessable Value shown
+        on the Extended Invoice PDF. Called on save (not as a live onchange
+        — an onchange here doesn't reliably propagate to the sibling
+        Invoice Lines list in this view)."""
         for move in self:
             if move.invoice_layout != 'staff_augmentation':
                 continue
@@ -122,19 +133,35 @@ class AccountMove(models.Model):
             if len(product_lines) == 1 and (
                 product_lines.quantity != move.hours_worked
                 or product_lines.price_unit != move.hourly_rate
+                or product_lines.discount != move.ccw_deduction_percent
             ):
                 product_lines.write({
                     'quantity': move.hours_worked,
                     'price_unit': move.hourly_rate,
+                    'discount': move.ccw_deduction_percent,
                 })
 
-    @api.depends('amount_untaxed', 'amount_tax', 'ccw_deduction_percent', 'invoice_layout')
+    @api.depends('amount_untaxed', 'amount_tax', 'ccw_deduction_percent', 'invoice_layout',
+                 'invoice_line_ids.quantity', 'invoice_line_ids.price_unit',
+                 'invoice_line_ids.display_type')
     def _compute_ccw_deduction(self):
+        """Gross/deduction/final are worked out from quantity x price_unit
+        (i.e. before the discount `_sync_staff_aug_pricing` applies), not
+        from amount_untaxed - amount_untaxed already has the CCW discount
+        baked in once synced, so deriving the deduction from it would net
+        the deduction out twice."""
         for move in self:
-            percent = move.ccw_deduction_percent if move.invoice_layout == 'staff_augmentation' else 0.0
-            amount = percent / 100.0 * move.amount_untaxed
+            if move.invoice_layout == 'staff_augmentation':
+                product_lines = move.invoice_line_ids.filtered(lambda l: l.display_type == 'product')
+                gross = sum(line.quantity * line.price_unit for line in product_lines)
+                percent = move.ccw_deduction_percent
+            else:
+                gross = move.amount_untaxed
+                percent = 0.0
+            amount = percent / 100.0 * gross
+            move.gross_assessable_value = gross
             move.ccw_deduction_amount = amount
-            move.final_assessable_value = move.amount_untaxed - amount
+            move.final_assessable_value = gross - amount
             move.extended_grand_total = move.final_assessable_value + move.amount_tax
 
     @api.depends('company_id')
@@ -238,7 +265,8 @@ class AccountMove(models.Model):
         return moves
 
     _STAFF_AUG_PRICING_TRIGGERS = {
-        'days_worked', 'hours_per_day', 'hourly_rate', 'invoice_layout', 'invoice_line_ids',
+        'days_worked', 'hours_per_day', 'hourly_rate', 'ccw_deduction_percent',
+        'invoice_layout', 'invoice_line_ids',
     }
 
     def write(self, vals):

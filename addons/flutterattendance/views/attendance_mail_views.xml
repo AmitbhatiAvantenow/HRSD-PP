@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_attendance_mail_list" model="ir.ui.view">
+        <field name="name">flutterattendance.attendance.mail.list</field>
+        <field name="model">flutterattendance.attendance.mail</field>
+        <field name="arch" type="xml">
+            <list string="End of Day Attendance Mail">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="mail_type" widget="badge"/>
+                <field name="send_time" widget="float_time"/>
+                <field name="tz" optional="show"/>
+                <field name="skip_saturday" optional="hide"/>
+                <field name="skip_sunday" optional="hide"/>
+                <field name="to_employee_ids" widget="many2many_tags" optional="show"/>
+                <field name="last_sent_date" optional="show"/>
+                <field name="last_sent_status" optional="show"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_attendance_mail_form" model="ir.ui.view">
+        <field name="name">flutterattendance.attendance.mail.form</field>
+        <field name="model">flutterattendance.attendance.mail</field>
+        <field name="arch" type="xml">
+            <form string="End of Day Attendance Mail">
+                <header>
+                    <button name="action_send_now" type="object" string="Send Now"
+                            class="btn-primary"
+                            confirm="Send this end-of-day attendance mail immediately for today's records?"/>
+                    <button name="action_send_test" type="object" string="Send Test Mail"
+                            class="btn-secondary"
+                            help="Sends a one-off test copy to your own email address, without marking today as sent."/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. CEO/Major Person Attendance"/></h1>
+                        <field name="mail_type" widget="radio" options="{'horizontal': true}"/>
+                    </div>
+                    <group>
+                        <group string="Schedule">
+                            <field name="active"/>
+                            <field name="send_time" widget="float_time"/>
+                            <field name="tz"/>
+                            <field name="skip_saturday"/>
+                            <field name="skip_sunday"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Status">
+                            <field name="last_sent_date"/>
+                            <field name="last_sent_status"/>
+                            <field name="include_excel"/>
+                        </group>
+                    </group>
+                    <group string="Recipients">
+                        <group invisible="mail_type == 'employee'">
+                            <field name="to_employee_ids" widget="many2many_tags"/>
+                            <field name="to_email_extra" placeholder="ceo@company.com, director@company.com"/>
+                        </group>
+                        <group>
+                            <field name="cc_employee_ids" widget="many2many_tags"
+                                   help="CC'd on every mail this sends -- including every employee's individual mail, when Employee Daily Summary is selected."/>
+                            <field name="cc_email_extra" placeholder="hr@company.com"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="mail_type != 'employee'">
+                        Each employee with an attendance record for the day gets their own mail, sent to
+                        their Work Email, containing only their own check-in/check-out -- To (Employees)
+                        above is ignored for this type.
+                    </div>
+                    <notebook>
+                        <page string="Mail Content">
+                            <field name="subject"/>
+                            <field name="body_html" widget="html" options="{'style-inline': true}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_attendance_mail" model="ir.actions.act_window">
+        <field name="name">Mail</field>
+        <field name="res_model">flutterattendance.attendance.mail</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Set up who gets the end-of-day attendance mail.
+            </p>
+            <p>
+                Every day, once an employee's check-in/check-out is done (around the configured Send At
+                time), a mail goes out combining all employees' check-in/check-out times and working
+                hours in the body, with that day's Mobile Attendance also attached as an Excel export.
+                To, Cc and the mail body are fully configurable per entry, and Saturday/Sunday can each
+                be skipped from the automatic daily schedule.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -32,10 +32,29 @@ class FlutterAttendanceDevice(models.Model):
     # instead of waiting for its 24h token to expire on its own.
     current_jti = fields.Char()
 
+    # Single on/off switch for the Devices kanban, so an admin can flip a
+    # device's active state the same way security checks are toggled,
+    # instead of hunting for the Approve/Reject buttons. Wraps the same
+    # action_approve/action_reject logic that /api/login uses.
+    is_active_toggle = fields.Boolean(
+        string='Active', compute='_compute_is_active_toggle', inverse='_inverse_is_active_toggle',
+    )
+
     _device_employee_uniq = models.Constraint(
         'unique(employee_id, device_id)',
         'This device is already registered for this employee.',
     )
+
+    def _compute_is_active_toggle(self):
+        for device in self:
+            device.is_active_toggle = device.state == 'active'
+
+    def _inverse_is_active_toggle(self):
+        for device in self:
+            if device.is_active_toggle:
+                device.action_approve()
+            else:
+                device.action_reject()
 
     def action_approve(self):
         """Make this device the employee's one active device, demoting

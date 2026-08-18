@@ -30,7 +30,7 @@
                     <table role="presentation" cellpadding="0" cellspacing="0">
                         <tr>
                             <td t-if="company and not company.uses_default_logo" style="padding-right:12px;">
-                                <img t-att-src="'/logo.png?company=%s' % company.id" t-att-alt="company.name" style="height:40px; max-width:150px; display:block; border-radius:8px;"/>
+                                <img t-att-src="('cid:%s' % logo_cid) if logo_cid else ('/logo.png?company=%s' % company.id)" t-att-alt="company.name" style="height:40px; max-width:150px; display:block; border-radius:8px;"/>
                             </td>
                             <td t-else="" style="padding-right:12px;">
                                 <table role="presentation" cellpadding="0" cellspacing="0" style="width:40px; height:40px; background:rgba(255,255,255,0.16); border-radius:50%;">

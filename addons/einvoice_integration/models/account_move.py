@@ -127,7 +127,12 @@ class AccountMove(models.Model):
             breakdown, assessable = self._einvoice_line_gst_breakdown(line)
             gst_rate = breakdown['igst_rate'] or (breakdown['cgst_rate'] + breakdown['sgst_rate'])
             quantity = line.quantity or 0.0
-            unit_price = (assessable / quantity) if quantity else line.price_unit
+            # UnitPrice/TotAmt must be the *gross* (pre-discount) price: the
+            # IRP requires AssAmt == TotAmt - Discount, so deriving UnitPrice
+            # from the already-discounted `assessable` value (as before) made
+            # Discount get subtracted twice and failed that check on any line
+            # with a discount.
+            unit_price = line.price_unit
             hsn_digits = _digits(line.l10n_in_hsn_code) or line.l10n_in_hsn_code
             item = {
                 'SlNo': str(index),

@@ -8,3 +8,6 @@ access_flutterattendance_security_check_hr,flutterattendance.security.check.hr,m
 access_flutterattendance_location_hr,flutterattendance.location.hr,model_flutterattendance_location,hr.group_hr_user,1,1,1,1
 access_flutterattendance_face_approval_hr,flutterattendance.face.approval.hr,model_flutterattendance_face_approval,hr.group_hr_user,1,1,1,1
 access_flutterattendance_status_rule_hr,flutterattendance.status.rule.hr,model_flutterattendance_status_rule,hr.group_hr_user,1,1,1,1
+access_flutterattendance_issue_hr,flutterattendance.issue.hr,model_flutterattendance_issue,hr.group_hr_user,1,1,1,1
+access_flutterattendance_attendance_mail_hr,flutterattendance.attendance.mail.hr,model_flutterattendance_attendance_mail,hr.group_hr_user,1,1,1,1
+access_flutterattendance_issue_mail_hr,flutterattendance.issue.mail.hr,model_flutterattendance_issue_mail,hr.group_hr_user,1,1,1,1

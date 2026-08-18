@@ -18,6 +18,7 @@ authentication.
 * POST /api/sync
 * GET  /api/notifications, POST /api/notifications/<id>/read
 * POST /api/face/verify, POST /api/face/request-approval, GET /api/face/request-approval/<id>
+* POST /api/issues, GET /api/issues  (Report an Issue / Support Center)
 """,
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
@@ -30,7 +31,7 @@ authentication.
         'data/shift_data.xml',
         'data/security_check_data.xml',
         'data/status_rule_data.xml',
-        'data/cron.xml',
+        'data/issue_sequence_data.xml',
         'views/attendance_views.xml',
         'views/device_views.xml',
         'views/shift_views.xml',
@@ -40,7 +41,13 @@ authentication.
         'views/security_check_views.xml',
         'views/location_views.xml',
         'views/face_approval_views.xml',
+        'views/issue_views.xml',
+        'views/attendance_mail_views.xml',
+        'views/issue_mail_views.xml',
         'views/menu.xml',
+        'data/attendance_mail_data.xml',
+        'data/issue_mail_data.xml',
+        'data/cron.xml',
     ],
     'license': 'LGPL-3',
     'installable': True,

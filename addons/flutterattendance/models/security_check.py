@@ -15,6 +15,7 @@ class FlutterAttendanceSecurityCheck(models.Model):
             ('real_device', 'Emulator Detection'),
             ('impossible_travel', 'Impossible Travel Detection'),
             ('face_recognition', 'Face Recognition'),
+            ('multiple_device', 'Multiple Device Login'),
         ],
         required=True, index=True,
     )

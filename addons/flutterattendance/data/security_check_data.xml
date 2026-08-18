@@ -70,5 +70,18 @@
              so HR should turn it on only after registering photos. -->
         <field name="enabled">False</field>
     </record>
+    <record id="security_check_multiple_device" model="flutterattendance.security.check">
+        <field name="check_type">multiple_device</field>
+        <field name="name">Multiple Device Login</field>
+        <field name="description">Restrict each employee to one active device at a time. Enabled: signing in on a new device is blocked pending admin approval on the Devices screen, and approving it revokes the previous device. Disabled: employees can be signed in on multiple devices at once, no approval needed.</field>
+        <field name="icon">fa-mobile</field>
+        <field name="sequence">70</field>
+        <!-- On by default: this is the restriction, so being enabled
+             preserves the existing one-device-per-employee enforcement
+             (see flutterlogin _enforce_device_binding) for already-installed
+             databases. Consistent with every other card on this screen,
+             where Enabled = the named check is actively guarding check-in. -->
+        <field name="enabled">True</field>
+    </record>
     </data>
 </odoo>

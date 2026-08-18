@@ -65,7 +65,7 @@ def _friendly_error(data, raw_text=None):
                     messages.append(value.strip())
                 elif key_l in ('errordetails', 'errors') and isinstance(value, str):
                     messages.extend(
-                        m.strip() for m in re.findall(r'ErrorMessage\s*:\s*([^,}]+)', value))
+                        m.strip() for m in re.findall(r'ErrorMessage\s*:\s*([^}]+)', value))
                 elif isinstance(value, (dict, list)):
                     _collect(value)
         elif isinstance(node, list):
@@ -75,7 +75,7 @@ def _friendly_error(data, raw_text=None):
     if data is not None:
         _collect(data)
     if not messages and raw_text:
-        messages.extend(m.strip() for m in re.findall(r'ErrorMessage\s*:\s*([^,}]+)', raw_text))
+        messages.extend(m.strip() for m in re.findall(r'ErrorMessage\s*:\s*([^}]+)', raw_text))
     if messages:
         return '; '.join(dict.fromkeys(messages))
     return _find_key(data, 'message', 'statusdesc', 'error') if data is not None else None

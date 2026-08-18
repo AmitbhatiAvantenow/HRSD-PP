@@ -113,8 +113,9 @@
                     <td class="iext-gutter"/>
                     <td style="width:40%;">
                         <div class="iext-box iext-box-muted">
-                            <div class="iext-label">Invoice Reference Number</div>
-                            <div style="word-break: break-all;" t-esc="o.invoice_reference_hash"/>
+                            <div class="iext-label">Invoice Reference Number (IRN)</div>
+                            <div style="word-break: break-all;"
+                                 t-esc="o.einvoice_irn if 'einvoice_irn' in o._fields else ''"/>
                         </div>
                     </td>
                 </tr>
@@ -141,7 +142,7 @@
                             <td class="text-end" t-esc="'%.2f' % o.days_worked"/>
                             <td class="text-end" t-esc="'%.2f' % o.hourly_rate"/>
                             <td class="text-end" t-esc="'%.2f' % o.hours_worked"/>
-                            <td class="text-end" t-esc="'%.2f' % line.price_subtotal"/>
+                            <td class="text-end" t-esc="'%.2f' % (line.quantity * line.price_unit)"/>
                             <td t-esc="o.currency_id.name"/>
                         </tr>
                     </tbody>
@@ -171,7 +172,7 @@
                 <tr>
                     <td style="width:70%;"/>
                     <td class="text-end" style="width:18%;">Total Assessable Value</td>
-                    <td class="text-end" style="width:12%;" t-esc="'%.2f' % o.amount_untaxed"/>
+                    <td class="text-end" style="width:12%;" t-esc="'%.2f' % (o.gross_assessable_value if is_staff_aug else o.amount_untaxed)"/>
                 </tr>
                 <tr t-if="is_staff_aug and o.ccw_deduction_percent">
                     <td/>

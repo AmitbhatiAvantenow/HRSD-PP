@@ -69,11 +69,6 @@ def _enforce_device_binding(env, employee, data):
 
     Device = env['flutterattendance.device'].sudo()
     device = Device.search([('employee_id', '=', employee.id), ('device_id', '=', device_id_str)], limit=1)
-    active_elsewhere = Device.search([
-        ('employee_id', '=', employee.id),
-        ('state', '=', 'active'),
-        ('device_id', '!=', device_id_str),
-    ], limit=1)
 
     vals = {
         'employee_id': employee.id,
@@ -82,6 +77,27 @@ def _enforce_device_binding(env, employee, data):
         'os_version': data.get('os_version') or (device.os_version if device else False),
         'app_version': data.get('app_version') or (device.app_version if device else False),
     }
+
+    # "Multiple Device Login" security check (Mobile Attendance > Settings >
+    # Security Checks). Enabled (default) -> the one-device binding below
+    # is enforced, same as every other card on that screen where Enabled
+    # means the named check is actively guarding check-in. Disabled ->
+    # employees may be signed in on several devices at once, so skip the
+    # binding entirely and just activate whichever device logs in.
+    SecurityCheck = env['flutterattendance.security.check'].sudo()
+    single_device_enforced = SecurityCheck.get_effective_settings(employee).get('multiple_device', True)
+    if not single_device_enforced:
+        if device:
+            device.write({**vals, 'state': 'active'})
+        else:
+            device = Device.create({**vals, 'state': 'active'})
+        return device, None
+
+    active_elsewhere = Device.search([
+        ('employee_id', '=', employee.id),
+        ('state', '=', 'active'),
+        ('device_id', '!=', device_id_str),
+    ], limit=1)
 
     if device and device.state == 'active':
         device.write(vals)

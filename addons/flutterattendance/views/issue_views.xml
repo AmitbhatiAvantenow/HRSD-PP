@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_issue_list" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.list</field>
+        <field name="model">flutterattendance.issue</field>
+        <field name="arch" type="xml">
+            <list string="Issue Requests" decoration-warning="state == 'new'" decoration-info="state == 'in_progress'" decoration-muted="state == 'resolved'">
+                <field name="name"/>
+                <field name="create_date" string="Submitted"/>
+                <field name="employee_id"/>
+                <field name="description"/>
+                <field name="state" widget="badge" decoration-success="state == 'resolved'" decoration-info="state == 'in_progress'" decoration-warning="state == 'new'"/>
+                <button name="action_start_progress" type="object" string="Start" icon="fa-play" invisible="state != 'new'"/>
+                <button name="action_resolve" type="object" string="Resolve" icon="fa-check" invisible="state == 'resolved'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_issue_kanban" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.kanban</field>
+        <field name="model">flutterattendance.issue</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="description"/>
+                <field name="state"/>
+                <field name="photo"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <img t-if="record.photo.raw_value" t-att-src="'/web/image/flutterattendance.issue/' + record.id.raw_value + '/photo'"
+                                 alt="Attached photo" class="o_kanban_image rounded me-2" style="width:48px;height:48px;object-fit:cover;"/>
+                            <div class="flex-grow-1">
+                                <strong><field name="name"/></strong>
+                                <span class="badge ms-1" t-attf-class="text-bg-{{record.state.raw_value == 'resolved' and 'success' or record.state.raw_value == 'in_progress' and 'info' or 'warning'}}">
+                                    <field name="state"/>
+                                </span>
+                                <div class="text-muted"><field name="employee_id"/></div>
+                                <div class="text-truncate"><field name="description"/></div>
+                            </div>
+                        </div>
+                        <footer invisible="state == 'resolved'">
+                            <button name="action_start_progress" type="object" string="Start" class="btn btn-secondary" icon="fa-play" invisible="state != 'new'"/>
+                            <button name="action_resolve" type="object" string="Resolve" class="btn btn-primary" icon="fa-check"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_issue_form" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.form</field>
+        <field name="model">flutterattendance.issue</field>
+        <field name="arch" type="xml">
+            <form string="Issue Request">
+                <header>
+                    <button name="action_start_progress" type="object" string="Start Progress" invisible="state != 'new'"/>
+                    <button name="action_resolve" type="object" string="Mark Resolved" class="oe_highlight" invisible="state == 'resolved'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,in_progress,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="device_id"/>
+                        </group>
+                        <group>
+                            <field name="create_date" string="Submitted On"/>
+                        </group>
+                    </group>
+                    <group string="Issue Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Attachments">
+                        <field name="photo" widget="image" options="{'size': [200, 200]}"/>
+                        <field name="video" filename="video_filename"/>
+                        <field name="video_filename" invisible="1"/>
+                    </group>
+                    <group invisible="state != 'resolved'">
+                        <field name="resolved_by"/>
+                        <field name="resolved_at"/>
+                        <field name="resolution_note"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_issue_search" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.search</field>
+        <field name="model">flutterattendance.issue</field>
+        <field name="arch" type="xml">
+            <search string="Issue Requests">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="description"/>
+                <filter name="new" string="New" domain="[('state', '=', 'new')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_issue" model="ir.actions.act_window">
+        <field name="name">Issues Request</field>
+        <field name="res_model">flutterattendance.issue</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_flutterattendance_issue_search"/>
+        <field name="context">{'search_default_new': 1}</field>
+    </record>
+</odoo>

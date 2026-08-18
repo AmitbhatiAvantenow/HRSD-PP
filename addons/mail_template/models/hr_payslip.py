@@ -88,21 +88,34 @@ class HrPayslip(models.Model):
             + NET_PAY_CARD.replace('__NETPAY__', net_pay)
         )
 
-        full_body = self.env['mail.template.layout'].render_modern_email(
+        Layout = self.env['mail.template.layout']
+        full_body = Layout.render_modern_email(
             title=_('Payslip for %s') % month,
             body_content=body_content,
             preheader=_('Your payslip for %s is ready') % month,
             company=self.company_id,
+            inline_logo=True,
         )
+        cc_emails = [e.strip() for e in (template.cc or '').split(',') if e.strip()]
+        msg = Layout.build_mime_message(
+            subject=subject or _('Payslip'), html_body=full_body, to_email=self.employee_id.work_email,
+            cc_emails=cc_emails, company=self.company_id,
+            attachments=[{'filename': filename, 'data': pdf_content, 'maintype': 'application', 'subtype': 'pdf'}],
+        )
+        self.env['ir.mail_server'].sudo().send_email(msg)
 
+        # Audit trail only: the actual delivery already happened above via a
+        # hand-built MIME message (mail.mail's normal send path has no
+        # support for inline Content-ID images, see Layout.build_mime_message).
         mail_vals = {
             'subject': subject or _('Payslip'),
             'body_html': full_body,
             'email_to': self.employee_id.work_email,
             'attachment_ids': [(6, 0, [attachment.id])],
             'auto_delete': True,
+            'state': 'sent',
         }
-        if template.cc:
-            mail_vals['email_cc'] = template.cc
-        self.env['mail.mail'].sudo().create(mail_vals).send()
+        if cc_emails:
+            mail_vals['email_cc'] = ', '.join(cc_emails)
+        self.env['mail.mail'].sudo().create(mail_vals)
         return True

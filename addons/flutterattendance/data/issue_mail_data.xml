@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="issue_mail_developer_team" model="flutterattendance.issue.mail">
+        <field name="name">New Issue - Developer Team</field>
+        <field name="event_type">created</field>
+        <field name="sequence">10</field>
+        <field name="subject">New Issue Raised - {issue_number}</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="issue_mail_employee_resolved" model="flutterattendance.issue.mail">
+        <field name="name">Issue Resolved - Employee</field>
+        <field name="event_type">resolved</field>
+        <field name="sequence">20</field>
+        <field name="subject">Your Issue Has Been Resolved - {issue_number}</field>
+        <field name="body_html"><![CDATA[<p>Good news -- the issue you reported has just been marked as resolved.</p><p>Details are below. Reply here or raise a new ticket if anything still needs attention.</p>]]></field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

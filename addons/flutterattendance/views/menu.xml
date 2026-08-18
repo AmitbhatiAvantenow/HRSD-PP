@@ -23,11 +23,34 @@
               action="action_flutterattendance_face_approval"
               sequence="25"/>
 
+    <menuitem id="menu_flutterattendance_issue"
+              name="Issues Request"
+              parent="menu_flutterattendance_root"
+              action="action_flutterattendance_issue"
+              sequence="27"/>
+
     <menuitem id="menu_flutterattendance_shift"
               name="Shifts"
               parent="menu_flutterattendance_root"
               action="action_flutterattendance_shift"
               sequence="30"/>
+
+    <menuitem id="menu_flutterattendance_mail_root"
+              name="Mail"
+              parent="menu_flutterattendance_root"
+              sequence="35"/>
+
+    <menuitem id="menu_flutterattendance_attendance_mail"
+              name="Attendance Mail"
+              parent="menu_flutterattendance_mail_root"
+              action="action_flutterattendance_attendance_mail"
+              sequence="10"/>
+
+    <menuitem id="menu_flutterattendance_issue_mail"
+              name="Issue Notifications"
+              parent="menu_flutterattendance_mail_root"
+              action="action_flutterattendance_issue_mail"
+              sequence="20"/>
 
     <menuitem id="menu_flutterattendance_settings"
               name="Settings"

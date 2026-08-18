@@ -68,7 +68,10 @@ invoice form.
 ### Deductions *(Staff Augmentation layout only)*
 - **CCW Deduction (%)** — pre-filled from the company default, editable.
 - CCW Deduction Amount and Final Assessable Value are computed
-  automatically from the invoice lines' subtotal.
+  automatically from Hourly Rate x Hours Worked, and — with a single
+  product line on the invoice — applied as that line's discount, so the
+  invoice's real Untaxed Amount / Total / Amount Due match the Final
+  Assessable Value too (see §6).
 
 ### Export / Compliance
 - **Supply under LUT** — tick for export invoices without IGST; reveals
@@ -107,13 +110,18 @@ USD, EUR, AED, ...) — nothing extra to configure per currency.
 
 ## 6. Important note on the CCW deduction
 
-The CCW deduction and the resulting "Total Payable" figure on the PDF
-are **informational/print-only**. They do not change Odoo's actual tax
-computation or ledger postings — the real GST (CGST/SGST/IGST) and
-accounting total still come from the taxes on your invoice lines, exactly
-as before. If you later want the deduction to actually post to the books
-instead of just appearing on the printed document, that needs a separate
-change to the tax/accounting setup.
+For the Staff Augmentation layout, entering **Hourly Rate**, **Days
+Worked** / **Hours per Day** and a **CCW Deduction (%)** drives the real
+invoice line: quantity = Hours Worked, unit price = Hourly Rate, and the
+CCW % is applied as the line's discount. That means the actual accounting
+totals (Untaxed Amount / Total / Amount Due on the invoice, and the taxes
+computed on it) already reflect the Final Assessable Value shown on the
+Extended Invoice PDF — the printed "Total Payable" and Odoo's own "Amount
+Due" match. This only applies when there's a single product line on the
+invoice; with multiple product lines the fields still compute and print
+correctly, but quantity/price/discount aren't auto-synced onto any one
+line, so set the line(s) directly if you're not using the single-line
+convenience path.
 
 ## 7. Field reference (technical)
 
@@ -130,7 +138,7 @@ All new fields live on `account.move` unless noted, and are all optional
 | `hourly_rate` | Monetary |
 | `hours_worked` | Float (computed) |
 | `ccw_deduction_percent` | Float |
-| `ccw_deduction_amount`, `final_assessable_value`, `extended_grand_total` | Monetary (computed) |
+| `gross_assessable_value`, `ccw_deduction_amount`, `final_assessable_value`, `extended_grand_total` | Monetary (computed) |
 | `is_export_under_lut` | Boolean |
 | `lut_arn` | Char |
 | `reverse_charge_applicable` | Selection: `yes` / `no` |

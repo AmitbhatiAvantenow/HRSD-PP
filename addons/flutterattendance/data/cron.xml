@@ -19,4 +19,14 @@
         <field name="interval_type">minutes</field>
         <field name="active">True</field>
     </record>
+
+    <record id="ir_cron_flutterattendance_attendance_mail" model="ir.cron">
+        <field name="name">Flutter Attendance: Send End-of-Day Attendance Mail</field>
+        <field name="model_id" ref="model_flutterattendance_attendance_mail"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_send_daily_attendance_mail()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
 </odoo>

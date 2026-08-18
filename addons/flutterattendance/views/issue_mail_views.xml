@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutterattendance_issue_mail_list" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.mail.list</field>
+        <field name="model">flutterattendance.issue.mail</field>
+        <field name="arch" type="xml">
+            <list string="Issue Notification Mail">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="event_type" widget="badge"/>
+                <field name="to_employee_ids" widget="many2many_tags" optional="show"/>
+                <field name="last_sent_at" optional="show"/>
+                <field name="last_sent_status" optional="show"/>
+                <field name="active" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutterattendance_issue_mail_form" model="ir.ui.view">
+        <field name="name">flutterattendance.issue.mail.form</field>
+        <field name="model">flutterattendance.issue.mail</field>
+        <field name="arch" type="xml">
+            <form string="Issue Notification Mail">
+                <header>
+                    <button name="action_send_test" type="object" string="Send Test Mail"
+                            class="btn-secondary"
+                            help="Sends a one-off test copy (built from the most recent issue) to your own email address."/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. New Issue - Developer Team"/></h1>
+                        <field name="event_type" widget="radio"/>
+                    </div>
+                    <group>
+                        <group string="Status">
+                            <field name="active"/>
+                            <field name="last_sent_at"/>
+                            <field name="last_sent_status"/>
+                        </group>
+                    </group>
+                    <group string="Recipients">
+                        <group invisible="event_type == 'resolved'">
+                            <field name="to_employee_ids" widget="many2many_tags"/>
+                            <field name="to_email_extra" placeholder="dev-team@company.com"/>
+                        </group>
+                        <group>
+                            <field name="cc_employee_ids" widget="many2many_tags"
+                                   help="CC'd on every mail this sends."/>
+                            <field name="cc_email_extra" placeholder="hr@company.com"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="event_type != 'resolved'">
+                        Fires the moment a ticket's Status is set to Resolved, and always goes to the
+                        employee who raised that ticket, sent to their Work Email -- To (Employees)
+                        above is ignored for this type.
+                    </div>
+                    <notebook>
+                        <page string="Mail Content">
+                            <field name="subject"/>
+                            <field name="body_html" widget="html" options="{'style-inline': true}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_flutterattendance_issue_mail" model="ir.actions.act_window">
+        <field name="name">Issue Notifications</field>
+        <field name="res_model">flutterattendance.issue.mail</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Set up who gets notified about Issue Request tickets.
+            </p>
+            <p>
+                New Issue Raised fires the instant an employee submits an issue via the mobile app, and
+                goes to the To/Cc recipients configured -- typically the developer team.
+                Issue Resolved fires the instant a ticket's Status is set to Resolved, and always goes to
+                the employee who raised it. Both include the ticket's own details in the body, and To,
+                Cc and the mail body are fully configurable per entry.
+            </p>
+        </field>
+    </record>
+</odoo>

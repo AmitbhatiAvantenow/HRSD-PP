@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="attendance_mail_ceo" model="flutterattendance.attendance.mail">
+        <field name="name">CEO/Major Person Attendance</field>
+        <field name="mail_type">summary</field>
+        <field name="sequence">10</field>
+        <field name="send_time">18.1667</field>
+        <field name="subject">End of Day Attendance Report - {date}</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="attendance_mail_employee" model="flutterattendance.attendance.mail">
+        <field name="name">Employee Daily Attendance</field>
+        <field name="mail_type">employee</field>
+        <field name="sequence">20</field>
+        <field name="send_time">18.1667</field>
+        <field name="subject">Your Attendance Summary - {date}</field>
+        <field name="body_html"><![CDATA[<p>Here's your check-in / check-out summary for today.</p><p>The full detail (GPS, distance, your comments) is attached as an Excel export.</p>]]></field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
