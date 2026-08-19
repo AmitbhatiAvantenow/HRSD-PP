@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_flutternotification_push_log"
+              name="Push Notification Log"
+              parent="flutterattendance.menu_flutterattendance_root"
+              action="action_flutternotification_push_log"
+              sequence="50"/>
+</odoo>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_flutternotification_push_log_list" model="ir.ui.view">
+        <field name="name">flutternotification.push_log.list</field>
+        <field name="model">flutternotification.push_log</field>
+        <field name="arch" type="xml">
+            <list string="Push Notification Log" create="false" edit="false" delete="false"
+                  decoration-danger="state == 'failed'" decoration-muted="state == 'skipped_no_token'">
+                <field name="create_date"/>
+                <field name="employee_id"/>
+                <field name="device_id"/>
+                <field name="kind"/>
+                <field name="platform"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'sent'"
+                       decoration-danger="state == 'failed'"
+                       decoration-muted="state == 'skipped_no_token'"/>
+                <field name="provider_status_code"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_flutternotification_push_log_form" model="ir.ui.view">
+        <field name="name">flutternotification.push_log.form</field>
+        <field name="model">flutternotification.push_log</field>
+        <field name="arch" type="xml">
+            <form string="Push Notification Log" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <field name="employee_id"/>
+                        <field name="device_id"/>
+                        <field name="attendance_id"/>
+                        <field name="kind"/>
+                        <field name="platform"/>
+                        <field name="state"/>
+                        <field name="provider_status_code"/>
+                    </group>
+                    <group>
+                        <field name="provider_response"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_flutternotification_push_log_search" model="ir.ui.view">
+        <field name="name">flutternotification.push_log.search</field>
+        <field name="model">flutternotification.push_log</field>
+        <field name="arch" type="xml">
+            <search string="Push Notification Log">
+                <field name="employee_id"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="sent" string="Sent" domain="[('state', '=', 'sent')]"/>
+                <separator/>
+                <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_flutternotification_push_log" model="ir.actions.act_window">
+        <field name="name">Push Notification Log</field>
+        <field name="res_model">flutternotification.push_log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_flutternotification_push_log_search"/>
+    </record>
+</odoo>

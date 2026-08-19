@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_cron_flutternotification_push_checkout_backup" model="ir.cron">
+        <field name="name">Flutter Notification: Backup Push for Missed Checkouts</field>
+        <field name="model_id" ref="model_flutternotification_attendance_push_cron"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_push_checkout_backup()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>
