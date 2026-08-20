@@ -2,6 +2,7 @@ import base64
 import binascii
 import json
 import logging
+from datetime import datetime, timedelta
 
 from odoo import fields, http
 from odoo.http import request
@@ -117,6 +118,35 @@ def _face_settings(env):
     return threshold, max_attempts
 
 
+def _resolve_event_time(data, not_before=None):
+    """Parses an optional client-supplied 'event_time' (UTC ISO 8601 — the
+    moment a geofence-exit was actually detected on-device, see geoattend's
+    geofence_service.dart) and uses it in place of server-receipt time when
+    it passes sanity checks. Without this, a check-out completed long after
+    the employee actually left the office (e.g. they only tap the "forgot
+    to check out?" notification an hour later) would record that later tap
+    time as check_out_time instead of the true exit moment.
+
+    Falls back to fields.Datetime.now() — the only behavior before this —
+    for anything missing, malformed, in the future beyond plausible clock
+    skew, implausibly old (a badly-set device clock), or before check-in.
+    Never blocks the request over a bad value here.
+    """
+    now = fields.Datetime.now()
+    raw = data.get('event_time')
+    if not raw:
+        return now
+    try:
+        parsed = datetime.fromisoformat(str(raw).replace('Z', '+00:00')).replace(tzinfo=None)
+    except (ValueError, TypeError):
+        return now
+    if parsed > now + timedelta(minutes=5) or parsed < now - timedelta(hours=48):
+        return now
+    if not_before and parsed < not_before:
+        return now
+    return parsed
+
+
 class FlutterAttendanceController(http.Controller):
 
     @http.route('/api/check-in', type='http', auth='public', methods=['POST'], csrf=False, cors='*')
@@ -183,7 +213,7 @@ class FlutterAttendanceController(http.Controller):
         _register_device(request.env, employee, data)
         photo_bytes = _decode_photo(data.get('photo'))
         vals = {
-            'check_out_time': fields.Datetime.now(),
+            'check_out_time': _resolve_event_time(data, not_before=record.check_in_time),
             'checkout_latitude': latitude,
             'checkout_longitude': longitude,
             'checkout_address': data.get('address'),

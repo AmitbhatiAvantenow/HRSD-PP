@@ -11,7 +11,11 @@ class ResConfigSettings(models.TransientModel):
              "needed only so the Android app can obtain an FCM token — Odoo sends "
              "pushes directly via FCM's REST API, not the Firebase Admin SDK.",
     )
-    flutternotification_firebase_service_account_json = fields.Text(
+    # res.config.settings only allows boolean/integer/float/char/selection/
+    # many2one/datetime fields (see odoo/addons/base/models/res_config.py
+    # _get_classified_fields) — Text isn't supported there, even though
+    # Char is unbounded in Postgres just like Text, so nothing is lost.
+    flutternotification_firebase_service_account_json = fields.Char(
         string='Firebase Service Account JSON',
         config_parameter='flutternotification.firebase_service_account_json',
         help="Paste the full JSON key downloaded from Firebase Console > Project "
@@ -29,7 +33,7 @@ class ResConfigSettings(models.TransientModel):
         string='iOS Bundle ID',
         config_parameter='flutternotification.apns_bundle_id',
     )
-    flutternotification_apns_p8_key = fields.Text(
+    flutternotification_apns_p8_key = fields.Char(
         string='APNs Auth Key (.p8)',
         config_parameter='flutternotification.apns_p8_key',
         help="Paste the contents of the .p8 key file downloaded from Apple Developer > "

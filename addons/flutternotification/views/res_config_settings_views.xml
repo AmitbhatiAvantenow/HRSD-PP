@@ -8,16 +8,22 @@
             <xpath expr="//block[@name='employees_setting_container']" position="inside">
                 <setting id="flutternotification_fcm_setting" string="Push Notifications (Android / FCM)"
                          help="A free Firebase console project is needed only so the Android app can
-                               obtain an FCM token — Odoo sends pushes directly via FCM's REST API.">
-                    <field name="flutternotification_firebase_project_id"/>
-                    <field name="flutternotification_firebase_service_account_json" widget="text"/>
+                               obtain an FCM token — Odoo sends pushes directly via FCM's REST API.
+                               Fields below, top to bottom: Firebase Project ID, then the full
+                               Service Account JSON key.">
+                    <field name="flutternotification_firebase_project_id" placeholder="Firebase Project ID, e.g. qaaone-94754"/>
+                    <field name="flutternotification_firebase_service_account_json" widget="text"
+                           placeholder="Service Account JSON — paste the full key from Firebase Console &gt; Project Settings &gt; Service Accounts"/>
                 </setting>
                 <setting id="flutternotification_apns_setting" string="Push Notifications (iOS / APNs)"
-                         help="Direct Apple Push Notification service — no Firebase project needed for iOS.">
-                    <field name="flutternotification_apns_key_id"/>
-                    <field name="flutternotification_apns_team_id"/>
-                    <field name="flutternotification_apns_bundle_id"/>
-                    <field name="flutternotification_apns_p8_key" widget="text"/>
+                         help="Direct Apple Push Notification service — no Firebase project needed for
+                               iOS. Fields below, top to bottom: APNs Key ID, Apple Team ID, iOS Bundle
+                               ID, then the Auth Key (.p8) contents.">
+                    <field name="flutternotification_apns_key_id" placeholder="APNs Key ID"/>
+                    <field name="flutternotification_apns_team_id" placeholder="Apple Team ID"/>
+                    <field name="flutternotification_apns_bundle_id" placeholder="iOS Bundle ID, e.g. com.qaagility.hrsd"/>
+                    <field name="flutternotification_apns_p8_key" widget="text"
+                           placeholder="Auth Key (.p8) — paste the contents of the downloaded key file"/>
                     <div class="d-flex">
                         <field name="flutternotification_apns_use_sandbox" class="ml16"/>
                         <label for="flutternotification_apns_use_sandbox" class="o_light_label"/>
